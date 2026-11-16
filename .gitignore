@@ -1,0 +1,13 @@
+# Environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Build output
+dist/
+build/
+
+# Raw experiment runs; curated summaries go in results/
+runs/

@@ -92,6 +92,15 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## Current tooling status
 
-The repository is documentation-only. No Python package, uv environment, pre-commit hooks, or CI workflow is configured yet. The commands and tooling requirements above apply when implementation begins; they are not claims of existing checks.
+The uv project, Ruff, pytest, pre-commit hooks, and CI are configured. Python 3.13 or later is required; `.python-version` selects 3.13 for development and CI.
+
+```bash
+uv sync --locked                             # restore the locked environment
+uv run --locked pre-commit install           # install git hooks once per clone
+uv run --locked pre-commit run --all-files   # Ruff lint and format, hygiene checks
+uv run --locked pytest                       # bounded CPU tests
+```
+
+CI runs the same checks with the locked environment on every pull request and push to `main`. No experiment runner or result exists yet.
 
 Start with the [first implementation slice](EXPERIMENTS.md#first-implementation-slice), not a speculative scaffolding exercise.

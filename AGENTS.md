@@ -4,19 +4,17 @@ Guidance for coding agents working in this repository. [CONTRIBUTING.md](CONTRIB
 
 ## Current state
 
-The repository is documentation-only: no Python package, uv environment, tests, pre-commit hooks, or CI exist. Do not invent commands or report checks as passing. The implementation layout in EXPERIMENTS.md is a target, not existing files.
-
-When the first executable experiment lands, CONTRIBUTING.md requires uv, Ruff, pytest, and pre-commit. Expected commands then:
+The uv project, Ruff, pytest, pre-commit hooks, and CI are configured; no experiment runner or result exists yet. The layout in EXPERIMENTS.md is a target, not existing files. Do not report a check as passing without running it.
 
 ```bash
-uv sync --locked                                         # restore the locked environment
+uv sync --locked                                         # restore the locked environment (Python 3.13+)
+uv run --locked pre-commit install                       # install git hooks once per clone
+uv run --locked pre-commit run --all-files               # Ruff lint and format, hygiene checks
 uv run --locked pytest                                   # bounded CPU test suite
 uv run --locked pytest tests/path/test_x.py::test_name   # one test
-uv run --locked ruff check . && uv run --locked ruff format --check .
-uv run --locked pre-commit run --all-files
 ```
 
-In the same change that adds `pyproject.toml`, replace this section with the real commands and update "Current tooling status" in CONTRIBUTING.md and the documentation-only statement in README.md.
+CI (`.github/workflows/ci.yml`) runs the same locked sync, hooks, and tests on pull requests and pushes to `main`. The Ruff hooks run from the locked environment, so `uv.lock` is the only place its version is pinned. Add dependencies with `uv add` or `uv add --dev` and commit `uv.lock` with them.
 
 ## Documents
 
@@ -60,4 +58,4 @@ The documents are precise about evidence class, and edits must preserve it:
 - Keep runs small and CPU-only by default. Model downloads, GPU sweeps, training, paid compute, and network-dependent tests need explicit approval.
 - Follow the [commit message rules](CONTRIBUTING.md#6-write-informative-commit-messages): at most one experiment per commit, results committed separately after the code that produced them, and a `Co-Authored-By:` trailer for substantial agent-written changes.
 - When explaining a new concept, machine, or experiment, in documents, pull requests, or replies, include a diagram as code per [CONTRIBUTING.md](CONTRIBUTING.md#11-explain-visually).
-- Raw runs go under `runs/` (add it to `.gitignore` with the first runner); curated summaries go under `results/` per the [run-record contract](EXPERIMENTS.md#run-records-and-results).
+- Raw runs go under the ignored `runs/` directory; curated summaries go under `results/` per the [run-record contract](EXPERIMENTS.md#run-records-and-results).

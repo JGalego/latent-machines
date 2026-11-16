@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.12.20"
+          enable-cache: true
+      - name: Restore locked environment
+        run: uv sync --locked
+      - name: Format, lint, and hygiene checks
+        run: uv run --locked pre-commit run --all-files --show-diff-on-failure
+      - name: Bounded CPU tests
+        run: uv run --locked pytest
