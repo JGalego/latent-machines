@@ -8,9 +8,23 @@ authors = [{ name = "João Galego" }]
 requires-python = ">=3.13"
 dependencies = []
 
+[project.optional-dependencies]
+torch-cpu = [
+    "torch>=2.15.0",
+]
+
 [build-system]
 requires = ["uv_build>=0.12.20,<0.13.0"]
 build-backend = "uv_build"
+
+# CPU-only PyTorch wheels; the default PyPI wheels bundle CUDA.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP"]

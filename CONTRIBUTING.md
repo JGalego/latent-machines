@@ -95,12 +95,12 @@ These guidelines apply to code, experiments, results, documentation, and automat
 The uv project, Ruff, pytest, pre-commit hooks, and CI are configured. Python 3.13 or later is required; `.python-version` selects 3.13 for development and CI.
 
 ```bash
-uv sync --locked                             # restore the locked environment
+uv sync --locked --extra torch-cpu           # restore the locked environment
 uv run --locked pre-commit install           # install git hooks once per clone
 uv run --locked pre-commit run --all-files   # Ruff lint and format, hygiene checks
 uv run --locked pytest                       # bounded CPU tests
 ```
 
-CI runs the same checks with the locked environment on every pull request and push to `main`. No experiment runner or result exists yet.
+The `torch-cpu` extra adds CPU-only PyTorch for tensor backends; the machine oracles need no runtime dependencies. CI runs the same checks with the locked environment on every pull request and push to `main`. No experiment runner or result exists yet.
 
 Start with the [first implementation slice](EXPERIMENTS.md#first-implementation-slice), not a speculative scaffolding exercise.
