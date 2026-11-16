@@ -82,6 +82,14 @@ These guidelines apply to code, experiments, results, documentation, and automat
 - Use small, local, bounded defaults. Downloads, paid compute, long jobs, and external services must require explicit opt-in.
 - Cite primary sources and respect code, model, and dataset licenses. Do not copy upstream code without checking its reuse terms.
 
+## 11. Explain visually
+
+- Accompany each new concept, machine, experiment, or data flow with a diagram when structure carries the meaning: state transitions, event order, ownership between axes, experiment arms and controls, and dependencies.
+- Write diagrams as code: [Mermaid](https://mermaid.js.org/) blocks in Markdown, which GitHub renders in files, issues, and pull requests. Place each next to the prose it illustrates. Do not commit exported or binary diagrams that cannot be reviewed in a diff.
+- Show one idea per diagram, use the same names as the code and documents, and keep it small enough to read without zooming.
+- The text stays authoritative. A diagram illustrates a specification but does not replace it; update both in the same change.
+- Generate result figures from run records with a committed script, never by hand, and name the script and run in the report that uses them.
+
 ## Current tooling status
 
 The repository is documentation-only. No Python package, uv environment, pre-commit hooks, or CI workflow is configured yet. The commands and tooling requirements above apply when implementation begins; they are not claims of existing checks.

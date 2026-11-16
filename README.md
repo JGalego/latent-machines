@@ -41,7 +41,7 @@ This repository currently contains documentation only. The implementation layout
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for code style and research standards: minimal code and dependencies, uv, pre-commit, small frequent commits, commit messages, reproducible experiments, and mandatory result verification.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for code style and research standards: minimal code and dependencies, uv, pre-commit, small frequent commits, commit messages, diagrams as code, reproducible experiments, and mandatory result verification.
 
 ## License
 

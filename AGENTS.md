@@ -59,4 +59,5 @@ The documents are precise about evidence class, and edits must preserve it:
 
 - Keep runs small and CPU-only by default. Model downloads, GPU sweeps, training, paid compute, and network-dependent tests need explicit approval.
 - Follow the [commit message rules](CONTRIBUTING.md#6-write-informative-commit-messages): at most one experiment per commit, results committed separately after the code that produced them, and a `Co-Authored-By:` trailer for substantial agent-written changes.
+- When explaining a new concept, machine, or experiment, in documents, pull requests, or replies, include a diagram as code per [CONTRIBUTING.md](CONTRIBUTING.md#11-explain-visually).
 - Raw runs go under `runs/` (add it to `.gitignore` with the first runner); curated summaries go under `results/` per the [run-record contract](EXPERIMENTS.md#run-records-and-results).

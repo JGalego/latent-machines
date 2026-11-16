@@ -54,6 +54,26 @@ assets/
 
 ### Ownership boundaries
 
+```mermaid
+flowchart LR
+    subgraph E["experiments/: compose parts and write run records"]
+        T["tasks/<br/>inputs, ground truth"]
+        C[controller]
+        I["interfaces/<br/>observations, actions"]
+        B["backends/<br/>native, tensor, optimized"]
+        M["machines/<br/>specification, integer oracle"]
+    end
+    T -->|input| C
+    C -->|answer| T
+    C -->|action| I
+    I -->|observation| C
+    I -->|action| B
+    B -->|event| I
+    B -.->|"decoded state (conformance only)"| M
+```
+
+Solid edges are the execution path. The dotted edge exists only for validation: decoded backend state is compared against the oracle and never reaches the controller.
+
 - `machines/` defines legal actions, canonical state, numerical domain, transition order, exits, capacity, and work accounting without depending on a model family or tensor backend.
 - `backends/` owns state encoding, layer-specific lowering, kernels, and conversion to canonical state for conformance and snapshots. Decoding the full state for validation must not leak it to a controller.
 - `interfaces/` owns what the controller can observe, how it requests actions, and how results return. It does not own task answers or executor arithmetic.
