@@ -1,0 +1,355 @@
+# Experiment program
+
+Status: proposed, 2026-11-16. The repository currently contains research documents, not an implementation or reproduced results. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
+
+## Questions and priorities
+
+Separate four axes:
+
+| Axis | Meaning | Example |
+|---|---|---|
+| Machine | Specified state transitions | Addressable memory, bounded stack, finite transducer |
+| Backend | Implementation of those transitions | Conventional code, delta-rule tensors, structured indexed attention |
+| Interface | Controller's observations and actions | Textual tool, typed internal actions, latent feedback |
+| Task | Workload and evaluation distribution | Record updates, nested scopes, graph reachability |
+
+Do not treat every combination as valid. A backend must declare supported semantics and limits, and reject unsupported configurations explicitly. An approximate optimizer or filter can participate only with its own stated numerical contract, not under an exact-RAM label.
+
+Recommended order:
+
+```text
+E00 executor conformance
+  -> E01 exact streaming machines
+       -> E02 learned interface comparison
+            -> E03 latent feedback
+```
+
+E04-E08 are independent follow-on branches after their prerequisites pass, not requirements for the first implementation. A negative result is a result: report it before adding a larger model or a more elaborate compiler.
+
+## Repository organization
+
+Keep the current research documents at the root. Add implementation directories only when they contain a working experiment; the following is a target layout, not a list of existing files:
+
+```text
+README.md
+RESEARCH.md
+EXPERIMENTS.md
+pyproject.toml                  # add with the first executable experiment
+uv.lock
+src/latent_machines/
+  machines/                    # specifications and independent integer oracles
+  backends/                    # native, tensor, then optimized implementations
+  interfaces/                  # controller observations and action transport
+  tasks/                       # generators, trace labels, splits, task metrics
+  experiments/                 # small runnable E00, E01, ... entry points
+tests/
+  machines/                    # semantics, bounds, faults, snapshot/restore
+  backends/                    # stepwise conformance and backend differences
+  interfaces/                  # observation/action parity and feedback behavior
+configs/                       # small versioned settings, when variation requires them
+results/                       # curated reports and compact run manifests
+runs/                          # ignored raw runs, traces, snapshots, local checkpoints
+assets/
+```
+
+### Ownership boundaries
+
+- `machines/` defines legal actions, canonical state, numerical domain, transition order, exits, capacity, and work accounting without depending on a model family or tensor backend.
+- `backends/` owns state encoding, layer-specific lowering, kernels, and conversion to canonical state for conformance and snapshots. Decoding the full state for validation must not leak it to a controller.
+- `interfaces/` owns what the controller can observe, how it requests actions, and how results return. It does not own task answers or executor arithmetic.
+- `tasks/` owns input generation, ground truth, trace supervision, and split construction. It cannot change machine semantics for a backend.
+- `experiments/` composes those parts and writes results. Do not duplicate the machine or metric implementations in notebooks or one-off benchmark scripts.
+- `tests/` contains bounded regression and conformance checks. Long precision sweeps and performance measurements are explicit experiments, not default unit tests.
+
+Use Python and an integer reference implementation for the first harness, with PyTorch only when the tensor backend is added. Pin the actual dependencies and interpreter requirements then. A Python oracle is not an optimized native-performance baseline; introduce and label a suitable conventional implementation before claiming speed advantages.
+
+Do not start with a general compiler, plugin registry, training framework, Rust runtime, or a full ISA. Two concrete machines and backends should establish which abstractions are worth sharing. Keep differences in state semantics visible rather than hiding them behind one overly permissive `step`.
+
+### First implementation slice
+
+1. Add the uv-managed package and lockfile, focused tests, an integer memory oracle, pinned pre-commit hooks, and fast CPU CI.
+2. Specify fixed capacity, word domain, reads/writes, invalid-address behavior, event ordering, and non-mutating faults.
+3. Implement an explicit eager delta-rule tensor backend with the same observations and actions. Validate every step, not just the final answer.
+4. Add an E00 entry point, a small default run, and the result records described below.
+5. Add one compiled finite-state transducer and a bounded stack for E01.
+6. Only then add a small LM, a frozen-base/learned-action-head baseline, and E02. Record exactly what is trained; unfreeze more only as a separate ablation.
+
+Keep CPU runs small by default. GPU sweeps, model downloads, paid jobs, and long training runs must be explicit and separately budgeted.
+
+## Shared execution and evidence contracts
+
+These are semantic requirements, not a frozen public Python API.
+
+### Machine transitions
+
+Specify `(state, action) -> (next_state, event, work)` with:
+
+- A finite action set or typed argument schema and validation rules.
+- Canonical state and a representation/version identifier.
+- `continue`, `output`, `halt`, `fault`, `host_exit`, and `budget_exhausted` where applicable. A machine may support a smaller explicit set.
+- The order of reads, computation, writes, and faults. Invalid actions cannot silently clamp or mutate state unless that behavior is explicitly the specification.
+- Capacity and overflow behavior, integer widths or fixed-point scales, and the meaning of each work unit.
+- Snapshot/restore at declared boundaries, including pending work if an operation spans ticks.
+
+A tick is an execution step, not necessarily a logical operation or CPU instruction. Budget enforcement must say whether an operation can be interrupted, resumed, or rejected when insufficient budget remains.
+
+Reference, dense tensor, and fused backends should produce the same canonical transitions within their shared contract. A native shortcut may implement equivalent semantics; it is not evidence that the actual emitted checkpoint has executed correctly. Test emitted layers separately when they exist.
+
+### Controller and interface
+
+Hold constant across interface variants:
+
+- The information available, action semantics, value precision, capacity, stopping rules, and error messages.
+- Task data, split definitions, base-model initialization, training-data budget, trainable-parameter accounting, and search/tuning budget.
+- Logical machine-work limits; text-token and internal-tick limits must be recorded separately.
+
+Interfaces can have different encodings, but compare them over the same underlying observations. State dumps, reference answers, teacher-forced actions, or privileged scratch variables cannot be supplied only to the internal interface.
+
+Use oracle action replay to isolate executor cost, and free-running learned control to measure the full system. Label teacher forcing and oracle routing clearly; neither establishes autonomous reliability.
+
+### Numerical conformance
+
+Record weights, activations, accumulators, stored state, and index/key precision separately. Check:
+
+- Gate endpoints, long idle retention, repeated overwrite, and untouched-slot preservation.
+- Read-after-write ordering and key collisions.
+- Query/key and output normalization, including one-, two-, four-, and eight-hot cases where the backend permits them.
+- Reductions, cancellation, intermediate casts, overflow, and fixed-point scaling.
+- Recurrent versus chunked kernels and eager versus optimized execution.
+- Batch composition and supported devices.
+
+The pass condition for an exact backend is zero canonical-state, event, and output mismatches on the declared suite. Numerical residue should also be recorded before canonicalization so thresholding cannot conceal a shrinking safety margin. Passing this finite suite is conformance evidence, not a universal proof.
+
+An approximate backend must declare a reference, error metric, tolerance, horizon, and failure policy before running. Report it separately.
+
+## Experiments
+
+### E00 - Memory and transition conformance
+
+**Question:** which layer families actually implement the required storage semantics on the chosen execution path?
+
+**Prerequisites:** none. Begin with the integer oracle and explicit GDN-style recurrence; a full pretrained model is unnecessary.
+
+**Variants:** delta replacement; KDA channel gates; RWKV-7; Mamba-2/SSD-style scalar-decay SSM with and without explicit read-modify-write; Mamba-3 complex-valued state evolution as a separate SSM variant; LSTM/GRU gated vector state as a small register file; append-only history with dense lookup. Add Percepta-style indexed hard-max lookup as a distinct variant only when its key, query, tie, and update assumptions are specified. Report each SSM variant separately; a scalar-decay result does not characterize other SSMs.
+
+**Workloads:** overwrite the same slot repeatedly, alternate addresses, preserve untouched slots, idle for long horizons, clear selected regions, hit capacity, and request invalid addresses. For histories, include duplicate keys, equal-score ties, and repeated latest-write queries.
+
+**Acceptance:** zero mismatches against the matching reference semantics; snapshot/resume agrees with uninterrupted execution. Unsupported reset or overwrite behavior must be reported, not emulated invisibly or scored against the wrong contract.
+
+**Measurements:** first mismatch, pre-canonicalization residue, state and index bytes, retained history, memory traffic estimates, ticks per action, and latency versus capacity and horizon. Compare the actions and work KDA needs to clear a selected region against GDN delta replacement; channel-wise retention is a hypothesized saving, not an assumed one. Start with small bounded tests; run named longer sweeps at 10^3, 10^5, and 10^6 actions only as resources permit.
+
+**Discriminator:** a layer that cannot preserve unaddressed state or expose a value through its real normalization path is not a conforming RAM backend, even if a toy update equation works.
+
+### E01 - Exact streaming machines and transition algebras
+
+**Question:** can useful specified algorithms run directly without a general-purpose CPU?
+
+**Prerequisite:** E00 for each stateful backend used. A backend used here only for state tracking, not as addressed memory, needs E00's retention, idle, and snapshot checks for its declared state rather than RAM conformance.
+
+**Targets:** one-hot finite transducers, parity and modular counters, mutable-record assignment, permutation tracking, and one bounded stack parser. Test simple cyclic groups before larger permutation tasks; do not assume theory implies a particular low-precision encoding.
+
+**Variants:** ordinary transition code; compiled lookup circuits with explicit feedback; direct signed, reflection, and rotation recurrences where representable (DeltaProduct, Complex KDA, RWKV-7, Mamba-3); and LSTM/GRU cells as compiled finite transducers. Build lookup circuits with piecewise-linear (ReLU/ReGLU) and smooth (SwiGLU) activations as separately labeled constructions. Compare constrained gate ranges with extended ones only as separately labeled architectures.
+
+**Acceptance:** full state/output equivalence, explicit stack overflow and underflow, correct boundary behavior, and identical snapshot/resume. Compare the same input sequence and transition semantics across variants.
+
+**Measurements:** circuit width/depth, nonzero and stored weights, state bytes, ticks, total work, and the smallest margin between a smooth or saturating activation and its intended discrete value. Test longer input sequences within fixed capacity separately from increasing stack depth or number of states.
+
+**Discriminator:** establish whether a backend executes assignment, self-referential updates, or permutations directly, or pays for additional nonlinear feedback steps. Count a transition as supported only when it executes exactly at the tested precision and horizon, not because the architecture can represent it in theory.
+
+### E02 - Learned interface comparison
+
+**Question:** does an internal machine interface help a learned controller, and does compiling the machine add anything beyond native integration?
+
+**Prerequisites:** E00 and E01. This is the first learned-controller study, not a prerequisite for executor research.
+
+Compare:
+
+| Arm | Interface | Executor |
+|---|---|---|
+| A | No machine | Model only |
+| B | Textual tool requests and replies | Conventional in-process implementation |
+| C | Typed internal observations and actions | Conventional in-process implementation |
+| D | Same internal interface as C | Conforming compiled tensor implementation |
+
+Use the same small memory or bounded stack in B-D. Do not penalize B with unnecessary subprocess or network overhead. Separate any optional remote-tool comparison.
+
+**Tasks:** nested scopes or record updates; supervised action traces first, then free-running control. Separate in-distribution evaluation, longer sequences at fixed capacity, unseen operation compositions, and explicit capacity changes.
+
+**Validity constraints:** action masking or another mechanism that restricts learned actions to valid machine states is a separately labeled ablation. Apply it identically across B-D, using constrained decoding over the same action set for B. Report its effect on invalid-action rate, task accuracy, and training cost.
+
+**Acceptance:** report executor equivalence independently from task and action accuracy. Invalid-action rate, recovery, halting, and budget exhaustion are outcomes, not examples to discard. Multiple training seeds and paired held-out task instances are required before comparative conclusions.
+
+**Measurements:** task accuracy, action accuracy, executor mismatches, trainable parameters, training examples/steps, generated tokens, internal actions, machine work, wall time, and peak memory.
+
+**Discriminator:** C versus B tests the interface; D versus C tests the implementation. A positive D-versus-A result alone does not identify either cause. A native-interface win is still useful.
+
+### E03 - Latent ticks and explicit events
+
+**Question:** does an explicit non-text feedback path improve cost or control without changing the available information or permitted computation?
+
+**Prerequisites:** E01 and E02, including the native internal baseline.
+
+**Variants:** token feedback, repeated latent transitions, and a conventional in-process loop over the same machine. Declare where late-computed control reenters the next tick, whether learned context is frozen, and which recurrent caches update.
+
+**Acceptance:** bounded stepping, deterministic events, precise faults, and snapshot/resume during multi-tick actions. Hiding trace tokens without a new feedback path is not a latent-execution implementation.
+
+**Measurements:** embedding/unembedding cost, controller and executor time, context/cache growth, internal state, ticks, and total logical work. Match observation and work budgets rather than declaring non-text computation free.
+
+**Discriminator:** improvements must survive comparison with an efficient native loop and cannot come solely from providing hidden privileged state.
+
+### E04 - Dataflow, specialization, and conditional units
+
+**Question:** is direct scheduling a better fit than scalar interpretation?
+
+**Prerequisites:** E00 and E01; no learned controller required for replayed workloads.
+
+**Targets:** an arithmetic expression DAG, a bounded integer dot product, and a small gather/map/reduce/scatter workload.
+
+**Variants:** conventional algorithm; scalar-machine implementation; direct compiled graph; optional vector units, sparse expert dispatch, and program-specialized weights. Keep specialization and dispatch as separate ablations.
+
+**Acceptance:** identical arithmetic domain, overflow rules, ties, outputs, and fault/work semantics. No expert may drop a required operation. Fused blocks need precise exits or explicit supported safepoints.
+
+**Measurements:** construction and compilation time, checkpoint bytes including padding, runtime state, dispatch cost, work units, throughput, latency, and the invocation count needed to amortize specialization.
+
+**Discriminator:** compare against optimized conventional arithmetic, not just a deliberately slow interpreter. QwenPU and Percepta specialization are precedents, not results from this repository.
+
+### E05 - Graph, semiring, and logic execution
+
+**Question:** can a small exact relational/message-passing machine replace scalar instruction dispatch for suitable workloads?
+
+**Prerequisites:** E00 plus a declared bounded Boolean or integer arithmetic contract.
+
+**Targets:** Boolean reachability first; then bounded min-plus shortest paths; finally a small positive finite-domain Datalog program.
+
+**Variants:** conventional sparse algorithms, direct tensor/sparse reductions, and scalar-machine execution where available. Keep learned GNNs or embedding-space reasoning separate from exact kernels.
+
+**Acceptance:** all relation entries or distances match the oracle, including disconnected vertices and ties. Define infinity sentinels, negative-cycle policy if applicable, fixed-point stopping, and exhaustion limits.
+
+**Measurements:** graph density, edges processed, iterations, tensor/index bytes, latency, and actual versus padded work.
+
+**Discriminator:** learned approximate answers cannot be counted as exact entailment; dense tensor speedups must be compared at realistic sparse sizes.
+
+### E06 - Spatial and structured dynamical machines
+
+**Question:** when does local or structured state evolution provide a better substrate than random-access emulation?
+
+**Prerequisites:** an integer local-rule oracle for the exact branch, or a declared numerical error contract for the approximate branch.
+
+**Exact branch:** a compiled cellular rule with specified boundaries and simultaneous updates. Compare conventional code, convolution plus lookup, and scalar-machine execution where available. Use double buffering or a proved equivalent schedule.
+
+**Numerical branch:** a specified finite filter or linear dynamical system using a suitable SSM. Compare against conventional numerical code at matched precision and error tolerance; do not pool it with exact cellular results.
+
+**Acceptance:** cell-for-cell equality for exact rules; predeclared horizon/error limits for numerical simulation. Fixed grids and finite filter state must be reported as bounded resources.
+
+**Measurements:** cells or samples per second, generations, state bytes, communication, and boundary-update costs.
+
+**Discriminator:** test the layer's natural operation, not just its ability to imitate RAM through extra feedback.
+
+### E07 - Optimization-defined state updates
+
+**Question:** which optimizer settings preserve useful specified memory or adaptation semantics?
+
+**Prerequisite:** E00 reference traces; an independently specified optimizer for non-RAM variants.
+
+**Variants:** sequential quadratic-loss updates, chunk-start/stale gradients, momentum, decay, normalization, and then nonlinear memory. Change one feature at a time.
+
+**Workloads:** repeated writes to one address inside a chunk, alternating keys, idle retention, and a small online-regression task.
+
+**Acceptance:** the sequential one-hot quadratic case must match replacement semantics when configured accordingly. Other optimizers must match their own update reference; a deviation from RAM is a finding, not necessarily an optimizer bug.
+
+**Measurements:** state including optimizer buffers, update count, read/write interference, task loss, and work per sample.
+
+**Discriminator:** distinguish an exact memory primitive from an adaptive approximate learner.
+
+### E08 - Heuristic search with an exact verifier
+
+**Question:** can neural or energy-based candidate generation improve verified solution yield at a fixed budget?
+
+**Prerequisite:** an independently tested verifier and conventional search baseline; recurrent backends also need the relevant E00 checks.
+
+**Targets:** one small, explicitly specified constraint problem. Compare conventional search, heuristic proposals plus native verification, and the same proposals plus compiled verification.
+
+**Acceptance:** no invalid candidate is accepted on the verifier conformance suite. Report rejection, timeout, and unknown separately from proved unsatisfiable; search failure is not an unsatisfiability proof.
+
+**Measurements:** verified solutions per budget, proposal quality, verifier mismatches, search work, and total latency.
+
+**Discriminator:** separate better proposals from faster verification, and do not infer efficient global optimization from associative-memory convergence.
+
+## Research coverage
+
+Every claim, proposal, and open question in [RESEARCH.md](RESEARCH.md) maps to an experiment, a [scope gate](#gates-for-expanding-scope) that defers it, or context only. When RESEARCH.md gains one, add a row here in the same change.
+
+Layer families appear under the experiments that test their natural primitive, not in one shared experiment. Testing every family against RAM conformance alone would score filters, optimizers, and spatial operators against the wrong contract.
+
+| RESEARCH.md item | Coverage |
+|---|---|
+| Terms, findings, closest systems, foundations, adjacent work | Context, not reproduced here. Specific limits feed experiments: Qwenputer kernel residues → numerical conformance; Percepta indexed lookup → E00; Percepta specialization and QwenPU → E04; Coconut → E03 |
+| Delta-rule memory and its optimization interpretation | E00 delta replacement; E07 sequential one-hot quadratic acceptance |
+| DeltaNet / Gated DeltaNet | E00 reference tensor backend; E01 |
+| Kimi Delta Attention | E00, including clearing cost versus GDN |
+| RWKV-7 | E00 storage; E01 state tracking |
+| DeltaProduct / Complex KDA | E01 signed, reflection, and rotation transitions |
+| Mamba-2 / SSD | E00 with and without read-modify-write; E06 numerical branch |
+| Mamba-3 | E00 separate SSM variant; E01 state tracking |
+| LSTM / GRU | E00 register file; E01 finite transducers |
+| Full attention | E00 append-only history; Percepta indexed variant once specified |
+| MLP / ReGLU / SwiGLU | E01 piecewise-linear versus smooth lookup circuits; E04 arithmetic |
+| Mixture of experts | E04 dispatch ablation |
+| Convolution | E06 exact branch |
+| TTT / Titans | E07 |
+| Frozen MLP "key-value memory" | Context: not writable runtime RAM, so not an E00 variant |
+| Transition algebra | E01 |
+| Streaming transducers, stacks, and parsers | E01 |
+| Dataflow, vector, and conditional functional units | E04 |
+| Graph, semiring, and finite-domain logic | E05 |
+| Cellular automata, systolic arrays, and signal processing | E06 cellular rules and filters; systolic arrays have no separate target yet |
+| Optimizers as machines | E07 |
+| Energy-based search with an exact verifier | E08 |
+| Latent execution feedback contract | E03 |
+| Compiler target and proof-oriented compilation | Deferred: [scope gates](#gates-for-expanding-scope) 4 (shared compiler) and 5 (exactness guarantee) |
+| Numerical and resource limits | Numerical conformance; E00 measurements; correct requests → E02 executor versus action accuracy |
+| First controller experiment | E02 |
+
+| Open question | Coverage |
+|---|---|
+| 1. Typed actions without text serialization | E02 arms C and D, free-running |
+| 2. Benefit over external tools | E02 C versus B |
+| 3. Compiled versus native implementation | E02 D versus C |
+| 4. Constraining learned writes to valid states | E02 validity-constraint ablation |
+| 5. Semantics-preserving dtypes, kernels, and devices | E00; numerical conformance |
+| 6. Joint checkpoint contents | E03 snapshot during multi-tick actions; run-record snapshot artifacts |
+| 7. Transition algebra fit | E00, E01, E06 |
+| 8. Alternatives to scalar instruction execution | E01, E04, E05, E06 |
+| 9. Compiler-generated numerical obligations | Deferred: [scope gate](#gates-for-expanding-scope) 5 (exactness guarantee) |
+| 10. Indexed lookup, specialization, or feedback versus placement | E00 indexed variant; E04 specialization; E03 feedback; E02 D versus C |
+
+## Run records and results
+
+The first runner should write a unique directory under ignored `runs/` containing:
+
+| File | Required content |
+|---|---|
+| `run.json` | Schema version, experiment ID, exact command, source revision and dirty-tree fingerprint, resolved configuration, seeds, input/split digests, model/tokenizer/adaptor identifiers and hashes when present |
+| `metrics.json` | Declared metrics with units, denominators, run status, failures, budgets, and correctness/approximation classification |
+| `trace.jsonl` | Per-transition evidence for bounded validation runs; long sweeps may retain failures plus declared sampling and aggregate checks |
+| `failure.json` | When a failure occurs: reproducible input, action index, expected/actual state difference and event, relevant numerical metadata |
+| Snapshot artifacts | When tested: versioned machine state, controller state, RNG state, pending work, and backend/environment metadata needed to resume |
+
+Environment metadata includes device, library/runtime versions, kernel implementation, compiler settings, deterministic/reduction options, batch shape, and each relevant dtype. Distinguish cold initialization/compilation from steady-state timing and end-to-end time; synchronize asynchronous device work before measuring. Record actual peak memory separately from logical state size.
+
+Write a terminal status even when a run fails; do not emit success-shaped partial results. A replay verifies the declared observations, not the identity or trustworthiness of whoever ran it.
+
+Commit curated summaries and small manifests to `results/`, including failed hypotheses and links to larger artifacts where appropriate. Keep raw traces, downloaded models, generated weights, caches, and local checkpoints out of Git. Do not add a hosted tracking service until there is a concrete need.
+
+Each curated report should state the hypothesis, evidence class, matched controls, source/configuration identifiers, correctness outcomes, uncertainty across task and training seeds where relevant, costs, and the decision made. Report first-mismatch horizons and capacity limits, not just average task accuracy.
+
+## Gates for expanding scope
+
+1. **Before learned control:** the executor passes bounded conformance and snapshot tests.
+2. **Before speed claims:** correctness passes on the exact timed path, and the conventional baseline and budgets are credible.
+3. **Before adding another model family:** a concrete capability gap or hypothesis justifies it.
+4. **Before a shared compiler:** multiple working machines/backends expose a useful common lowering. Preserve an independent oracle.
+5. **Before an exactness guarantee:** distinguish finite testing from proof; define the checker, floating-point assumptions, and trusted runtime. Compiler-generated range/representation obligations are a later research target, not certificates that already exist.
+6. **Before Shem integration:** identify a workload that benefits. Adapt execution/snapshot APIs without forcing graph or spatial state into RV32 registers, or expanding this repository into another container runtime.
+
+The first milestone is modest: one conforming memory backend, one useful exact streaming machine, and reproducible evidence. The first scientific milestone is the E02 interface-versus-implementation result, whether positive or negative.
