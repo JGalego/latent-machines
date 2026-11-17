@@ -37,7 +37,7 @@ The program separates four questions:
 
 Start with executor conformance on a small memory and streaming machine. Then run the four-way controller comparison: no machine, textual tools, internal native execution, and internal compiled tensor execution. Broaden to latent ticks, dataflow, graphs, and spatial machines only after those foundations work.
 
-Implementation follows the [first implementation slice](EXPERIMENTS.md#first-implementation-slice). No experiment has run yet, so the experiments are proposals, not reproduced results.
+Implementation follows the [first implementation slice](EXPERIMENTS.md#first-implementation-slice). E00 has a first result: the eager delta-rule backend matched the memory oracle exactly on every checked action up to 10^6 actions ([report](results/E00/README.md)). The other experiments are proposals, not reproduced results.
 
 ## Contributing
 

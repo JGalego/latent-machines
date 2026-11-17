@@ -4,7 +4,7 @@ Guidance for coding agents working in this repository. [CONTRIBUTING.md](CONTRIB
 
 ## Current state
 
-The uv project, Ruff, pytest, pre-commit hooks, and CI are configured. E00 has a runner; no other experiment exists yet. The layout in EXPERIMENTS.md is a target, not existing files. Do not report a check as passing without running it.
+The uv project, Ruff, pytest, pre-commit hooks, and CI are configured. E00 has a runner and a first result in `results/E00/`; no other experiment exists yet. The layout in EXPERIMENTS.md is a target, not existing files. Do not report a check as passing without running it.
 
 ```bash
 uv sync --locked --extra torch-cpu                       # restore the locked environment (Python 3.13+)
