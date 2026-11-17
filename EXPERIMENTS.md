@@ -348,6 +348,11 @@ Layer families appear under the experiments that test their natural primitive, n
 | RESEARCH.md item | Coverage |
 |---|---|
 | Terms, findings, closest systems, foundations, adjacent work | Context, not reproduced here. Specific limits feed experiments: Qwenputer kernel residues → numerical conformance; Percepta indexed lookup → E00; Percepta specialization and QwenPU → E04; Coconut → E03 |
+| QwenFX: a compiled CPU driving its own LM | Context; the machine-to-model call stays tool-shaped, the interface E02 arms B-D and E03 compare |
+| chipformer: a compiled CHIP-8 transformer | E00 append-only history and Percepta-style indexed lookup; E01 exact ReGLU lookup circuits |
+| Weight-Space Programming: LLM-authored weight edits | Context: edits judged by task metrics, not specified transitions |
+| Parity tracked in GDN state with beta up to 2 | E01 parity with signed transitions; E03 latent computation |
+| Reduction-order device fingerprints | Numerical conformance: supported devices and deterministic options; E00 GPU variants |
 | Delta-rule memory and its optimization interpretation | E00 delta replacement; E07 sequential one-hot quadratic acceptance |
 | DeltaNet / Gated DeltaNet | E00 reference tensor backend; E01 |
 | Kimi Delta Attention | E00, including clearing cost versus GDN |

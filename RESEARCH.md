@@ -2,7 +2,7 @@
 
 > **TL;DR:** What others have built, what it proves, and what is still open.
 
-Reviewed: 2026-11-16. Primary-source literature and implementation review; experiments have not been reproduced here. Benchmark results below are attributed reports, not independent validation.
+Reviewed: 2026-11-17. Primary-source literature and implementation review; experiments have not been reproduced here. Benchmark results below are attributed reports, not independent validation.
 
 ## Terms
 
@@ -11,7 +11,7 @@ Reviewed: 2026-11-16. Primary-source literature and implementation review; exper
 - **Exact execution:** transitions match a specified machine, within an explicit representation, precision, and resource budget. Deterministic output alone is insufficient.
 - **Learned control:** a network chooses operations, arguments, or addresses. Exact execution does not make those choices correct.
 - **Persistent state:** memory survives successive computation steps. Saving a session is a separate capability.
-- **Weight-space programming:** programs can be compiled into fixed weights. This differs from using changing fast weights as learned memory; neither should be confused with ordinary fine-tuning.
+- **Weight-space programming:** programs can be compiled into fixed weights. This differs from using changing fast weights as learned memory; neither should be confused with ordinary fine-tuning. [Takehi et al.](https://rikiyat.github.io/blog/weight-space-programming/) use the same name for LLMs editing weights directly; here it means compiled programs.
 - **Internal interface:** machine results influence model computation without requiring a textual request and response. Being inside the checkpoint does not necessarily provide this interface.
 
 ## Findings
@@ -34,6 +34,7 @@ The less-established combination is a pretrained LM with a learned internal inte
 | [Tracr-Injection](https://arxiv.org/abs/2505.10719), Tomas Vergara-Browne and Alvaro Soto, 2025 | Trains a GPT-2 residual subspace against a compiled program's activations. | Direct precedent for algorithm representations inside a pretrained LM. Distillation, not exact live execution. |
 | [Neural Programmer-Interpreters](https://arxiv.org/abs/1511.06279), Scott Reed and Nando de Freitas, 2015 / 2016 | A recurrent controller selects subprograms and arguments, with scratchpad and pointer operations. | Strong precedent for learned control over explicit machine state. Not a pretrained language model. |
 | [Neural Harvard Computer](https://arxiv.org/abs/2105.07957), Daniel Tanneberg et al., Nature Machine Intelligence 2020 | Separates control from data, using hard-address memory and an ALU with hand-designed or learned operations. | Particularly close to learned control over discrete state. Evidence is on algorithmic tasks, not general pretrained LMs. |
+| [chipformer](https://github.com/divagr18/chipformer), Divyansh Agrawal, 2026 | A compiled fp64 transformer that runs CHIP-8: each predicted token is one memory write, read back by hard-max attention over the write log. | A complete compiled machine whose traces the author reports as bit-identical to a reference emulator. Memory is an append-only log, as in Percepta, and no language model controls it. |
 | [Differentiable Forth](https://arxiv.org/abs/1605.06640), Matko Bosnjak et al., 2016 / ICML 2017 | A neural stack machine executes program sketches with learned slots, including coupling to an LSTM language encoder. | A concrete program/neural hybrid. Continuous execution relaxations must not be presented as an exact discrete interpreter. |
 
 ### Qwenputer: internal execution, tool-shaped interaction
@@ -48,7 +49,9 @@ The author reports official ISA tests, long free-running executions, and arithme
 
 The filesystem variant saves selected state through host-managed files. Cross-session persistence is explicit, not an automatic property of storing the CPU in weights.
 
-Sources: [code](https://github.com/divagr18/qwenputer), [design and results](https://divagr.com/blog/qwenputer), [model](https://huggingface.co/divagr1925/Qwen3.5-4B-Qwenputer).
+[QwenFX](https://github.com/divagr18/QwenFX) runs Vercel's fx coding agent, compiled as an RV32 binary, on Qwenputer's CPU, calling the same Qwen3.5-4B for every model step. The author reports 15 of 15 small coding tasks passing hidden tests, six pull requests opened by the agent, and no wrong chip token against a reference machine. Control runs in the opposite direction from this project's question: the compiled machine drives the language model, which it reaches through a tool-shaped call.
+
+Sources: [code](https://github.com/divagr18/qwenputer), [design and results](https://divagr.com/blog/qwenputer), [model](https://huggingface.co/divagr1925/Qwen3.5-4B-Qwenputer), [QwenFX code](https://github.com/divagr18/QwenFX).
 
 ### Percepta: a different memory architecture
 
@@ -119,6 +122,7 @@ These are useful interface or memory precedents, but do not establish an exact p
 | [MemGen](https://arxiv.org/abs/2509.24704), Zhang, Fu, and Yan, 2025 / ICLR 2026; [code](https://github.com/bingreeky/MemGen) | A learned trigger invokes a weaver that inserts latent memory sequences into reasoning. | An addressable store with specified discrete transitions. The repository documents incomplete releases and evaluation-format corrections. |
 | [Recursive SALM](https://arxiv.org/abs/2611.16375), Omer Haq, November 2026 | Persistent learned state adapts a frozen LM through prompts, features, or LoRA. | Exact memory or general algorithmic execution. The initial experiments use small GPT-2 and short synthetic interactions. |
 | [ToolkenGPT](https://arxiv.org/abs/2305.11554), 2023 | Learned tool-token embeddings select tools from a frozen LM. | A fully internal interface: arguments are still generated and tools execute externally. |
+| [Weight-Space Programming](https://rikiyat.github.io/blog/weight-space-programming/), Takehi, Teoh, Zhang, and Khattab, MIT CSAIL, November 2026 | A frontier LLM reads and edits raw weights: it names what networks were trained on, writes small game-playing networks from scratch, and raises Qwen3.5-0.8B on MATH-500 from 7.9% to 48.1% by editing 0.016% of its weights. | Specified machine semantics: edits are judged by task metrics, not checked transitions. The same approach did not improve Gemma 3 270M on math. |
 | [HOLA](https://arxiv.org/abs/2607.02303), Wanyun Cui, 2026 | Supplements delta-rule memory with a bounded cache of retained KV pairs. | A programmable exact machine; preserving vectors is different from exposing arbitrary reads, writes, and instructions. |
 
 ## Expanding the programmable substrate
@@ -201,6 +205,8 @@ Sources:
 - [DeltaProduct](https://arxiv.org/abs/2502.10297).
 - [Complex KDA](https://arxiv.org/abs/2609.24797), September 2026.
 - [A Fine-Grained Hierarchy and Benchmark for State Tracking in Language Models](https://arxiv.org/abs/2611.03094), November 2026 preprint. It separates immutable assignment, mutable assignment, self-referential updates, and general finite-state tracking, and establishes an aperiodic state-tracking result for positive-eigenvalue GDN.
+
+A trained-model report is consistent with this. [Hybrid models can hide reasoning in their RNN state](https://divagr.com/blog/hybrid-models-can-hide-reasoning-in-their-rnn-state), Divyansh Agrawal, October 2026 ([code](https://github.com/divagr18/hidden-reasoning)), reports that under answer-only fine-tuning on parity, OLMo-Hybrid, whose GDN allows beta up to 2, learned to track parity without chain-of-thought and generalized to twice the training length. Capping beta at 1 removed that generalization, and Qwen3.5, which caps beta at 1, fit only the trained lengths. If this holds, recurrent state can carry serial computation that a chain-of-thought monitor cannot see.
 
 These are results under particular architectural, precision, and computation assumptions. They do not say a CPU built from nonlinear circuits plus repeated feedback cannot compute parity. Conversely, an ideal real-valued rotation need not remain exact after a million floating-point updates.
 
@@ -312,6 +318,7 @@ Proposed proof-oriented compilation would emit bounds on intermediate values and
 - **Normalization:** correct storage does not guarantee a magnitude-preserving read path. Orthogonal keys and multi-hot normalization require explicit analysis.
 - **Kernel equivalence:** Qwenputer's [technical notes](https://github.com/divagr18/qwenputer/blob/main/experimental/riscv/docs/rv32.md) describe residues from an eight-row read in a chunked kernel and a resulting redesign. A graph evaluator alone can miss backend errors.
 - **State dtype:** [Lost in Rounding](https://arxiv.org/abs/2611.12127), November 2026 preprint, reports behavior changes from recurrent-state rounding in trained hybrid reasoning models. This is not a compiled-CPU experiment, but reinforces that state precision belongs in the run specification.
+- **Reduction order:** [Telling identical GPUs apart](https://divagr.com/blog/telling-identical-gpus-apart), Divyansh Agrawal, October 2026 ([code](https://github.com/divagr18/gpu-instance-fingerprint)), reports that atomic-add ordering differs enough between identical GPUs to identify the chip (99.1% among 19 A40s), and that a default `torch.index_add_` exposes it; PyTorch's deterministic mode removes that signal. GPU conformance runs must record deterministic settings and the exact device.
 - **Finite memory:** fixed-width, fixed-precision recurrent state has finitely many configurations. Turing-completeness claims must state where growing memory, precision, or context enters.
 - **Access cost:** logical one-hot random access can still touch an entire dense state. Fused gather, dense matrix operations, and structured indexed attention have different physical costs.
 - **History cost:** an indexed lookup need not scan every past entry, but retaining a log or index still consumes memory. Account for retained entries, index storage, and maintenance.
