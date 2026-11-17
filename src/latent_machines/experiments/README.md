@@ -30,3 +30,30 @@ uv run --locked python -m latent_machines.experiments.e00 --horizon 1000000 --jo
 ```
 
 Each run writes `runs/e00-<time>-<revision>-<id>/` with `run.json`, `metrics.json`, `trace.jsonl`, `snapshots/`, and, when needed, `failure.json` and `source.patch`. Exit status is 0 on pass, 1 on a mismatch or snapshot disagreement, and 2 if the run failed.
+
+## E01: exact streaming machines
+
+> **TL;DR:** Run small exact machines and their compiled neural versions side by side, every step, in every number format.
+
+[e01.py](e01.py) uses the same [lockstep check](lockstep.py) as E00 on two pairs:
+
+```mermaid
+flowchart LR
+    subgraph T["transducer/v1: parity, mod-5 counter, S3 tracker"]
+        TS["random symbols<br/>(5% out of range)"] --> TO[oracle]
+        TS --> TL[ReLU lookup circuit]
+    end
+    subgraph S["stack/v1"]
+        SW["bracket parser · random push/pop ·<br/>fill-and-drain cycles"] --> SO[oracle]
+        SW --> SD[delta-rule stack]
+    end
+    TO & TL --> C{"same event, work,<br/>decoded state?"}
+    SO & SD --> C
+```
+
+Variants are named `backend/dtype/machine/workload`, for example `delta-stack/bfloat16/stack/brackets`. Metrics add circuit width, depth, and stored and nonzero weights.
+
+```bash
+uv run --locked python -m latent_machines.experiments.e01                                    # 10^3 actions per variant
+uv run --locked python -m latent_machines.experiments.e01 --horizon 1000000 --jobs 8 --trace-limit 1000
+```
