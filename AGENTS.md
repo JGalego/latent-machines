@@ -4,7 +4,7 @@ Guidance for coding agents working in this repository. [CONTRIBUTING.md](CONTRIB
 
 ## Current state
 
-The uv project, Ruff, pytest, pre-commit hooks, and CI are configured; no experiment runner or result exists yet. The layout in EXPERIMENTS.md is a target, not existing files. Do not report a check as passing without running it.
+The uv project, Ruff, pytest, pre-commit hooks, and CI are configured. E00 has a runner; no other experiment exists yet. The layout in EXPERIMENTS.md is a target, not existing files. Do not report a check as passing without running it.
 
 ```bash
 uv sync --locked --extra torch-cpu                       # restore the locked environment (Python 3.13+)
@@ -12,6 +12,7 @@ uv run --locked pre-commit install                       # install git hooks onc
 uv run --locked pre-commit run --all-files               # Ruff lint and format, hygiene checks
 uv run --locked pytest                                   # bounded CPU test suite
 uv run --locked pytest tests/path/test_x.py::test_name   # one test
+uv run --locked python -m latent_machines.experiments.e00   # E00 default run, record under runs/
 ```
 
 CI (`.github/workflows/ci.yml`) runs the same locked sync, hooks, and tests on pull requests and pushes to `main`. The Ruff hooks run from the locked environment, so `uv.lock` is the only place its version is pinned. Add dependencies with `uv add` or `uv add --dev` and commit `uv.lock` with them. The `torch-cpu` extra installs CPU-only PyTorch for tensor backends; without it, a plain `uv sync` removes PyTorch and backend tests are skipped, which `-ra` reports.

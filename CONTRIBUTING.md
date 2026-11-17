@@ -110,6 +110,6 @@ uv run --locked pre-commit run --all-files   # Ruff lint and format, hygiene che
 uv run --locked pytest                       # bounded CPU tests
 ```
 
-The `torch-cpu` extra adds CPU-only PyTorch for tensor backends; the machine oracles need no runtime dependencies. CI runs the same checks with the locked environment on every pull request and push to `main`. No experiment runner or result exists yet.
+The `torch-cpu` extra adds CPU-only PyTorch for tensor backends; the machine oracles need no runtime dependencies. CI runs the same checks with the locked environment on every pull request and push to `main`. The E00 runner writes run records under the ignored `runs/` directory; see [experiments](src/latent_machines/experiments/README.md).
 
 Start with the [first implementation slice](EXPERIMENTS.md#first-implementation-slice), not a speculative scaffolding exercise.
