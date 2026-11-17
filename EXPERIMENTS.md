@@ -182,6 +182,8 @@ An approximate backend must declare a reference, error metric, tolerance, horizo
 
 **Discriminator:** a layer that cannot preserve unaddressed state or expose a value through its real normalization path is not a conforming RAM backend, even if a toy update equation works.
 
+**Results:** [results/E00](results/E00/README.md). Delta replacement matched the oracle exactly up to 10^6 actions on CPU; the other variants are untested.
+
 ### E01 - Exact streaming machines and transition algebras
 
 > **TL;DR:** Can simple exact machines, like counters and parsers, run directly in layers?
