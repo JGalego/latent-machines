@@ -132,7 +132,7 @@ These guidelines apply to code, experiments, results, documentation, and automat
 - Start every Markdown page, section, and subsection with a one-line TL;DR directly under its heading, written as `> **TL;DR:** …`.
 - Write it for a newcomer, including non-specialists: plain words, intuitive, and memorable. Use one sentence, ideally under 20 words, and no jargon the section does not explain.
 - A TL;DR summarizes; it adds no claims. Keep the evidence class: a proposal stays a proposal, and a finite test stays a finite test.
-- Update a section's TL;DR in the same change as the section. Pointer files such as CLAUDE.md are exempt.
+- Update a section's TL;DR in the same change as the section. The main README.md and pointer files such as CLAUDE.md are exempt.
 
 ## Current tooling status
 
