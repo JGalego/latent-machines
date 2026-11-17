@@ -15,6 +15,8 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA_VERSION = 1
+HF_JOB_VARIABLES = ("JOB_ID", "ACCELERATOR", "CPU_CORES", "MEMORY")
+LAUNCH_PREFIX = "LM_RUN_"  # set by whoever launches a remote run, e.g. LM_RUN_FLAVOR
 
 
 def now() -> str:
@@ -68,6 +70,33 @@ def environment() -> dict[str, Any]:
         "machine": platform.machine(),
         "cpu": _cpu_model(),
         "cpu_count": os.cpu_count(),
+        "cpu_quota": _cpu_quota(),
+        "hf_job": _hf_job(),
+        "launch": {
+            name.removeprefix(LAUNCH_PREFIX).lower(): value
+            for name, value in sorted(os.environ.items())
+            if name.startswith(LAUNCH_PREFIX)
+        },
+    }
+
+
+def _cpu_quota() -> float | None:
+    """CPUs allowed by the cgroup v2 quota; containers often report host CPUs."""
+    try:
+        quota, period = Path("/sys/fs/cgroup/cpu.max").read_text().split()
+    except (OSError, ValueError):
+        return None
+    return None if quota == "max" else int(quota) / int(period)
+
+
+def _hf_job() -> dict[str, str] | None:
+    """Variables Hugging Face Jobs sets inside the container, if running in one."""
+    if "JOB_ID" not in os.environ:
+        return None
+    return {
+        name.lower(): os.environ[name]
+        for name in HF_JOB_VARIABLES
+        if name in os.environ
     }
 
 

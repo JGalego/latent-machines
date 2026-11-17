@@ -122,7 +122,7 @@ These guidelines apply to code, experiments, results, documentation, and automat
 - Run a pushed commit: clone the public repository at that revision inside the job and restore the environment with `uv sync --locked`, so the run record names source anyone can fetch. Do not ship uncommitted code to a job.
 - Choose the smallest flavor that fits (`hf jobs hardware` lists flavors and prices) and always set `--timeout`. Label each job with its experiment and revision, for example `--label experiment=E00 --label revision=<sha>`.
 - Pass credentials with `--secrets`, never in the command, plain environment variables, or logs.
-- The job's filesystem is discarded when it ends. Upload the run directory, for example to a Hub dataset, and record the job ID, flavor, image, timeout, wall time, and artifact location in the run record. Keep the logs of failed, timed-out, and cancelled jobs.
+- The job's filesystem is discarded when it ends. Upload the run directory, for example to a Hub dataset, and record the job ID, flavor, image, timeout, wall time, and artifact location in the run record. Runners record the job's own variables (`JOB_ID`, `CPU_CORES`, `MEMORY`, `ACCELERATOR`) and the cgroup CPU quota automatically; pass what the container cannot see as `-e LM_RUN_FLAVOR=… -e LM_RUN_IMAGE=… -e LM_RUN_TIMEOUT=…`. Keep the logs of failed, timed-out, and cancelled jobs.
 - A job validates only the hardware, kernels, and dtypes it ran on; label results by flavor. GPU backends need a CUDA build of PyTorch, added as a separate extra when the first GPU job requires it.
 
 ## 13. Lead every page and section with a TL;DR
