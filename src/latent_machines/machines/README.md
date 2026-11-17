@@ -61,3 +61,31 @@ flowchart LR
 ```
 
 Every fault leaves the stack unchanged, and every action costs one work unit.
+
+## `cellular/v1`
+
+> **TL;DR:** A grid of live and dead cells updates all at once from neighbor counts, with dead or wrapping edges.
+
+Binary outer-totalistic cellular automaton, the exact-branch reference for [E06](../../../EXPERIMENTS.md#e06---spatial-and-structured-dynamical-machines). [cellular.py](cellular.py) is the authoritative specification. A rule such as `B3/S23` lists the neighbor counts that give birth to a dead cell and keep a live one alive.
+
+```mermaid
+flowchart LR
+    A["Advance()"] --> R["read the whole current grid<br/>(boundary: zero or torus)"]
+    R --> N["count the 8 neighbors of every cell"]
+    N --> U["next = count ∈ birth (dead) or survival (live)"]
+    U --> W["replace the grid at once; generation + 1"]
+    W --> O["output: population"]
+    S["Set(row, col, v)"] --> C{"cell in grid?"}
+    C -->|no| FC["fault: cell_out_of_range"]
+    C -->|yes| V{"v ∈ {0, 1}?"}
+    V -->|no| FV["fault: value_out_of_range"]
+    V -->|yes| OK["overwrite one cell; continue"]
+```
+
+`Advance` costs one work unit per cell; `Set` costs one, faults included. Snapshots carry a digest of the rule, size, boundary, and starting grid.
+
+## `lds/v1`
+
+> **TL;DR:** A linear filter with a float64 reference, measured under a tolerance rather than checked for exactness.
+
+Single-input, single-output linear dynamical system `y = C x + D u`, `x ← A x + B u`, the reference for E06's numerical branch. [lds.py](lds.py) evaluates it in IEEE double precision and builds the E06 systems: a lightly damped oscillator (pole radius 0.999), a second-order Butterworth low-pass, and a random stable 8-dimensional system. It is a declared numerical reference, not an exact oracle.

@@ -67,3 +67,28 @@ flowchart LR
 ```
 
 Clearing on pop keeps freed slots at zero, so the live tensors always equal a freshly encoded snapshot. Tests require this at every step.
+
+## Convolution plus lookup for cellular rules
+
+> **TL;DR:** A 3x3 convolution counts neighbors and a small ReLU circuit turns each count into the next cell value.
+
+[cellular.py](cellular.py) compiles a [`cellular/v1`](../machines/cellular.py) rule into whole-grid layers. A one-cell halo is padded (zeros, or wrapped for a torus), a convolution with a ones kernel counts neighbors, and hat functions of ReLUs turn each count into a one-hot vector that the rule's birth and survival weights read.
+
+```mermaid
+flowchart LR
+    S["grid s"] --> P["pad halo<br/>zero or circular"]
+    P --> K["conv 3×3, ones with zero center<br/>n = neighbor count"]
+    K --> H["h_c = relu(n−c+1) − 2 relu(n−c) + relu(n−c−1)<br/>one-hot count, c = 0..8"]
+    S --> U["alive_c = relu(s + h_c − 1)<br/>dead_c = relu(h_c − s)"]
+    H --> U
+    U --> N["s′ = Σ S[c] alive_c + B[c] dead_c"]
+    N -.->|next generation| S
+```
+
+Every intermediate is an integer from −8 to 9, so the circuit is exact in float32, float64, bfloat16, and float16. `TorchIntCellular` in the same file is the conventional integer baseline. Both count the population for the output event in int64 after thresholding.
+
+## Diagonal SSM for linear filters
+
+> **TL;DR:** A linear filter rewritten as independent complex modes, run one sample at a time or in chunks.
+
+[ssm.py](ssm.py) implements [`lds/v1`](../machines/lds.py) three ways: `DirectLDS`, the dense recurrence; and `DiagonalSSM`, which diagonalizes `A` once in float64 and runs the modes `z ← λ z + b u` either sequentially or in chunks with a lower-triangular kernel of powers of `λ`. Complex arithmetic uses separate real and imaginary tensors, so bfloat16 works. None of these is exact; each is measured against the float64 reference under a declared tolerance.

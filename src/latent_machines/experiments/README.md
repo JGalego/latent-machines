@@ -57,3 +57,30 @@ Variants are named `backend/dtype/machine/workload`, for example `delta-stack/bf
 uv run --locked python -m latent_machines.experiments.e01                                    # 10^3 actions per variant
 uv run --locked python -m latent_machines.experiments.e01 --horizon 1000000 --jobs 8 --trace-limit 1000
 ```
+
+## E06: spatial and dynamical machines
+
+> **TL;DR:** Check cellular rules cell for cell, and measure linear filters against a tolerance, in separate runs.
+
+[e06.py](e06.py) has two branches that write separate run records. The exact branch uses the [lockstep check](lockstep.py) on [`cellular/v1`](../machines/README.md#cellularv1); the numerical branch compares each output sample with the [`lds/v1`](../machines/README.md#ldsv1) reference.
+
+```mermaid
+flowchart LR
+    subgraph X["--branch exact"]
+        G["rule × workload<br/>(seeded grid, Advance/Set)"] --> O[oracle]
+        G --> B["torch-int · conv-lookup<br/>(4 float formats)"]
+        O & B --> C{"same grid, event, work?"}
+    end
+    subgraph N["--branch numerical"]
+        U["system × input signal"] --> R[float64 reference]
+        U --> M["direct · ssm-sequential · ssm-chunked<br/>(float64, float32, bfloat16)"]
+        R & M --> T{"max error / rms ≤ declared tolerance?"}
+    end
+```
+
+Exact variants are named `backend/dtype/rule/workload`; numerical ones `backend/dtype/system/signal`. Tolerances are fixed in the code and recorded in `run.json`: 1e-9 for float64, 1e-4 for float32, 1e-2 for bfloat16.
+
+```bash
+uv run --locked python -m latent_machines.experiments.e06                       # exact, 10^3 actions per variant
+uv run --locked python -m latent_machines.experiments.e06 --branch numerical    # 10^4 samples per variant
+```
