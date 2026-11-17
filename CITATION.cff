@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use Latent Machines, please cite it as below."
+title: "Latent Machines: neural models as programmable machines"
+abstract: >-
+  Research into programs compiled into neural network weights, persistent
+  memory, and learned control over exact execution. Each experiment steps an
+  exact reference machine and a neural tensor implementation side by side and
+  records every disagreement.
+authors:
+  - family-names: Galego
+    given-names: João
+license: Apache-2.0
+repository-code: "https://github.com/JGalego/latent-machines"
+url: "https://jgalego.github.io/latent-machines/"
+type: software
+keywords:
+  - compiled transformer
+  - linear attention
+  - Gated DeltaNet
+  - delta rule
+  - exact execution
+  - conformance testing

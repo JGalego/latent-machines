@@ -43,6 +43,20 @@ Implementation follows the [first implementation slice](EXPERIMENTS.md#first-imp
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for code style and research standards: minimal code and dependencies, uv, pre-commit, small frequent commits, commit messages, diagrams as code, reproducible experiments, and mandatory result verification.
 
+## Citing
+
+See [CITATION.cff](CITATION.cff), or use:
+
+```bibtex
+@software{galego2026latentmachines,
+  author  = {Galego, João},
+  title   = {Latent Machines: neural models as programmable machines},
+  year    = {2026},
+  url     = {https://github.com/JGalego/latent-machines},
+  license = {Apache-2.0}
+}
+```
+
 ## License
 
 [Apache License 2.0](LICENSE).
