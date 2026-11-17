@@ -1,12 +1,12 @@
 # Contributing
 
-> **TL;DR:** How to make changes that others can trust, rerun, and build on.
+> **TL;DR:** Changes must be reproducible, reviewable, and checked against the stated requirements.
 
 These guidelines apply to code, experiments, results, documentation, and automated contributions.
 
 ## 1. Clean, minimal code
 
-> **TL;DR:** Write the simplest code that does the job, nothing speculative.
+> **TL;DR:** Implement the stated contract without speculative abstractions.
 
 - Write the simplest implementation that satisfies the stated contract. Prefer small functions, explicit data flow, and descriptive names.
 - Keep machine semantics separate from backend optimizations, controller interfaces, and task definitions.
@@ -16,7 +16,7 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 2. Minimal dependencies
 
-> **TL;DR:** Add a library only when you truly need it.
+> **TL;DR:** Justify each dependency against a concrete requirement and the available tools.
 
 - Prefer the standard library when it solves the problem clearly. Add a dependency only for a concrete requirement, and explain why existing tools are insufficient.
 - Separate runtime, development, and optional accelerator/model dependencies. A small CPU experiment must not require the full research stack.
@@ -43,7 +43,7 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 5. Practice continuous integration
 
-> **TL;DR:** Small, frequent, checked changes beat big surprises.
+> **TL;DR:** Keep changes small enough to review and validate independently.
 
 - Commit early and often, in small, coherent, validated increments. Integrate frequently rather than accumulating a large unreviewable branch.
 - A commit should be understandable and reproducible on its own. Separate refactoring, behavior changes, and scientific conclusions where practical.
@@ -77,7 +77,7 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 8. Verified results are mandatory
 
-> **TL;DR:** No result counts until it is checked against an independent reference.
+> **TL;DR:** Validate each reported execution path against an independent reference.
 
 - Do not present an experiment as successful until the stated acceptance criteria pass on the actual execution path being reported.
 - Test state transitions, events, and outputs against an independent reference. Final-answer agreement alone is insufficient for an exact-machine claim.
@@ -87,7 +87,7 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 9. Keep comparisons honest
 
-> **TL;DR:** Compare like with like, and report the losses too.
+> **TL;DR:** Match comparison budgets and report failures alongside successes.
 
 - Use matched information, data, capacity, and work budgets. Separate interface benefits from executor, specialization, or implementation benefits.
 - Include a credible conventional baseline. Do not handicap textual tools with unnecessary subprocess or network overhead.
@@ -97,7 +97,7 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 10. Make failures and limits explicit
 
-> **TL;DR:** Say exactly what happens at the edges, and never hide a failure.
+> **TL;DR:** Specify boundary behavior and preserve failure evidence.
 
 - Specify overflow, capacity, invalid actions, ties, stopping, and fault behavior. Never silently clamp, repair, or substitute a successful-looking output.
 - Keep a simple reference implementation independent of optimized code. Add focused regression cases for bugs and counterexamples.
@@ -127,12 +127,39 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 13. Lead every page and section with a TL;DR
 
-> **TL;DR:** One memorable line under every heading tells a newcomer what it is for.
+> **TL;DR:** Put the section's conclusion or purpose directly under its heading.
 
 - Start every Markdown page, section, and subsection with a one-line TL;DR directly under its heading, written as `> **TL;DR:** …`.
-- Write it for a newcomer, including non-specialists: plain words, intuitive, and memorable. Use one sentence, ideally under 20 words, and no jargon the section does not explain.
+- Write for a newcomer, including non-specialists. Use one factual sentence, ideally under 20 words, and explain unfamiliar terms in the section.
 - A TL;DR summarizes; it adds no claims. Keep the evidence class: a proposal stays a proposal, and a finite test stays a finite test.
+- Do not repeat the heading or substitute a slogan for a summary. Revise the heading or section if its point is unclear.
 - Update a section's TL;DR in the same change as the section. The main README.md and pointer files such as CLAUDE.md are exempt.
+
+## 14. Write for the reader
+
+> **TL;DR:** Give readers the conclusion and the evidence they need to assess it.
+
+These rules apply to documentation, website copy, reports, pull requests, and agent-written text. Whether a person or a model wrote a sentence does not change the standard.
+
+- **Lead with the point.** State the result, decision, or question before its background. Prefer a short narrative when the reader needs an argument; use lists for items they need to scan. Do not impose a memo length or turn every paragraph into bullets.
+- **Name the subject and action.** Write `The backend rejects invalid addresses`, not `Invalid-address handling is supported`. Say which implementation, experiment, or source a claim concerns.
+- **Replace praise with evidence.** Words such as `robust`, `powerful`, `seamless`, and `efficient` need a measurable meaning. Give the metric, baseline, and test conditions, or remove the adjective. A larger number is not an explanation of why a result matters.
+- **Delete filler.** Remove openings such as `It is worth noting`, `In today's rapidly evolving landscape`, and `Let's delve into`. Cut sentences that merely announce the next paragraph, repeat its point, or congratulate the project.
+- **Do not manufacture cardinality.** Write `Research questions`, not `Four separate questions`, unless the count matters to the argument. Do not pad a list to reach a round number, force points into groups of three, or add `key` and `core` to make ordinary categories sound important. Keep meaningful counts, dimensions, limits, and experiment IDs.
+- **Avoid stock rhetoric.** Do not dress a claim as `not just X, but Y`, a rhetorical question with an obvious answer, a grand analogy, or a slogan. Remove decorative emphasis and punctuation. Parallel wording is useful only when the underlying items are parallel.
+- **Keep necessary precision.** Retain technical terms, assumptions, equations, and counterexamples when they distinguish the claim. Explain a term on first use rather than replacing it with a vague synonym. Brevity is not a reason to remove a limitation.
+- **Calibrate certainty.** Distinguish plans from implementations and reports from local checks. Scope `exact`, `verified`, and `zero failures` to the machine, representation, hardware, and tests concerned. Replace vague hedges with the specific uncertainty; retain uncertainty that the evidence warrants.
+- **Make headings informative.** Name the subject or finding. Avoid generic labels such as `Unlocking the potential` and headings that only announce a numbered list. A reader scanning headings should be able to locate the answer.
+- **Treat website copy as a report.** Put the current result and its limits near the top. Do not imply that planned controllers or comparisons already exist. Generate aggregate result counts from manifests rather than maintaining promotional totals by hand. Keep captions about what the figure shows.
+
+| Instead of | Write |
+|---|---|
+| `Four separate questions` | `Machine, backend, interface, and task` |
+| `Our robust backend delivers seamless exact computation.` | `The backend had no mismatches in the tested CPU traces.` |
+| `It is important to note that finite tests do not constitute a proof.` | `Finite tests are not a proof.` |
+| `This unlocks exciting possibilities for internal tools.` | Name the proposed experiment and what it would test, or delete the sentence. |
+
+Before submitting, read the rendered text in order. Delete any sentence whose removal loses no information the reader needs. Check each result against its source and each plan against its implementation status. Search tools can flag stock phrases, but a word match is not proof of bad writing; equations, quotations, source titles, and immutable run records are not copy to polish.
 
 ## Current tooling status
 
@@ -149,4 +176,4 @@ uv run --locked pytest                       # bounded CPU tests
 
 The `torch-cpu` extra adds CPU-only PyTorch for tensor backends; the machine oracles need no runtime dependencies. CI runs the same checks with the locked environment on every pull request and push to `main`. The E00 runner writes run records under the ignored `runs/` directory; see [experiments](src/latent_machines/experiments/README.md).
 
-Start with the [first implementation slice](EXPERIMENTS.md#first-implementation-slice), not a speculative scaffolding exercise.
+Follow the [first implementation slice](EXPERIMENTS.md#first-implementation-slice) for build order.

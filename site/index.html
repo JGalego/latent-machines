@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Latent Machines</title>
-  <meta name="description" content="Can a neural network run an exact machine inside itself, and is that better than calling a tool? Experiments, code, and every checked step.">
+  <meta name="description" content="CPU conformance tests for memory, state machines, and a stack compiled into neural layers. Code, run records, and planned controller comparisons.">
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
   </picture>
   <h1>Latent Machines</h1>
   <p class="subtitle">Neural models as programmable machines</p>
-  <p class="byline"><a href="https://github.com/JGalego">João Galego</a> · ongoing research, updated as results land</p>
+  <p class="byline"><a href="https://github.com/JGalego">João Galego</a></p>
   <nav class="buttons" aria-label="Project links">
     <a class="button" href="https://github.com/JGalego/latent-machines">Code</a>
     <a class="button" href="https://huggingface.co/datasets/jgalego/latent-machines-runs">Run records</a>
@@ -29,25 +29,25 @@
 </header>
 
 <main>
-  <aside class="tldr">
-    <strong>TL;DR</strong>
-    <p>We compile small exact machines (a memory, a stack, state machines) into the arithmetic of neural network layers and check them against a plain reference after every single step. So far they agree exactly: over 60 million checked actions with zero disagreements and zero drift. Next we ask whether a language model does better using such a machine internally than calling a tool.</p>
-  </aside>
+  <section id="abstract" class="abstract" aria-labelledby="abstract-title">
+    <h2 id="abstract-title">Abstract</h2>
+    <p>We study whether language models benefit from an internal interface to an exact machine rather than textual tool calls. The initial experiments compile memory, finite-state transducers, and a bounded stack into neural-layer arithmetic and compare each transition with an integer oracle. On the tested CPU traces, up to 10⁶ actions per variant, the implementations had no mismatches or stored-state residue. These are finite conformance results for the declared configurations, not a proof of general exactness. Learned controllers and matched interface comparisons remain future work.</p>
+  </section>
 
   <section id="question">
     <h2>The question</h2>
-    <p class="section-tldr">Language models call tools through text. Could the tool live inside the model instead?</p>
-    <p>Today a language model that needs exact computation writes a tool call as text, waits for a reply, and reads it back. Recent work shows that whole computers can be compiled into a model's weights, but the model usually still talks to them like a tool. We want to know two things:</p>
+    <p class="section-summary">Language models call tools through text. Could the tool live inside the model instead?</p>
+    <p>Textual tool use serializes a request and its result. An internal interface could instead pass typed actions and observations within the model's computation. We plan to test:</p>
     <ul class="questions">
       <li>Can a model use a machine through an <em>internal</em> interface instead of textual tool calls?</li>
       <li>When does this improve correctness, generalization, or cost?</li>
     </ul>
-    <p>Before a model can rely on a machine inside itself, that machine has to be exact. "Exact" here means matching a specified machine within declared number formats and resource limits, checked at every step, not just producing plausible output.</p>
+    <p>For these experiments, "exact" means matching a specified machine within declared number formats and resource limits. We check conformance after each action, not just final-answer agreement.</p>
   </section>
 
   <section id="axes">
-    <h2>Four separate questions</h2>
-    <p class="section-tldr">What runs, how it runs, how it is controlled, and what it is for are tested separately.</p>
+    <h2>System design</h2>
+    <p class="section-summary">Changing the controller interface must not change machine semantics or reveal task answers.</p>
     <div class="figure">
       <pre class="mermaid">
 flowchart LR
@@ -58,14 +58,14 @@ flowchart LR
     B -->|event| I
     B -.->|"decoded state, checks only"| M["Machine<br/>specification, exact oracle"]
       </pre>
-      <p class="caption">Every backend is checked against an independent oracle. The dotted check path never reaches the controller, so it cannot leak answers.</p>
+      <p class="caption">The dotted path is for conformance checks against an independent oracle. Controller observations must not include this decoded state.</p>
     </div>
-    <p>Separating these axes lets each experiment change one thing. A positive result must say whether it came from the interface, from compiling the machine into weights, or from the task.</p>
+    <p>This separation lets experiments distinguish an interface benefit from an implementation benefit. Task information and work budgets must stay matched across comparisons.</p>
   </section>
 
   <section id="memory">
-    <h2>Memory inside a neural layer</h2>
-    <p class="section-tldr">One update rule from modern linear-attention layers overwrites a memory slot exactly, if its gates sit exactly at 0 or 1.</p>
+    <h2>Delta-rule memory</h2>
+    <p class="section-summary">With one-hot addressing and fixed gates, the delta rule replaces one memory slot without changing the others.</p>
     <p>Gated DeltaNet layers carry a state matrix <code>S</code> from token to token and update it with the delta rule:</p>
     <p class="formula"><code>S ← α · S (I − β k kᵀ) + β v kᵀ</code> &nbsp; and reads are &nbsp; <code>o = S q</code></p>
     <p>Store one memory slot per column and one bit per row. A one-hot key <code>k</code> picks the slot, <code>v</code> holds the word's bits, and with <code>α = 1</code> and <code>β = 1</code> the update replaces that column and touches nothing else. Reads, idles, and halts run the same update with <code>β = 0</code>.</p>
@@ -73,7 +73,7 @@ flowchart LR
     <div class="playground" id="playground">
       <div class="pg-head">
         <strong>Playground</strong>
-        <span>8 slots × 8 bits, float32 arithmetic, exactly as above</span>
+        <span>8 slots × 8 bits, float32 arithmetic</span>
       </div>
       <div class="pg-controls">
         <label>slot <input id="pg-addr" type="number" min="0" max="7" value="3"></label>
@@ -94,21 +94,21 @@ flowchart LR
         <span id="pg-match">matches the oracle</span>
       </div>
       <ol class="pg-log" id="pg-log" reversed></ol>
-      <p class="caption">Each cell is one entry of <code>S</code>; the bottom rows compare the decoded words with an exact integer oracle. Turn on a toggle and repeat actions: a gate just below 1 slowly erases memory, and the kernel-style norm leaves reads correct while each value it writes drifts by about 5 × 10⁻⁷. Only the residue shows it.</p>
+      <p class="caption">Each cell is an entry of <code>S</code>; the bottom rows compare decoded words with an integer oracle. Retention below 1 decays stored values. Kernel-style normalization can introduce nonzero residue while decoded words still match.</p>
     </div>
   </section>
 
   <section id="results">
     <h2>Results</h2>
-    <p class="section-tldr">Every number below is generated from committed run records; nothing is typed in by hand.</p>
-    <p>Each run steps the oracle and the neural backend side by side and checks every action: same event, same work, same decoded state, plus the <em>residue</em>, the largest distance of any stored value from an exact 0 or 1. A mid-run snapshot is written to JSON, restored, and must reproduce the live tensors exactly.</p>
+    <p class="section-summary">The tables are generated from committed run manifests.</p>
+    <p>Each action is checked for the same event, work, and decoded state as the integer oracle. The <em>residue</em> is the largest distance of any stored value from 0 or 1, measured before decoding. A mid-run snapshot is written to JSON and restored; the restored tensors must equal the live ones.</p>
     <div id="results-tables"><p class="muted">Loading results…</p></div>
-    <p class="note">These are finite conformance tests on CPU: strong evidence for the tested setups, not proofs about neural networks in general. See each report for limits and untested variants.</p>
+    <p class="note">These finite CPU tests establish conformance on the checked traces, not a proof for other inputs, sizes, kernels, or hardware. Each report lists its limits and untested variants.</p>
   </section>
 
   <section id="roadmap">
     <h2>Roadmap</h2>
-    <p class="section-tldr">Nine experiments, each building on checked foundations; negative results count too.</p>
+    <p class="section-summary">E00 and E01 have CPU results. E02, the learned-interface comparison, is next; E03–E08 remain planned.</p>
     <div class="figure">
       <pre class="mermaid">
 flowchart LR
@@ -119,22 +119,23 @@ flowchart LR
       </pre>
     </div>
     <ul class="status">
-      <li><span class="tag done">result</span> <strong>E00</strong>: does neural-network memory behave exactly like real memory? Delta replacement does, up to 10⁶ actions; other layer families are untested.</li>
-      <li><span class="tag done">result</span> <strong>E01</strong>: can counters, permutation trackers, and a stack parser run directly in layers? ReLU lookup circuits and a delta-rule stack do, up to 10⁶ actions; signed and smooth variants are untested.</li>
-      <li><span class="tag next">next</span> <strong>E02</strong>: does a model do better with an internal machine than with a tool, and why?</li>
+      <li><span class="tag done">result</span> <strong>E00</strong>: delta-rule memory matched its integer oracle on CPU traces up to 10⁶ actions per variant. Other layer families are untested.</li>
+      <li><span class="tag done">result</span> <strong>E01</strong>: ReLU circuits for parity, a mod-5 counter, and S3 tracking, plus a delta-rule stack, matched their oracles on CPU traces up to 10⁶ actions per variant. Signed and smooth variants are untested.</li>
+      <li><span class="tag next">next</span> <strong>E02</strong>: compare learned internal and textual interfaces, then compiled and native execution under the same internal interface.</li>
       <li><span class="tag">planned</span> <strong>E03–E08</strong>: latent feedback, dataflow, graph and logic engines, grids and filters, optimizer memories, search with an exact checker.</li>
     </ul>
   </section>
 
   <section id="related">
     <h2>Related work</h2>
-    <p class="section-tldr">Others have put computers in weights; the open part is a learned internal interface, compared fairly.</p>
-    <p>The idea is not new. <a href="https://divagr.com/blog/qwenputer">Qwenputer</a> compiles a RISC-V CPU into Qwen3.5 with Gated DeltaNet state as RAM, <a href="https://www.percepta.ai/blog/constructing-llm-computer">Percepta</a> compiles a WebAssembly interpreter into attention, <a href="https://arxiv.org/abs/2304.01665">Neural Comprehension</a> lets compiled modules steer decoding, and <a href="https://arxiv.org/abs/2301.05062">Tracr</a> compiles programs into transformers. Learned controllers over explicit memory go back to <a href="https://arxiv.org/abs/1410.5401">Neural Turing Machines</a> and <a href="https://arxiv.org/abs/1511.06279">Neural Programmer-Interpreters</a>. Our <a href="https://github.com/JGalego/latent-machines/blob/main/RESEARCH.md">research notes</a> record what each establishes and where it stops.</p>
+    <p class="section-summary">Prior work covers compiled programs and learned memory, with different execution and interface constraints.</p>
+    <p><a href="https://divagr.com/blog/qwenputer">Qwenputer</a> describes a RISC-V CPU compiled into Qwen3.5 with Gated DeltaNet state as RAM. <a href="https://www.percepta.ai/blog/constructing-llm-computer">Percepta</a> describes a WebAssembly interpreter compiled into attention. <a href="https://arxiv.org/abs/2304.01665">Neural Comprehension</a> uses compiled modules to steer decoding, and <a href="https://arxiv.org/abs/2301.05062">Tracr</a> compiles programs into transformers.</p>
+    <p>Learned controllers over explicit memory appear in <a href="https://arxiv.org/abs/1410.5401">Neural Turing Machines</a> and <a href="https://arxiv.org/abs/1511.06279">Neural Programmer-Interpreters</a>. The <a href="https://github.com/JGalego/latent-machines/blob/main/RESEARCH.md">research notes</a> cover mechanisms, evidence limits, and other related systems.</p>
   </section>
 
   <section id="cite">
     <h2>Cite</h2>
-    <p class="section-tldr">Use the BibTeX below or GitHub's “Cite this repository” button.</p>
+    <p class="section-summary">Use the BibTeX below or GitHub's “Cite this repository” button.</p>
     <div class="bibtex">
       <button id="copy-bibtex" class="quiet">Copy</button>
 <pre id="bibtex">@software{galego2026latentmachines,

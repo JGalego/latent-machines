@@ -1,6 +1,6 @@
 # AGENTS.md
 
-> **TL;DR:** Orientation for AI agents: current state, key files, architecture, and house rules.
+> **TL;DR:** Follow CONTRIBUTING.md for standards; use this file for repository status and ownership boundaries.
 
 Guidance for coding agents working in this repository. [CONTRIBUTING.md](CONTRIBUTING.md) is the authoritative standard; this file covers orientation and the cross-file rules that are easy to miss.
 
@@ -24,18 +24,19 @@ CI (`.github/workflows/ci.yml`) runs the same locked sync, hooks, and tests on p
 
 ## Documents
 
-> **TL;DR:** Which file holds what, and the cross-links that must stay in sync.
+> **TL;DR:** Keep source reviews, experiment plans, and result summaries in their designated files, with cross-links intact.
 
 | File | Role |
 |---|---|
 | README.md | Pitch and scope |
 | RESEARCH.md | Sources, attributed results, evidence boundaries, candidate layer families, open questions |
 | EXPERIMENTS.md | Experiment program E00-E08, target layout, execution and evidence contracts, research coverage, scope gates |
-| CONTRIBUTING.md | Code, tooling, commit, reproducibility, and verification standards |
+| CONTRIBUTING.md | Code, tooling, writing, commit, reproducibility, and verification standards |
 | site/ | Public [project page](https://jgalego.github.io/latent-machines/), deployed by `.github/workflows/pages.yml`; results tables are generated from `results/` manifests |
 
 Cross-file rules:
 
+- Follow the [writing guidelines](CONTRIBUTING.md#14-write-for-the-reader) for documentation, website copy, reports, and replies. Remove filler and gratuitous counts without dropping technical limits or evidence qualifiers.
 - Every claim, proposal, or open question in RESEARCH.md needs a row in the [Research coverage](EXPERIMENTS.md#research-coverage) table, mapping it to an experiment, a scope gate, or context only. Add the row in the same change.
 - Headings are link targets. CONTRIBUTING.md and RESEARCH.md link into EXPERIMENTS.md by anchor (`#research-coverage`, `#run-records-and-results`, `#first-implementation-slice`, `#repository-organization`, `#gates-for-expanding-scope`). Grep for an anchor before renaming its heading.
 - When an experiment's status changes, update its roadmap entry in `site/index.html` in the same change; the results tables update themselves.
@@ -43,9 +44,9 @@ Cross-file rules:
 
 ## Architecture
 
-> **TL;DR:** Four separate parts (machine, backend, interface, task), built in a fixed order.
+> **TL;DR:** Keep machine semantics independent of the backend, controller interface, and task.
 
-The program separates four axes, and the planned code mirrors them:
+Code ownership follows these boundaries:
 
 - **Machine** (`machines/`): specified transitions `(state, action) -> (next_state, event, work)` with an independent integer oracle and no dependency on a model family or tensor backend.
 - **Backend** (`backends/`): native, tensor, and optimized implementations of a machine. Owns lowering, kernels, and decoding to canonical state for conformance; decoded state must not leak to a controller.
@@ -58,7 +59,7 @@ Build in the order of the [first implementation slice](EXPERIMENTS.md#first-impl
 
 ## Evidence language
 
-> **TL;DR:** Never claim more than the evidence shows.
+> **TL;DR:** Distinguish proposals, upstream reports, local conformance tests, and proofs.
 
 The documents are precise about evidence class, and edits must preserve it:
 
@@ -69,7 +70,7 @@ The documents are precise about evidence class, and edits must preserve it:
 
 ## Working rules
 
-> **TL;DR:** Small CPU runs by default, HF Jobs up to $5, small commits, diagrams, and TL;DRs.
+> **TL;DR:** Default to small CPU runs; follow the approval limits and documentation requirements below.
 
 - Keep runs small and CPU-only by default. Model downloads, GPU sweeps, training, paid compute, and network-dependent tests need explicit approval, except Hugging Face Jobs within the limit below.
 - Agents may launch [Hugging Face Jobs](CONTRIBUTING.md#12-run-intensive-work-on-hugging-face-jobs), CPU or GPU, for work too slow for local CPU when the worst-case cost of all jobs for one task (hourly price × timeout, summed) is at most $5. State the flavor, timeout, and worst-case cost when launching, and cancel jobs that are no longer needed. Anything above the limit needs explicit approval.

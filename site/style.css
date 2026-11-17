@@ -78,16 +78,17 @@ h2 { font-size: 1.7rem; margin: 56px 0 4px; }
 button.quiet { color: var(--text); background: transparent; border-color: var(--rule); }
 button:hover, .button:hover { opacity: 0.85; }
 
-.tldr {
+.abstract {
   margin: 32px 0;
   padding: 16px 20px;
   background: var(--surface);
   border-left: 4px solid var(--accent);
   border-radius: 6px;
 }
-.tldr p { margin: 4px 0 0; }
+.abstract h2 { font: 600 1rem var(--sans); margin: 0; }
+.abstract p { margin: 4px 0 0; }
 
-.section-tldr { color: var(--muted); font-style: italic; margin-top: 0; }
+.section-summary { color: var(--muted); font-style: italic; margin-top: 0; }
 .questions li { margin: 4px 0; font-family: var(--serif); font-size: 1.1rem; }
 .formula { text-align: center; font-size: 1.05rem; }
 .caption, .note, .muted { color: var(--muted); font-size: 0.9rem; }

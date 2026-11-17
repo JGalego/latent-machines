@@ -1,8 +1,8 @@
 # Experiments
 
-> **TL;DR:** Runnable experiments that tie the parts together and leave a receipt.
+> **TL;DR:** Experiment runners compose machines, backends, and workloads, then record conformance results.
 
-Runnable entry points that compose machines, backends, and task generators and write run records. See the [experiment program](../../../EXPERIMENTS.md#experiments) and the [run-record contract](../../../EXPERIMENTS.md#run-records-and-results).
+See the [experiment program](../../../EXPERIMENTS.md#experiments) and the [run-record contract](../../../EXPERIMENTS.md#run-records-and-results).
 
 ## E00: memory conformance
 
@@ -33,9 +33,9 @@ Each run writes `runs/e00-<time>-<revision>-<id>/` with `run.json`, `metrics.jso
 
 ## E01: exact streaming machines
 
-> **TL;DR:** Run small exact machines and their compiled neural versions side by side, every step, in every number format.
+> **TL;DR:** Compare compiled transducers and a delta-rule stack against their integer oracles after each action.
 
-[e01.py](e01.py) uses the same [lockstep check](lockstep.py) as E00 on two pairs:
+[e01.py](e01.py) uses the same [lockstep check](lockstep.py) as E00:
 
 ```mermaid
 flowchart LR

@@ -1,12 +1,12 @@
 # E00 results: delta-rule memory conformance
 
-> **TL;DR:** Neural-network memory matched the reference exactly for 35 million actions, in the tested setup.
+> **TL;DR:** Delta-rule memory matched its reference on the tested CPU traces, up to 10^6 actions per variant.
 
-In plain terms: we stored a small computer memory inside the update rule of a neural-network layer (Gated DeltaNet) and checked it against a plain reference after every single action. Across 35 million checked actions in four number formats, it never disagreed and never drifted, even slightly. This holds for the tested setup only (16 slots of 8 bits, CPU, an explicit implementation of the update rule), not for neural networks in general.
+The eager Gated DeltaNet recurrence stored 16 slots of 8 bits and matched an integer oracle after each checked action. The recorded CPU runs had no event, work, or decoded-state mismatches, and zero stored-state residue in float32, float64, bfloat16, and float16. These results cover the declared workloads and implementation, not other sizes, kernels, or neural networks generally.
 
 ## Question and hypothesis
 
-> **TL;DR:** Can a Gated DeltaNet state matrix act as exact memory? The hypothesis says yes.
+> **TL;DR:** Test whether the explicit Gated DeltaNet recurrence implements the specified memory transitions at the chosen precisions.
 
 [E00](../../EXPERIMENTS.md#e00---memory-and-transition-conformance) asks which layer families implement the required storage semantics on the chosen execution path. This first run tests one variant, delta replacement:
 
@@ -14,7 +14,7 @@ In plain terms: we stored a small computer memory inside the update rule of a ne
 
 ## Evidence class
 
-> **TL;DR:** Our own finite tests: strong evidence for this setup, not a proof.
+> **TL;DR:** These are project-run conformance tests, not independent validation or a proof.
 
 Local conformance on a finite, declared suite, run by this project; not independently checked. Every action is compared with the integer oracle: event, work, and decoded state, plus residue before decoding. Passing is evidence for the tested configuration, not a proof of exactness for other inputs, sizes, or kernels. The method is described in the [E00 runner](../../src/latent_machines/experiments/README.md#e00-memory-conformance).
 
@@ -35,7 +35,7 @@ A variant is one workload in one number format: 32 per run.
 
 ## Results
 
-> **TL;DR:** Five runs, zero mismatches, zero drift, and every snapshot restored.
+> **TL;DR:** The recorded runs had no mismatches or stored-state residue, and every snapshot restored exactly.
 
 | Horizon per variant | Seed | Where | Actions checked | Mismatches | Max residue | Snapshots | Status | Record |
 |---|---|---|---|---|---|---|---|---|
@@ -49,7 +49,7 @@ Every variant in every run is classified `exact`: no first mismatch exists up to
 
 ## Costs
 
-> **TL;DR:** A minute of laptop time plus about two cents of cloud compute.
+> **TL;DR:** Local short runs took under 25 seconds each; the cloud sweeps cost about $0.02.
 
 - Local 10^3 runs: under 25 s each.
 - HF job [`6afb99e5…`](https://huggingface.co/jobs/jgalego/6afb99e5186b78cad7b6ceb9): 2,236 s running on `cpu-upgrade` at $0.03/h, about $0.02, with 8 worker processes.
@@ -66,7 +66,7 @@ Every variant in every run is classified `exact`: no first mismatch exists up to
 
 ## Artifacts
 
-> **TL;DR:** Summaries live here; raw traces live in a public Hub dataset.
+> **TL;DR:** Manifests are committed here; cloud-run traces and snapshots are in the linked public dataset.
 
 Run manifests (`run.json`, `metrics.json`) are in this directory. Raw traces (first 1,000 transitions per variant) and snapshots from the HF runs are in the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs) at commit `4b00d50e`. The local runs' raw directories exist only on the machine that ran them, in the ignored `runs/` directory.
 
@@ -79,8 +79,8 @@ uv run --locked python -m latent_machines.experiments.e00 --horizon 100000 --job
 
 ## Decision
 
-> **TL;DR:** This backend clears its checks; next, build E01 and test more E00 variants.
+> **TL;DR:** The backend met its conformance and snapshot criteria; the decision at run time was to proceed to E01.
 
-For this backend and configuration, the result meets the conformance and snapshot condition of [scope gate 1](../../EXPERIMENTS.md#gates-for-expanding-scope). Next steps:
-- **Slice:** continue with step 5 (E01 machines).
-- **E00 variants:** add them one at a time, starting with kernel-style key normalization. In an informal check during backend testing, it left reads correct in float32 while state drifted by about 5e-7.
+For this backend and configuration, the result meets the conformance and snapshot condition of [scope gate 1](../../EXPERIMENTS.md#gates-for-expanding-scope). The next steps identified at the time were:
+- **Slice:** continue with step 5 (E01 machines), which now has [results](../E01/README.md).
+- **E00 variants:** test kernel-style key normalization next. An informal backend check left reads correct in float32 while state residue reached about 5e-7; this is not a recorded E00 result.

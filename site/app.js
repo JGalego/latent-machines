@@ -59,7 +59,7 @@ function renderExperiment(id, exp) {
       <thead><tr><th>Actions per variant</th><th>Seed</th><th>Actions checked</th><th>Mismatches</th><th>Max residue</th><th>Snapshots agree</th><th>Status</th><th>CPU</th><th>Record</th></tr></thead>
       <tbody>${summary}</tbody>
     </table></div>
-    <p class="caption">Every variant at ${fmtHorizon(largest.horizon)} actions (hover a cell for details):</p>
+    <p class="caption">Variant classifications at ${fmtHorizon(largest.horizon)} actions per variant:</p>
     <div class="table-wrap"><table class="grid-matrix">
       <thead><tr><th></th>${dtypes.map((d) => `<th>${esc(d)}</th>`).join("")}</tr></thead>
       <tbody>${matrix}</tbody>

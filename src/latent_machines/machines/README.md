@@ -1,12 +1,12 @@
 # Machines
 
-> **TL;DR:** Plain-code reference machines that every neural version must match.
+> **TL;DR:** Independent integer oracles define the state transitions that backends must match.
 
 Specifications and independent integer oracles. A machine here depends on no model family or tensor backend; backends are validated against it. See [ownership boundaries](../../../EXPERIMENTS.md#ownership-boundaries).
 
 ## `memory/v1`
 
-> **TL;DR:** A tiny memory that reads, writes, idles, and halts; bad requests fail without damage.
+> **TL;DR:** Fixed-capacity memory supports reads, writes, idle, and halt; invalid addresses or values fault without changing state.
 
 Fixed-capacity random-access memory of unsigned words, the reference for [E00](../../../EXPERIMENTS.md#e00---memory-and-transition-conformance). The docstring in [memory.py](memory.py) is the authoritative specification; this diagram shows the order of checks in one step.
 
@@ -44,7 +44,7 @@ Snapshots carry a digest of both tables, so a snapshot cannot be restored into a
 
 ## `stack/v1`
 
-> **TL;DR:** A bounded last-in, first-out stack that refuses to overflow or underflow.
+> **TL;DR:** A bounded last-in, first-out stack faults on overflow or underflow without changing state.
 
 Bounded stack of unsigned words, the reference for E01's stack parser. [stack.py](stack.py) is the authoritative specification.
 

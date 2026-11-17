@@ -1,12 +1,12 @@
 # E01 results: compiled transducers and a delta-rule stack
 
-> **TL;DR:** Small state machines and a stack, compiled into neural layers, matched their references exactly for 26 million actions.
+> **TL;DR:** Compiled transducers and a delta-rule stack matched their references on CPU traces up to 10^6 actions per variant.
 
-In plain terms: we turned three tiny state machines (a parity tracker, a counter, and a tracker for shuffles of three items) into two-layer neural networks, and built a stack out of neural-network memory. Checked against plain references after every action, in four number formats, they never disagreed and never drifted. This holds for these small machines on CPU, not for neural networks in general.
+ReLU networks implemented running parity, a mod-5 counter, and permutations of three items; a delta-rule memory with a depth pointer implemented a bounded stack. The recorded CPU runs had no event, work, or decoded-state mismatches, and zero stored-state residue in float32, float64, bfloat16, and float16. The results cover these machines and workloads, not larger configurations or other execution paths.
 
 ## Question and hypothesis
 
-> **TL;DR:** Can simple exact machines run directly in layers, without a general-purpose CPU? The hypothesis says yes.
+> **TL;DR:** Test whether ReLU lookup circuits and delta-rule storage implement the declared transducer and stack transitions.
 
 [E01](../../EXPERIMENTS.md#e01---exact-streaming-machines-and-transition-algebras) asks whether useful specified algorithms can run directly without a general-purpose CPU. This run tests two of its variants:
 
@@ -14,7 +14,7 @@ In plain terms: we turned three tiny state machines (a parity tracker, a counter
 
 ## Evidence class
 
-> **TL;DR:** Our own finite tests: strong evidence for these machines, not a proof.
+> **TL;DR:** These are project-run conformance tests, not independent validation or a proof.
 
 Local conformance on finite, declared workloads, run by this project; not independently checked. Every action is compared with the oracle: event, work, and decoded state, plus residue before decoding. The method is the shared [lockstep check](../../src/latent_machines/experiments/README.md#e01-exact-streaming-machines), the same one E00 uses.
 
@@ -36,7 +36,7 @@ A variant is one machine, workload, and number format: 24 per run.
 
 ## Results
 
-> **TL;DR:** Five runs, zero mismatches, zero drift, and every snapshot restored.
+> **TL;DR:** The recorded runs had no mismatches or stored-state residue, and every snapshot restored exactly.
 
 | Actions per variant | Seed | Where | Actions checked | Mismatches | Max residue | Snapshots | Status | Record |
 |---|---|---|---|---|---|---|---|---|
@@ -50,7 +50,7 @@ Every variant in every run is classified `exact`. The seed-0 10^3 run, whose ful
 
 ## Circuit and state sizes
 
-> **TL;DR:** The compiled circuits are tiny: four nonzero weights per state-symbol pair.
+> **TL;DR:** The lookup circuits use four nonzero weights per state-symbol pair.
 
 | Machine | Hidden width | Depth | Nonzero weights | Stored weights | Logical state | State tensor (float32) |
 |---|---|---|---|---|---|---|
@@ -63,7 +63,7 @@ Each action is one tick. One-hot state costs one entry per state, so state bytes
 
 ## Costs
 
-> **TL;DR:** About a minute of laptop time plus about one cent of cloud compute.
+> **TL;DR:** Local short runs took about 12 seconds each; the cloud sweeps cost about $0.01.
 
 - Local 10^3 runs: about 12 s each, with 4 workers.
 - HF job [`6afc2fdc…`](https://huggingface.co/jobs/jgalego/6afc2fdc884144d2f44f27ba): 1,017 s running on `cpu-upgrade` at $0.03/h, about $0.01, with 8 worker processes.
@@ -71,7 +71,7 @@ Each action is one tick. One-hot state costs one entry per state, so state bytes
 
 ## Limits
 
-> **TL;DR:** Tiny machines, ReLU circuits only, CPU only, and some checks done by host code.
+> **TL;DR:** Larger machines, other constructions, GPUs, and fused kernels remain untested; host code performs some checks.
 
 - **Not tested:** smooth (SwiGLU) lookup circuits, direct signed, reflection, or rotation recurrences (DeltaProduct, Complex KDA, RWKV-7, Mamba-3), LSTM/GRU cells, mutable-record assignment, larger state spaces or permutation groups, deeper stacks, GPUs, and fused kernels.
 - **Margins:** residue covers the fed-back state only. Hidden-unit and output activations were not measured separately, although every one decoded correctly.
@@ -81,9 +81,9 @@ Each action is one tick. One-hot state costs one entry per state, so state bytes
 
 ## Artifacts
 
-> **TL;DR:** Summaries live here; raw traces live in a public Hub dataset.
+> **TL;DR:** Manifests are committed here; cloud-run traces and snapshots are in the linked public dataset.
 
-Run manifests (`run.json`, `metrics.json`) are in this directory. The HF runs' manifests now record the job ID, CPU quota, flavor, image, and timeout. Raw traces (first 1,000 transitions per variant) and snapshots from the HF runs are in the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs) at commit `96f98985`.
+Run manifests (`run.json`, `metrics.json`) are in this directory. The HF runs' manifests record the job ID, CPU quota, flavor, image, and timeout. Raw traces (first 1,000 transitions per variant) and snapshots from the HF runs are in the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs) at commit `96f98985`.
 
 ```bash
 git checkout 765c759 && uv sync --locked --extra torch-cpu

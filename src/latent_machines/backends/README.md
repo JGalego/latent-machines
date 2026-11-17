@@ -6,7 +6,7 @@ Implementations of machine semantics, validated step by step against the integer
 
 ## Delta-rule memory
 
-> **TL;DR:** Memory stored inside a neural layer's math: one column per slot, one row per bit.
+> **TL;DR:** The delta-rule backend stores memory in a state matrix, with one column per slot and one row per bit.
 
 [delta.py](delta.py) stores [`memory/v1`](../machines/README.md#memoryv1) in a Gated DeltaNet state matrix `S` of shape `(word_bits, capacity)`: one column per slot, one row per bit. The module docstring is the authoritative description.
 
@@ -34,7 +34,7 @@ Conformance requires zero residue: every entry of `S` is exactly 0 or 1, so thre
 
 ## ReLU lookup circuit
 
-> **TL;DR:** A tiny two-layer network that looks up each next state, one neuron per state-symbol pair.
+> **TL;DR:** A two-layer ReLU network computes the next state and output from a compiled transition table.
 
 [lookup.py](lookup.py) compiles a [`transducer/v1`](../machines/transducer.py) table into a ReLU network with explicit feedback. Hidden unit `(i, a)` fires only when the state is `i` and the symbol is `a`; its outgoing weights select the next state and the output.
 
@@ -48,11 +48,11 @@ flowchart LR
     N -.->|feedback| S
 ```
 
-Every intermediate is 0, 1, or 2, so the circuit is exact in all four tested number formats. Width is `states × symbols`, depth is 2, and each unit has four nonzero weights. Smooth activations such as SwiGLU are a separate construction, not an option of this one.
+Every intermediate is 0, 1, or 2, so the circuit is exact in float32, float64, bfloat16, and float16. Width is `states × symbols`, depth is 2, and each unit has four nonzero weights. Smooth activations such as SwiGLU are a separate construction, not an option of this one.
 
 ## Delta-rule stack
 
-> **TL;DR:** A stack built from the same neural memory plus a sliding one-hot pointer that marks the top.
+> **TL;DR:** The stack combines delta-rule memory with a one-hot depth pointer moved by shift matrices.
 
 [delta_stack.py](delta_stack.py) stores [`stack/v1`](../machines/stack.py) in a delta-rule matrix, one column per slot, plus a one-hot depth pointer moved by shift matrices. Overflow and underflow come from the pointer's last and first entries, read from the tensor.
 

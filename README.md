@@ -7,7 +7,9 @@
 
 Neural models as programmable machines. **[Project page](https://jgalego.github.io/latent-machines/)**
 
-Research into programs compiled into weights, persistent memory, and learned control over exact execution.
+Experiments with programs compiled into neural weights and learned control over persistent machine state.
+
+E00 and E01 have CPU conformance results: delta-rule memory, compiled state machines, and a delta-rule stack matched their references on the tested traces, up to 10^6 actions per variant ([E00](results/E00/README.md), [E01](results/E01/README.md)). Learned controllers and interface comparisons are not implemented yet.
 
 > Can a model use a machine through an internal interface instead of textual tool calls?
 
@@ -24,24 +26,24 @@ Research into programs compiled into weights, persistent memory, and learned con
 
 ## Research
 
-See [RESEARCH.md](RESEARCH.md) for the source-backed landscape, programmable layer families, and alternative computation models.
+See [RESEARCH.md](RESEARCH.md) for related systems, their evidence limits, and candidate layer families.
 
 See [EXPERIMENTS.md](EXPERIMENTS.md) for the proposed repository layout, experiment dependencies, correctness gates, and reproducibility contract.
 
-The program separates four questions:
+The experiments distinguish:
 
-1. **Machine:** what state transitions should execute?
-2. **Backend:** which layer family or conventional implementation executes them?
-3. **Interface:** how does a controller observe and invoke the machine?
-4. **Task:** does the combination improve correctness, generalization, or cost?
+- **Machine:** what state transitions should execute?
+- **Backend:** which layer family or conventional implementation executes them?
+- **Interface:** how does a controller observe and invoke the machine?
+- **Task:** does the combination improve correctness, generalization, or cost?
 
-Start with executor conformance on a small memory and streaming machine. Then run the four-way controller comparison: no machine, textual tools, internal native execution, and internal compiled tensor execution. Broaden to latent ticks, dataflow, graphs, and spatial machines only after those foundations work.
+The next study compares a model without a machine, textual tools, internal native execution, and internal compiled tensor execution. Later experiments cover latent feedback, dataflow, graphs, and spatial machines, subject to the [scope gates](EXPERIMENTS.md#gates-for-expanding-scope).
 
-Implementation follows the [first implementation slice](EXPERIMENTS.md#first-implementation-slice). E00 and E01 have first results: delta-rule memory, compiled state machines, and a delta-rule stack matched their exact references on every checked action up to 10^6 actions on CPU ([E00](results/E00/README.md), [E01](results/E01/README.md)). The other experiments are proposals, not reproduced results.
+Implementation follows the [first implementation slice](EXPERIMENTS.md#first-implementation-slice). E02-E08 remain proposals.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for code style and research standards: minimal code and dependencies, uv, pre-commit, small frequent commits, commit messages, diagrams as code, reproducible experiments, and mandatory result verification.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for code, [writing](CONTRIBUTING.md#14-write-for-the-reader), and research standards.
 
 ## Citing
 

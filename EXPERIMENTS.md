@@ -1,6 +1,6 @@
 # Experiment program
 
-> **TL;DR:** Nine experiments, ordered so each builds on checked foundations.
+> **TL;DR:** Validate executors before comparing learned interfaces; E00 and E01 have initial CPU results.
 
 Status, 2026-11-17: E00 ([report](results/E00/README.md)) and E01 ([report](results/E01/README.md)) have first results on CPU; the other experiments are proposed. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
 
@@ -8,7 +8,7 @@ Status, 2026-11-17: E00 ([report](results/E00/README.md)) and E01 ([report](resu
 
 > **TL;DR:** Separate what runs, how it runs, how it is controlled, and what it is for; start with E00.
 
-Separate four axes:
+Separate the following axes:
 
 | Axis | Meaning | Example |
 |---|---|---|
@@ -28,7 +28,7 @@ E00 executor conformance
             -> E03 latent feedback
 ```
 
-E04-E08 are independent follow-on branches after their prerequisites pass, not requirements for the first implementation. A negative result is a result: report it before adding a larger model or a more elaborate compiler.
+E04-E08 are independent follow-on branches after their prerequisites pass, not requirements for the first implementation. Report failed hypotheses before adding a larger model or compiler.
 
 ## Repository organization
 
@@ -60,7 +60,7 @@ assets/
 
 ### Ownership boundaries
 
-> **TL;DR:** Each folder owns one job, and the controller never sees the answer key.
+> **TL;DR:** Keep machine semantics, execution, observations, and task answers separate; use decoded state only for validation.
 
 ```mermaid
 flowchart LR
@@ -95,7 +95,7 @@ Do not start with a general compiler, plugin registry, training framework, Rust 
 
 ### First implementation slice
 
-> **TL;DR:** Six build steps from a memory reference to the first learning test; five are done, with recorded results.
+> **TL;DR:** The memory and streaming-machine steps have recorded results; the learned-controller study is next.
 
 1. Add the uv-managed package and lockfile, focused tests, an integer memory oracle, pinned pre-commit hooks, and fast CPU CI.
 2. Specify fixed capacity, word domain, reads/writes, invalid-address behavior, event ordering, and non-mutating faults.
@@ -131,7 +131,7 @@ Reference, dense tensor, and fused backends should produce the same canonical tr
 
 ### Controller and interface
 
-> **TL;DR:** Compare interfaces fairly: same information, same budgets, no secret hints.
+> **TL;DR:** Match observations, action semantics, and resource budgets across interface variants.
 
 Hold constant across interface variants:
 
@@ -145,7 +145,7 @@ Use oracle action replay to isolate executor cost, and free-running learned cont
 
 ### Numerical conformance
 
-> **TL;DR:** Check every rounding trap, and record near-misses even when answers look right.
+> **TL;DR:** Check the actual numerical path and record residue before decoding can hide it.
 
 Record weights, activations, accumulators, stored state, and index/key precision separately. Check:
 
@@ -235,7 +235,7 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 ### E03 - Latent ticks and explicit events
 
-> **TL;DR:** Can model and machine talk without text, and is that actually cheaper?
+> **TL;DR:** Compare non-text feedback with token feedback and a native loop at matched information and work budgets.
 
 **Question:** does an explicit non-text feedback path improve cost or control without changing the available information or permitted computation?
 
@@ -287,7 +287,7 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 ### E06 - Spatial and structured dynamical machines
 
-> **TL;DR:** When do grid-like or filter-like layers beat pretending to be memory?
+> **TL;DR:** Compare local-rule and filter implementations with random-access emulation under their respective exact or approximate contracts.
 
 **Question:** when does local or structured state evolution provide a better substrate than random-access emulation?
 
@@ -368,7 +368,7 @@ Layer families appear under the experiments that test their natural primitive, n
 | TTT / Titans | E07 |
 | Frozen MLP "key-value memory" | Context: not writable runtime RAM, so not an E00 variant |
 | Transition algebra | E01 |
-| Streaming transducers, stacks, and parsers | E01 |
+| Streaming transducers, stacks, and parsers | E01 has initial CPU results for ReLU transducers and a delta-rule stack; other backend comparisons remain proposed |
 | Dataflow, vector, and conditional functional units | E04 |
 | Graph, semiring, and finite-domain logic | E05 |
 | Cellular automata, systolic arrays, and signal processing | E06 cellular rules and filters; systolic arrays have no separate target yet |
@@ -394,9 +394,9 @@ Layer families appear under the experiments that test their natural primitive, n
 
 ## Run records and results
 
-> **TL;DR:** Every run leaves a receipt: what ran, from which code, and what happened.
+> **TL;DR:** Record each run's source, configuration, environment, outcomes, and failure evidence.
 
-The first runner should write a unique directory under ignored `runs/` containing:
+Each runner must write a unique directory under ignored `runs/` containing:
 
 | File | Required content |
 |---|---|
@@ -416,7 +416,7 @@ Each curated report should state the hypothesis, evidence class, matched control
 
 ## Gates for expanding scope
 
-> **TL;DR:** Six checkpoints that must pass before the project grows more ambitious.
+> **TL;DR:** Require specific evidence before adding learned control, performance claims, model families, compilers, guarantees, or runtime integration.
 
 1. **Before learned control:** the executor passes bounded conformance and snapshot tests.
 2. **Before speed claims:** correctness passes on the exact timed path, and the conventional baseline and budgets are credible.
@@ -425,4 +425,4 @@ Each curated report should state the hypothesis, evidence class, matched control
 5. **Before an exactness guarantee:** distinguish finite testing from proof; define the checker, floating-point assumptions, and trusted runtime. Compiler-generated range/representation obligations are a later research target, not certificates that already exist.
 6. **Before Shem integration:** identify a workload that benefits. Adapt execution/snapshot APIs without forcing graph or spatial state into RV32 registers, or expanding this repository into another container runtime.
 
-The first milestone is modest: one conforming memory backend, one useful exact streaming machine, and reproducible evidence. The first scientific milestone is the E02 interface-versus-implementation result, whether positive or negative.
+The executor milestone requires a conforming memory backend, an exact streaming machine, and reproducible evidence. E02 then tests interface benefits separately from implementation benefits, whether the result is positive or negative.
