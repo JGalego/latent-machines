@@ -49,3 +49,21 @@ flowchart LR
 ```
 
 Every intermediate is 0, 1, or 2, so the circuit is exact in all four tested number formats. Width is `states × symbols`, depth is 2, and each unit has four nonzero weights. Smooth activations such as SwiGLU are a separate construction, not an option of this one.
+
+## Delta-rule stack
+
+> **TL;DR:** A stack built from the same neural memory plus a sliding one-hot pointer that marks the top.
+
+[delta_stack.py](delta_stack.py) stores [`stack/v1`](../machines/stack.py) in a delta-rule matrix, one column per slot, plus a one-hot depth pointer moved by shift matrices. Overflow and underflow come from the pointer's last and first entries, read from the tensor.
+
+```mermaid
+flowchart LR
+    P["Push(v)"] --> F{"pointer at top?"}
+    F -->|yes| O[overflow fault]
+    F -->|no| W["write bits(v) at slot = pointer<br/>(delta rule, β = 1)"] --> U["pointer ← U · pointer"]
+    Q["Pop()"] --> E{"pointer at bottom?"}
+    E -->|yes| N[underflow fault]
+    E -->|no| D["pointer ← Uᵀ · pointer"] --> R["read slot → output"] --> C["clear slot<br/>(write zeros, β = 1)"]
+```
+
+Clearing on pop keeps freed slots at zero, so the live tensors always equal a freshly encoded snapshot. Tests require this at every step.
