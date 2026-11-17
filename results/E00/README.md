@@ -66,9 +66,9 @@ Every variant in every run is classified `exact`: no first mismatch exists up to
 
 ## Artifacts
 
-> **TL;DR:** Summaries live here; raw traces live in a private Hub dataset.
+> **TL;DR:** Summaries live here; raw traces live in a public Hub dataset.
 
-Run manifests (`run.json`, `metrics.json`) are in this directory. Raw traces (first 1,000 transitions per variant) and snapshots from the HF runs are in the private Hub dataset `jgalego/latent-machines-runs` at commit `4b00d50e`. The local runs' raw directories exist only on the machine that ran them, in the ignored `runs/` directory.
+Run manifests (`run.json`, `metrics.json`) are in this directory. Raw traces (first 1,000 transitions per variant) and snapshots from the HF runs are in the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs) at commit `4b00d50e`. The local runs' raw directories exist only on the machine that ran them, in the ignored `runs/` directory.
 
 Reproduce a run with, for example:
 
