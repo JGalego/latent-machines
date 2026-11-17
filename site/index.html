@@ -33,7 +33,7 @@
 <main>
   <section id="abstract" class="abstract" aria-labelledby="abstract-title">
     <h2 id="abstract-title">Abstract</h2>
-    <p>Language models that need exact computation typically call external tools, exchanging requests and results as text. An alternative is an internal interface, through which a model issues typed actions to a machine and receives typed observations within its own computation. Studying such an interface first requires machines that execute exactly when expressed in neural-network arithmetic. We separate the machine specification, its implementation, the controller interface, and the task, and we check every implementation against an independent integer oracle after every action, recording the residue of stored values before they are decoded. We implement a random-access memory in the state matrix of a Gated DeltaNet recurrence, finite-state transducers as two-layer ReLU lookup circuits, and a bounded stack built from delta-rule memory and a one-hot pointer. On CPU, in float32, float64, bfloat16, and float16, {{abstract_result}}. These are finite conformance results rather than proofs. A comparison of learned controllers that use no machine, a textual tool, or an internal interface with native and compiled executors is in progress.</p>
+    <p>Language models that need exact computation typically call external tools, exchanging requests and results as text. An alternative is an internal interface, through which a model issues typed actions to a machine and receives typed observations within its own computation. Studying such an interface first requires machines that execute exactly when expressed in neural-network arithmetic. We separate the machine specification, its implementation, the controller interface, and the task, and we check every implementation against an independent integer oracle after every action, recording the residue of stored values before they are decoded. We implement a random-access memory in the state matrix of a Gated DeltaNet recurrence, finite-state transducers as two-layer ReLU lookup circuits, and a bounded stack built from delta-rule memory and a one-hot pointer. On CPU, in float32, float64, bfloat16, and float16, {{abstract_result}}. These are finite conformance results rather than proofs. In a comparison of learned controllers built on a frozen 135M-parameter language model, a typed internal interface answered more questions correctly than a textual tool on programs longer than those seen in training, and compiled and native executors gave identical answers; all controllers degraded on long programs.</p>
   </section>
 
   {{toc}}
@@ -48,7 +48,7 @@
       <li>A conformance protocol that compares a backend with its oracle after every action, records the residue of stored values before decoding, and checks that a snapshot restored through JSON reproduces the live state exactly (Section&nbsp;3.1).</li>
       <li>Tensor implementations of a random-access memory, finite-state transducers, and a bounded stack, using the Gated DeltaNet recurrence and ReLU lookup circuits (Sections&nbsp;3.2–3.4).</li>
       <li>Conformance results for these implementations in four floating-point formats on CPU, with up to 10<sup>6</sup> actions per configuration (Section&nbsp;4).</li>
-      <li>An experimental design that separates the effect of the interface from the effect of compiling the machine, for which the implementation is complete and runs are in progress (Section&nbsp;5).</li>
+      <li>A comparison of learned controllers on a record-update task that separates the effect of the interface from the effect of compiling the machine (Section&nbsp;5).</li>
     </ul>
     <p>Code, run records, and per-experiment reports are public.</p>
   </section>
@@ -141,8 +141,8 @@ flowchart LR
   </section>
 
   <section id="ongoing">
-    <h2>5&ensp;Learned controllers (in progress)</h2>
-    <p>The next experiment, E02, compares learned controllers on a record-update task. Programs such as “Set c to 7. What is c?” assign values from 0 to 15 to eight records and ask for their current values. A frozen SmolLM2-135M model reads each program, and only small heads that read its hidden states are trained: an action head that chooses an operation, a record, and a value, and an answer head. The four arms in {{tab:e02-arms}} share the task, the frozen features, and the head architecture.</p>
+    <h2>5&ensp;Learned controllers</h2>
+    <p>Experiment E02 compares learned controllers on a record-update task. Programs such as “Set c to 7. What is c?” assign values from 0 to 15 to eight records and ask for their current values. A frozen SmolLM2-135M model reads each program, and only small heads that read its hidden states are trained: an action head that chooses an operation, a record, and a value, and an answer head. The four arms in {{tab:e02-arms}} share the task, the frozen features, and the head architecture.</p>
     <figure class="figure">
       <figcaption class="caption"><strong>{{table:e02-arms}}:</strong> Arms of the E02 comparison. B and C differ only in how requests and replies are carried; C and D differ only in the executor.</figcaption>
       <div class="table-wrap"><table>
@@ -155,7 +155,7 @@ flowchart LR
         </tbody>
       </table></div>
     </figure>
-    <p>Controllers are trained on programs of 2 to 8 statements and evaluated without teacher forcing, so a wrong write affects later answers, on programs of the same length, on programs of 32 and 64 statements, and on record-value pairs withheld from training. Comparisons will use three training seeds and the same test programs for every arm. The implementation is complete; no E02 result is reported yet. Later experiments ({{fig:roadmap}}) test non-text feedback into the model and machines beyond random-access memory.</p>
+    <p>Controllers are trained on programs of 2 to 8 statements and evaluated without teacher forcing, so a wrong write affects later answers. The test programs have the training length, 32 statements, or 64 statements, or use record-value pairs withheld from training; every arm is trained with three seeds and evaluated on the same programs. {{tab:e02-566e}} reports the results. The typed interface (C) answered more questions correctly than the text tool (B) on every split and seed. Beyond the training length and on held-out pairs the mean difference was 0.06 to 0.10, larger than a conservative two-standard-error bound; at the training length it was 0.02, within that bound. B chose actions more accurately than C, so C's advantage arises after the action is chosen. Replacing the integer oracle with the delta-rule memory (D) changed no answer, and the delta-rule executor matched its shadow oracle on every action. All arms degraded on longer programs, and so did the accuracy of the chosen actions; there, the controller rather than the machine limits accuracy. Later experiments ({{fig:roadmap}}) test non-text feedback into the model and machines beyond random-access memory.</p>
     <figure class="figure">
       <pre class="mermaid">
 flowchart LR
@@ -170,12 +170,12 @@ flowchart LR
 
   <section id="limitations">
     <h2>6&ensp;Limitations</h2>
-    <p>The results are conformance tests on finite workloads and do not prove exactness for other inputs, sizes, or horizons. All runs use eager PyTorch on CPU; GPUs, fused or chunked kernels, and the output normalization and gating of a complete Gated DeltaNet layer are untested, and Section&nbsp;3.2 shows that such details can matter. The machines are small: 16 memory words, transducers with at most six states, and a stack of depth 8. Host code validates arguments before the tensor update, so the results concern storage, readout, and transitions rather than validation. The sweeps of 10<sup>5</sup> and 10<sup>6</sup> actions use a single seed. No learned controller has yet been evaluated, so these results say nothing about whether an internal interface helps a model.</p>
+    <p>The results are conformance tests on finite workloads and do not prove exactness for other inputs, sizes, or horizons. All runs use eager PyTorch on CPU; GPUs, fused or chunked kernels, and the output normalization and gating of a complete Gated DeltaNet layer are untested, and Section&nbsp;3.2 shows that such details can matter. The machines are small: 16 memory words, transducers with at most six states, and a stack of depth 8. Host code validates arguments before the tensor update, so the results concern storage, readout, and transitions rather than validation. The sweeps of 10<sup>5</sup> and 10<sup>6</sup> actions use a single seed. The controller study uses one frozen 135M-parameter model with trained heads, one task, and three seeds, and its typed observations reach only the answer head, not later layers of the model.</p>
   </section>
 
   <section id="conclusion">
     <h2>7&ensp;Conclusion</h2>
-    <p>With gates fixed at 0 or 1 and one-hot addressing, the Gated DeltaNet recurrence implements random-access memory and, with a one-hot pointer, a bounded stack; two-layer ReLU circuits implement finite-state transducers. In the tested configurations, each implementation matched its integer oracle at every action with zero residue. These implementations provide the exact executors needed to compare internal and textual interfaces for learned controllers, which is the subject of the experiment in progress.</p>
+    <p>With gates fixed at 0 or 1 and one-hot addressing, the Gated DeltaNet recurrence implements random-access memory and, with a one-hot pointer, a bounded stack; two-layer ReLU circuits implement finite-state transducers. In the tested configurations, each implementation matched its integer oracle at every action with zero residue. With these executors, a controller built on a frozen language model answered more questions correctly through a typed internal interface than through a textual tool on programs longer than those seen in training, and the compiled executor gave the same answers as the native one. On long programs the controller's actions limit accuracy, which the next experiments address.</p>
   </section>
 
   <section id="references">

@@ -9,7 +9,7 @@ Neural models as programmable machines. **[Project page](https://jgalego.github.
 
 Experiments with programs compiled into neural weights and learned control over persistent machine state.
 
-E00 and E01 have CPU conformance results: delta-rule memory, compiled state machines, and a delta-rule stack matched their references on the tested traces, up to 10^6 actions per variant ([E00](results/E00/README.md), [E01](results/E01/README.md)). Learned controllers and interface comparisons are not implemented yet.
+E00 and E01 have CPU conformance results: delta-rule memory, compiled state machines, and a delta-rule stack matched their references on the tested traces, up to 10^6 actions per variant ([E00](results/E00/README.md), [E01](results/E01/README.md)). In E02, a learned controller on a frozen SmolLM2-135M answered more record-update questions correctly through a typed internal interface than through a text tool on programs longer than those seen in training, and the delta-rule executor gave the same answers as the native one ([E02](results/E02/README.md)).
 
 > Can a model use a machine through an internal interface instead of textual tool calls?
 

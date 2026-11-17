@@ -1,8 +1,8 @@
 # Experiment program
 
-> **TL;DR:** Validate executors before comparing learned interfaces; E00 and E01 have initial CPU results.
+> **TL;DR:** Validate executors before comparing learned interfaces; E00, E01, and E02 have initial results.
 
-Status, 2026-11-17: E00 ([report](results/E00/README.md)) and E01 ([report](results/E01/README.md)) have first results on CPU; the other experiments are proposed. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
+Status, 2026-11-17: E00 ([report](results/E00/README.md)), E01 ([report](results/E01/README.md)), and E02 ([report](results/E02/README.md)) have first results; the other experiments are proposed. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
 
 ## Questions and priorities
 
@@ -95,7 +95,7 @@ Do not start with a general compiler, plugin registry, training framework, Rust 
 
 ### First implementation slice
 
-> **TL;DR:** The memory and streaming-machine steps have recorded results; the learned-controller study is next.
+> **TL;DR:** All six steps are implemented and have recorded results, ending with the E02 learned-controller study.
 
 1. Add the uv-managed package and lockfile, focused tests, an integer memory oracle, pinned pre-commit hooks, and fast CPU CI.
 2. Specify fixed capacity, word domain, reads/writes, invalid-address behavior, event ordering, and non-mutating faults.
@@ -232,6 +232,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 **Measurements:** task accuracy, action accuracy, executor mismatches, trainable parameters, training examples/steps, generated tokens, internal actions, machine work, wall time, and peak memory.
 
 **Discriminator:** C versus B tests the interface; D versus C tests the implementation. A positive D-versus-A result alone does not identify either cause. A native-interface win is still useful.
+
+**Results:** [results/E02](results/E02/README.md). With a frozen SmolLM2-135M and trained heads, C beat B on every split and seed, clearly beyond the training length and on held-out pairs; D matched C exactly. All arms degraded on long programs.
 
 ### E03 - Latent ticks and explicit events
 
