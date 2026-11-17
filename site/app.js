@@ -293,6 +293,28 @@ function setupPlayground() {
   reset();
 }
 
+// ---------- Equation copy ----------
+
+function setupEquations() {
+  for (const equation of document.querySelectorAll(".equation[data-tex]")) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "quiet copy-tex";
+    button.textContent = "Copy LaTeX";
+    button.setAttribute("aria-label", "Copy this equation as LaTeX");
+    button.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(equation.dataset.tex);
+        button.textContent = "Copied";
+      } catch {
+        button.textContent = "Copy failed";
+      }
+      setTimeout(() => (button.textContent = "Copy LaTeX"), 1500);
+    };
+    equation.append(button);
+  }
+}
+
 // ---------- BibTeX copy ----------
 
 function setupCopy() {
@@ -312,3 +334,4 @@ function setupCopy() {
 setupResults();
 setupPlayground();
 setupCopy();
+setupEquations();

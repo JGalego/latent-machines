@@ -174,3 +174,21 @@ footer { color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--ru
 .chart .whisker { stroke: var(--text); stroke-width: 1.5; }
 .chart .hit { fill: transparent; }
 .chart .bar-group:hover .bar { opacity: 0.8; }
+
+/* Contents */
+.toc { margin: 28px 0; font: 0.9rem/1.5 var(--sans); }
+.toc h2 { font: 600 1rem var(--sans); margin: 0 0 6px; }
+.toc ol { list-style: none; padding-left: 0; margin: 0; }
+.toc ol ol { padding-left: 1.4em; }
+.toc li { margin: 2px 0; }
+.toc a { color: var(--text); text-decoration: none; }
+.toc a:hover { color: var(--accent); }
+@media (min-width: 1320px) {
+  .toc { position: fixed; top: 96px; left: max(16px, calc(50% - var(--width) / 2 - 290px)); width: 250px; max-height: calc(100vh - 128px); overflow-y: auto; margin: 0; font-size: 0.82rem; }
+}
+
+/* Display equations */
+.equation { margin: 12px 0; }
+.equation .katex-display { margin: 0; overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+.copy-tex { display: block; margin: 2px 0 0 auto; font-size: 0.72rem; padding: 1px 8px; opacity: 0.6; }
+.copy-tex:hover, .copy-tex:focus-visible { opacity: 1; }

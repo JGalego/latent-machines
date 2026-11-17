@@ -9,6 +9,7 @@ static HTML, so every number on the page comes from a source file:
     {{figure:name}}, {{fig:name}}  "Figure n" in captions and in prose
     {{table:name}}, {{tab:name}}   "Table n" in captions and in prose
     {{results}}                    tables generated from results/<EXP>/<run>/
+    {{toc}}                        contents list of the h2 and h3 headings after it
     {{abstract_result}}, {{conformance_summary}}, {{experiment_status}}
 
 Figures, tables, and equations are numbered in page order after results are
@@ -415,6 +416,81 @@ def results_data(experiments: dict[str, list[dict]]) -> str:
     return json.dumps(data, separators=(",", ":")).replace("</", "<\\/")
 
 
+HEADING = re.compile(r"<h([23])((?:\s[^>]*)?)>(.*?)</h\1>", re.S)
+
+
+def slug(text: str) -> str:
+    words = re.sub(r"<[^>]+>|&\w+;", " ", text)
+    words = re.sub(r"^\s*[\d.]+\s*", "", html.unescape(words)).lower()
+    return re.sub(r"[^a-z0-9]+", "-", words).strip("-")
+
+
+def table_of_contents(page: str) -> str:
+    """Give each h2 and h3 after the marker an id, and list them where {{toc}} is."""
+    marker = page.index("{{toc}}")
+    before, after = page[:marker], page[marker:]
+    existing = set(re.findall(r'\sid="([^"]+)"', page))
+    entries, used = [], set()
+
+    def anchor(match: re.Match) -> str:
+        level, attrs, inner = match.groups()
+        own = re.search(r'id="([^"]+)"', attrs)
+        # A heading that opens a section with an id links to that section.
+        section = re.search(r'<section id="([^"]+)"[^>]*>\s*$', after[: match.start()])
+        if own or section:
+            name, tag = (own or section).group(1), match.group(0)
+        else:
+            name = slug(inner)
+            if name in existing:
+                raise BuildError(f"heading anchor {name!r} clashes with an existing id")
+            tag = f'<h{level}{attrs} id="{name}">{inner}</h{level}>'
+        if name in used:
+            raise BuildError(f"duplicate heading anchor {name!r}")
+        used.add(name)
+        entries.append((int(level), name, inner.strip()))
+        return tag
+
+    after = HEADING.sub(anchor, after)
+    items, open_sub = [], False
+    for level, name, inner in entries:
+        if level == 2:
+            if open_sub:
+                items.append("</ol></li>")
+                open_sub = False
+            elif items:
+                items.append("</li>")
+            items.append(f'<li><a href="#{name}">{inner}</a>')
+        else:
+            if not open_sub:
+                items.append("<ol>")
+                open_sub = True
+            items.append(f'<li><a href="#{name}">{inner}</a></li>')
+    items.append("</ol></li>" if open_sub else "</li>")
+    toc = (
+        '<nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">Contents</h2>'
+        f"<ol>{''.join(items)}</ol></nav>"
+    )
+    return before + after.replace("{{toc}}", toc, 1)
+
+
+DISPLAY_MATH = re.compile(r"\$\$(.+?)\$\$", re.S)
+
+
+def wrap_equations(page: str) -> str:
+    """Wrap display math with its LaTeX source, without the generated tag, for copying."""
+
+    def wrap(match: re.Match) -> str:
+        tex = re.sub(r"\\tag\{[^{}]*\}", "", match.group(1))
+        tex = " ".join(tex.split())
+        return f'<div class="equation" data-tex="{esc(tex)}">{match.group(0)}</div>'
+
+    # Only the article: scripts outside <main> configure KaTeX with "$$" delimiters.
+    start, end = page.find("<main>"), page.find("</main>")
+    if start < 0 or end < start:
+        return DISPLAY_MATH.sub(wrap, page)
+    return page[:start] + DISPLAY_MATH.sub(wrap, page[start:end]) + page[end:]
+
+
 def render_page(root: Path) -> str:
     page = (root / "site" / "index.html").read_text()
     references = json.loads((root / "site" / "references.json").read_text())
@@ -439,6 +515,9 @@ def render_page(root: Path) -> str:
     page = number(page, "figure", "fig", "Figure")
     page = number(page, "table", "tab", "Table")
     page = cite(page, references)
+    if "{{toc}}" in page:
+        page = table_of_contents(page)
+    page = wrap_equations(page)
     leftover = MARKER.search(page)
     if leftover:
         raise BuildError(f"unresolved marker {leftover.group(0)}")

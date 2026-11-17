@@ -131,3 +131,34 @@ def test_embedded_data_cannot_close_its_script_tag(tmp_path: Path) -> None:
     metrics["variants"][0]["workload"] = "</script><script>alert(1)"
     add_run(root, "E00", "e00-x-abc1234-0001", metrics, {"horizon": 1000})
     assert "</script>" not in build.render_page(root)
+
+
+def test_contents_lists_headings_with_unique_anchors(tmp_path: Path) -> None:
+    template = (
+        "<h2>Abstract</h2> {{toc}} "
+        '<section id="intro"><h2>1&ensp;Introduction</h2>'
+        "<h3>1.1&ensp;Scope</h3></section> "
+        "<h2>References</h2>"
+    )
+    page = build.render_page(make_root(tmp_path, template, {}))
+    toc = page[page.index('<nav class="toc"') : page.index("</nav>")]
+    assert re.findall(r'href="#([^"]+)"', toc) == ["intro", "scope", "references"]
+    assert "Abstract" not in toc
+    ids = re.findall(r'\sid="([^"]+)"', page)
+    assert len(ids) == len(set(ids))
+
+
+def test_equations_carry_their_latex_without_the_tag(tmp_path: Path) -> None:
+    template = "$$ a < b \\tag{{{eqtag:x}}} $$ {{eq:x}}"
+    page = build.render_page(make_root(tmp_path, template, {}))
+    assert '<div class="equation" data-tex="a &lt; b">' in page
+    assert "\\tag{1}" in page and "(1)" in page
+
+
+def test_math_delimiters_outside_main_are_left_alone(tmp_path: Path) -> None:
+    template = (
+        "<main>$$ x $$</main><script onload=\"f({left: '$$', right: '$$'})\"></script>"
+    )
+    page = build.render_page(make_root(tmp_path, template, {}))
+    assert page.count('class="equation"') == 1
+    assert "{left: '$$', right: '$$'}" in page

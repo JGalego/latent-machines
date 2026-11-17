@@ -36,6 +36,8 @@
     <p>Language models that need exact computation typically call external tools, exchanging requests and results as text. An alternative is an internal interface, through which a model issues typed actions to a machine and receives typed observations within its own computation. Studying such an interface first requires machines that execute exactly when expressed in neural-network arithmetic. We separate the machine specification, its implementation, the controller interface, and the task, and we check every implementation against an independent integer oracle after every action, recording the residue of stored values before they are decoded. We implement a random-access memory in the state matrix of a Gated DeltaNet recurrence, finite-state transducers as two-layer ReLU lookup circuits, and a bounded stack built from delta-rule memory and a one-hot pointer. On CPU, in float32, float64, bfloat16, and float16, {{abstract_result}}. These are finite conformance results rather than proofs. A comparison of learned controllers that use no machine, a textual tool, or an internal interface with native and compiled executors is in progress.</p>
   </section>
 
+  {{toc}}
+
   <section id="introduction">
     <h2>1&ensp;Introduction</h2>
     <p>Language models that need exact computation are commonly paired with external tools: the model writes a request as text, a conventional program executes it, and the result is appended to the context. Recent systems compile complete machines into transformer weights {{cite:qwenputer,percepta}}, building on earlier compilers from programs to transformers {{cite:tracr,alta,looped}}. In these systems the model still communicates with the compiled machine through tokens, much as it would with an external tool.</p>
@@ -121,7 +123,7 @@ flowchart LR
 
     <h3>3.4&ensp;A bounded stack</h3>
     <p>A stack of capacity \(N\) stores its items in a delta-rule matrix as in Section&nbsp;3.2 and its depth in a one-hot pointer \(p \in \{0,1\}^{N+1}\). With the shift matrix \(U\) defined by \(U_{d+1,d} = 1\),</p>
-    $$ \textsf{push}(v):\ S \leftarrow S + (v - S p_{1:N})\, p_{1:N}^\top,\ \ p \leftarrow U p; \qquad \textsf{pop}:\ p \leftarrow U^\top p,\ \ o = S p_{1:N},\ \ S \leftarrow S - (S p_{1:N})\, p_{1:N}^\top. \tag{{{eqtag:stack}}} $$
+    $$ \begin{aligned} \textsf{push}(v)&:\quad S \leftarrow S + (v - S p_{1:N})\, p_{1:N}^\top,\quad p \leftarrow U p, \\ \textsf{pop}&:\quad p \leftarrow U^\top p,\quad o = S p_{1:N},\quad S \leftarrow S - (S p_{1:N})\, p_{1:N}^\top. \end{aligned} \tag{{{eqtag:stack}}} $$
     <p>Pop clears the freed slot, so the tensors always equal the encoding of the canonical stack. Overflow and underflow are read from the entries \(p_{N+1}\) and \(p_1\) of the pointer itself.</p>
   </section>
 
