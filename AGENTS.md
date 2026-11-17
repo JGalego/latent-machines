@@ -32,11 +32,13 @@ CI (`.github/workflows/ci.yml`) runs the same locked sync, hooks, and tests on p
 | RESEARCH.md | Sources, attributed results, evidence boundaries, candidate layer families, open questions |
 | EXPERIMENTS.md | Experiment program E00-E08, target layout, execution and evidence contracts, research coverage, scope gates |
 | CONTRIBUTING.md | Code, tooling, commit, reproducibility, and verification standards |
+| site/ | Public [project page](https://jgalego.github.io/latent-machines/), deployed by `.github/workflows/pages.yml`; results tables are generated from `results/` manifests |
 
 Cross-file rules:
 
 - Every claim, proposal, or open question in RESEARCH.md needs a row in the [Research coverage](EXPERIMENTS.md#research-coverage) table, mapping it to an experiment, a scope gate, or context only. Add the row in the same change.
 - Headings are link targets. CONTRIBUTING.md and RESEARCH.md link into EXPERIMENTS.md by anchor (`#research-coverage`, `#run-records-and-results`, `#first-implementation-slice`, `#repository-organization`, `#gates-for-expanding-scope`). Grep for an anchor before renaming its heading.
+- When an experiment's status changes, update its roadmap entry in `site/index.html` in the same change; the results tables update themselves.
 - "Gate" means either a neural gate (gate endpoints, channel gates) or one of the numbered [scope gates](EXPERIMENTS.md#gates-for-expanding-scope). Link scope gates explicitly.
 
 ## Architecture

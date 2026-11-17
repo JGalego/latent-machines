@@ -11,3 +11,6 @@ build/
 
 # Raw experiment runs; curated summaries go in results/
 runs/
+
+# GitHub Pages build output
+_site/

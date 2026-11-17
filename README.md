@@ -5,7 +5,7 @@
 
 # Latent Machines
 
-Neural models as programmable machines.
+Neural models as programmable machines. **[Project page](https://jgalego.github.io/latent-machines/)**
 
 Research into programs compiled into weights, persistent memory, and learned control over exact execution.
 
