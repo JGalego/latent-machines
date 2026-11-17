@@ -1,90 +1,157 @@
 "use strict";
 
-// ---------- Results, generated from committed run records ----------
+// ---------- Interactive results, from data embedded at build time ----------
 
-const fmtInt = (n) => n.toLocaleString("en-US");
-const superscript = (digits) => [...digits].map((d) => "⁰¹²³⁴⁵⁶⁷⁸⁹"[Number(d)]).join("");
-const fmtHorizon = (h) => {
-  const exp = Math.log10(h);
-  return Number.isInteger(exp) ? `10${superscript(String(exp))}` : fmtInt(h);
-};
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const fmtInt = (n) => Number(n).toLocaleString("en-US");
+const power = (h) => {
+  const exp = Math.log10(h);
+  return Number.isInteger(exp) ? `10${[...String(exp)].map((d) => "⁰¹²³⁴⁵⁶⁷⁸⁹"[d]).join("")}` : fmtInt(h);
+};
+const SPLITS = {
+  test_in_distribution: "2–8 statements",
+  test_length_32: "32 statements",
+  test_length_64: "64 statements",
+  test_held_out_pairs: "held-out pairs",
+};
 
-function badge(kind, text = kind) {
-  const cls = kind === "conforms with residue" ? "residue" : kind;
-  return `<span class="badge ${esc(cls)}">${esc(text)}</span>`;
+function badge(label) {
+  const cls = label === "conforms with residue" ? "residue" : label;
+  return `<span class="badge ${esc(cls)}">${esc(label)}</span>`;
 }
 
-function rowKey(variant) {
-  return variant.machine ? `${variant.machine} · ${variant.workload}` : variant.workload;
+function segmented(options, selected, onChange, label) {
+  const group = document.createElement("div");
+  group.className = "segmented";
+  group.setAttribute("role", "group");
+  group.setAttribute("aria-label", label);
+  for (const [value, text] of options) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "quiet";
+    button.textContent = text;
+    button.setAttribute("aria-pressed", String(value === selected));
+    button.onclick = () => {
+      for (const b of group.children) b.setAttribute("aria-pressed", String(b === button));
+      onChange(value);
+    };
+    group.append(button);
+  }
+  return group;
 }
 
-function renderExperiment(id, exp, firstTable) {
-  const runs = [...exp.runs].sort((a, b) => a.horizon - b.horizon || a.seed - b.seed);
-  const summary = runs
-    .map(
-      (r) => `<tr>
-        <td>${fmtHorizon(r.horizon)}</td>
-        <td class="num">${r.seed}</td>
-        <td class="num">${fmtInt(r.totals.actions_checked)}</td>
-        <td class="num">${r.totals.mismatches}</td>
-        <td class="num">${r.totals.max_residue}</td>
-        <td class="num">${r.snapshots_agree}/${r.totals.variants}</td>
-        <td>${badge(r.status)}</td>
-        <td>${esc(r.cpu || "")}</td>
-        <td><a href="${esc(r.manifest)}">${esc(r.run_id.split("-").pop())}</a></td>
-      </tr>`
-    )
+const rowKey = (v) => (v.machine ? `${v.machine} · ${v.workload}` : v.workload);
+
+function conformanceExplorer(root, runs) {
+  const sorted = [...runs].sort((a, b) => a.horizon - b.horizon || a.seed - b.seed);
+  const tableHost = root.querySelector(".table-wrap");
+  const detail = document.createElement("div");
+  detail.className = "detail muted";
+  detail.textContent = "Select a cell for details.";
+
+  function show(run) {
+    const dtypes = [...new Set(run.variants.map((v) => v.dtype))];
+    const keys = [...new Set(run.variants.map(rowKey))];
+    const body = keys
+      .map((key) => {
+        const cells = dtypes.map((dtype) => {
+          const index = run.variants.findIndex((v) => rowKey(v) === key && v.dtype === dtype);
+          if (index < 0) return "<td></td>";
+          const v = run.variants[index];
+          return `<td><button type="button" class="cell-button" data-index="${index}" title="${esc(v.variant)}">${badge(v.classification)}</button></td>`;
+        });
+        return `<tr><th scope="row">${esc(key)}</th>${cells.join("")}</tr>`;
+      })
+      .join("");
+    tableHost.innerHTML = `<table class="grid-matrix"><thead><tr><th></th>${dtypes.map((d) => `<th>${esc(d)}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table>`;
+    for (const button of tableHost.querySelectorAll(".cell-button")) {
+      button.onclick = () => {
+        const v = run.variants[Number(button.dataset.index)];
+        detail.className = "detail";
+        detail.innerHTML = `<strong>${esc(v.variant)}</strong> ${badge(v.classification)}
+          <dl>
+            <dt>Actions checked</dt><dd>${fmtInt(v.actions_checked)}</dd>
+            <dt>Max residue</dt><dd>${esc(v.max_residue)}</dd>
+            <dt>Snapshot</dt><dd>${esc(v.snapshot_resume)}</dd>
+            <dt>End-to-end time</dt><dd>${esc(v.end_to_end_seconds)} s</dd>
+            <dt>Input checksum</dt><dd><code>${esc(String(v.action_sha256 || "").slice(0, 16))}…</code></dd>
+            <dt>Run</dt><dd><a href="${esc(run.manifest)}">${esc(run.run_id)}</a></dd>
+          </dl>`;
+      };
+    }
+  }
+
+  const options = sorted.map((run, i) => [i, `${power(run.horizon)} · seed ${run.seed}`]);
+  const last = sorted.length - 1;
+  root.prepend(segmented(options, last, (i) => show(sorted[i]), "Run"));
+  root.append(detail);
+  show(sorted[last]);
+}
+
+// Bars of mean accuracy per arm, with whiskers spanning the range over seeds.
+function accuracyChart(summary, split, metric) {
+  const rows = summary.filter((s) => s.split === split && s[metric]).sort((a, b) => a.arm.localeCompare(b.arm));
+  if (!rows.length) return '<p class="muted">No values for this metric and split.</p>';
+  const width = 520, height = 220, left = 40, bottom = 28, top = 12;
+  const plotH = height - bottom - top;
+  const band = (width - left) / rows.length;
+  const barW = Math.min(44, band * 0.5);
+  const y = (v) => top + plotH * (1 - v);
+  const grid = [0, 0.25, 0.5, 0.75, 1]
+    .map((t) => `<line class="grid" x1="${left}" x2="${width}" y1="${y(t)}" y2="${y(t)}"/><text class="tick" x="${left - 6}" y="${y(t) + 4}" text-anchor="end">${t}</text>`)
     .join("");
-
-  const largest = runs[runs.length - 1];
-  const dtypes = [...new Set(largest.variants.map((v) => v.dtype))];
-  const rows = [...new Set(largest.variants.map(rowKey))];
-  const cell = (row, dtype) => {
-    const v = largest.variants.find((x) => rowKey(x) === row && x.dtype === dtype);
-    if (!v) return "<td></td>";
-    const title = `${v.variant}: ${fmtInt(v.actions_checked)} actions, residue ${v.max_residue}, snapshot ${v.snapshot_resume}`;
-    return `<td title="${esc(title)}">${badge(v.classification)}</td>`;
-  };
-  const matrix = rows
-    .map((row) => `<tr><th scope="row">${esc(row)}</th>${dtypes.map((d) => cell(row, d)).join("")}</tr>`)
+  const bars = rows
+    .map((s, i) => {
+      const stat = s[metric];
+      const cx = left + band * (i + 0.5);
+      const h = Math.max(0, y(0) - y(stat.mean));
+      const tip = `Arm ${s.arm}: mean ${stat.mean.toFixed(3)}, range ${stat.min.toFixed(3)}–${stat.max.toFixed(3)} over ${s.seeds} seed${s.seeds === 1 ? "" : "s"}`;
+      return `<g class="bar-group"><title>${esc(tip)}</title>
+        <rect class="hit" x="${cx - band / 2}" y="${top}" width="${band}" height="${plotH}"/>
+        ${h >= 4
+          ? `<path class="bar" d="M${cx - barW / 2},${y(0)} V${y(stat.mean) + 4} q0,-4 4,-4 H${cx + barW / 2 - 4} q4,0 4,4 V${y(0)} Z"/>`
+          : `<rect class="bar" x="${cx - barW / 2}" y="${y(stat.mean)}" width="${barW}" height="${h}"/>`}
+        <line class="whisker" x1="${cx}" x2="${cx}" y1="${y(stat.max)}" y2="${y(stat.min)}"/>
+        <line class="whisker" x1="${cx - 6}" x2="${cx + 6}" y1="${y(stat.max)}" y2="${y(stat.max)}"/>
+        <line class="whisker" x1="${cx - 6}" x2="${cx + 6}" y1="${y(stat.min)}" y2="${y(stat.min)}"/>
+        <text class="value" x="${cx}" y="${y(stat.max) - 6}" text-anchor="middle">${stat.mean.toFixed(2)}</text>
+        <text class="tick" x="${cx}" y="${height - 8}" text-anchor="middle">Arm ${esc(s.arm)}</text></g>`;
+    })
     .join("");
-  const total = runs.reduce((sum, r) => sum + r.totals.actions_checked, 0);
-
-  const title = exp.title.charAt(0).toUpperCase() + exp.title.slice(1);
-  const revisions = [...new Set(runs.map((r) => r.revision.slice(0, 7)))];
-  return `<p><strong>${esc(title)} (${esc(id)}).</strong>
-      ${fmtInt(total)} actions were checked in ${runs.length} runs from revision${revisions.length > 1 ? "s" : ""}
-      ${revisions.map((s) => `<code>${s}</code>`).join(", ")}.
-      ${exp.report ? `The <a href="${esc(exp.report)}">report</a> gives the setup and limits.` : ""}</p>
-    <p class="caption"><strong>Table ${firstTable}:</strong> ${esc(id)} runs. Mismatches count nonconforming steps; residue is Equation&nbsp;(2); a snapshot agrees if the restored state equals the live state.</p>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Actions per configuration</th><th>Seed</th><th>Actions checked</th><th>Mismatches</th><th>Max residue</th><th>Snapshots agree</th><th>Status</th><th>CPU</th><th>Record</th></tr></thead>
-      <tbody>${summary}</tbody>
-    </table></div>
-    <p class="caption"><strong>Table ${firstTable + 1}:</strong> Classification of each ${esc(id)} configuration in the run with ${fmtHorizon(largest.horizon)} actions per configuration. Hover over a cell for details.</p>
-    <div class="table-wrap"><table class="grid-matrix">
-      <thead><tr><th></th>${dtypes.map((d) => `<th>${esc(d)}</th>`).join("")}</tr></thead>
-      <tbody>${matrix}</tbody>
-    </table></div>`;
+  return `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(metric.replace("_", " "))} by arm">${grid}<line class="axis" x1="${left}" x2="${width}" y1="${y(0)}" y2="${y(0)}"/>${bars}</svg>`;
 }
 
-async function loadResults() {
-  const target = document.getElementById("results-tables");
-  try {
-    const response = await fetch("data/results.json");
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    const ids = Object.keys(data.experiments).sort();
-    target.innerHTML = ids.length
-      ? ids.map((id, i) => renderExperiment(id, data.experiments[id], 2 * i + 1)).join("")
-      : '<p class="muted">No results recorded yet.</p>';
-    const total = ids
-      .flatMap((id) => data.experiments[id].runs)
-      .reduce((sum, r) => sum + r.totals.actions_checked, 0);
-    for (const el of document.querySelectorAll(".total-actions")) el.textContent = fmtInt(total);
-  } catch (error) {
-    target.innerHTML = `<p class="muted">Results could not be loaded (${esc(error.message)}). They are also in the <a href="https://github.com/JGalego/latent-machines/tree/main/results">repository</a>.</p>`;
+function learnedExplorer(root, run) {
+  const seen = [...new Set(run.summary.map((s) => s.split))];
+  const splits = [...Object.keys(SPLITS).filter((s) => seen.includes(s)), ...seen.filter((s) => !(s in SPLITS))];
+  let split = splits[0];
+  let metric = "task_accuracy";
+  const chart = document.createElement("div");
+  chart.className = "chart-host";
+  const draw = () => (chart.innerHTML = accuracyChart(run.summary, split, metric));
+  const controls = document.createElement("div");
+  controls.className = "controls";
+  controls.append(
+    segmented(splits.map((s) => [s, SPLITS[s] || s]), split, (s) => ((split = s), draw()), "Test split"),
+    segmented([["task_accuracy", "Task accuracy"], ["action_accuracy", "Action accuracy"]], metric, (m) => ((metric = m), draw()), "Metric")
+  );
+  root.prepend(controls, chart);
+  draw();
+}
+
+function setupResults() {
+  const source = document.getElementById("results-data");
+  if (!source) return;
+  const data = JSON.parse(source.textContent);
+  for (const root of document.querySelectorAll(".explorer")) {
+    const runs = (data[root.dataset.experiment] || []);
+    if (root.dataset.run) {
+      const run = runs.find((r) => r.run_id === root.dataset.run);
+      if (run && run.summary.length) learnedExplorer(root, run);
+    } else {
+      const conformance = runs.filter((r) => r.kind === "conformance");
+      if (conformance.length) conformanceExplorer(root, conformance);
+    }
   }
 }
 
@@ -242,6 +309,6 @@ function setupCopy() {
   };
 }
 
-loadResults();
+setupResults();
 setupPlayground();
 setupCopy();

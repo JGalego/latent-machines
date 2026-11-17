@@ -39,7 +39,8 @@ Cross-file rules:
 - Follow the [writing guidelines](CONTRIBUTING.md#14-write-for-the-reader) for documentation, website copy, reports, and replies. Remove filler and gratuitous counts without dropping technical limits or evidence qualifiers.
 - Every claim, proposal, or open question in RESEARCH.md needs a row in the [Research coverage](EXPERIMENTS.md#research-coverage) table, mapping it to an experiment, a scope gate, or context only. Add the row in the same change.
 - Headings are link targets. CONTRIBUTING.md and RESEARCH.md link into EXPERIMENTS.md by anchor (`#research-coverage`, `#run-records-and-results`, `#first-implementation-slice`, `#repository-organization`, `#gates-for-expanding-scope`). Grep for an anchor before renaming its heading.
-- When an experiment's status changes, update its roadmap entry in `site/index.html` in the same change; the results tables update themselves.
+- `site/index.html` is a template that `site/build.py` renders. Results tables, table, figure, and equation numbers, citations, the abstract's result sentence, the conformance summary, and the experiment-status caption are generated from `results/`, `site/references.json`, and `{{...}}` markers; never type these numbers. Add a source to `references.json` and cite it with `{{cite:key}}`. A new record format needs a renderer in `build.py`; until then it appears as links.
+- When a result changes the project's status, update the prose the build cannot generate, in the same change: the site's abstract and contributions, its setup (Section 4.1), in-progress section (Section 5), limitations, and conclusion, plus README.md and the EXPERIMENTS.md status line.
 - "Gate" means either a neural gate (gate endpoints, channel gates) or one of the numbered [scope gates](EXPERIMENTS.md#gates-for-expanding-scope). Link scope gates explicitly.
 
 ## Architecture

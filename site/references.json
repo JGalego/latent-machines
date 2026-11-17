@@ -1,0 +1,22 @@
+{
+  "qwenputer": "D. Agrawal. Qwenputer: a computer compiled into the weights of a language model. <a href=\"https://divagr.com/blog/qwenputer\">Blog post</a> and <a href=\"https://github.com/divagr18/qwenputer\">code</a>, 2026.",
+  "percepta": "Percepta. Constructing an LLM computer. <a href=\"https://www.percepta.ai/blog/constructing-llm-computer\">Blog post</a>, 2026.",
+  "tracr": "D. Lindner, J. Kramár, S. Farquhar, M. Rahtz, T. McGrath, and V. Mikulik. Tracr: Compiled transformers as a laboratory for interpretability. In <em>NeurIPS</em>, 2023. <a href=\"https://arxiv.org/abs/2301.05062\">arXiv:2301.05062</a>.",
+  "alta": "P. Shaw, J. Cohan, J. Eisenstein, K. Lee, J. Berant, and K. Toutanova. ALTA: Compiler-based analysis of transformers. <a href=\"https://arxiv.org/abs/2410.18077\">arXiv:2410.18077</a>, 2024.",
+  "looped": "A. Giannou, S. Rajput, J. Sohn, K. Lee, J. D. Lee, and D. Papailiopoulos. Looped transformers as programmable computers. In <em>ICML</em>, 2023. <a href=\"https://arxiv.org/abs/2301.13196\">arXiv:2301.13196</a>.",
+  "qwenfx": "D. Agrawal. QwenFX: a coding agent running inside the weights of the model it drives. <a href=\"https://github.com/divagr18/QwenFX\">Code</a>, 2026.",
+  "chipformer": "D. Agrawal. chipformer: a transformer that is a CHIP-8 computer. <a href=\"https://github.com/divagr18/chipformer\">Code</a>, 2026.",
+  "comprehension": "Y. Weng, M. Zhu, F. Xia, B. Li, S. He, K. Liu, and J. Zhao. Mastering symbolic operations: Augmenting language models with compiled neural networks. In <em>ICLR</em>, 2024. <a href=\"https://arxiv.org/abs/2304.01665\">arXiv:2304.01665</a>.",
+  "injection": "T. Vergara-Browne and Á. Soto. Tracr-Injection: Distilling algorithms into pre-trained language models. <a href=\"https://arxiv.org/abs/2505.10719\">arXiv:2505.10719</a>, 2025.",
+  "ntm": "A. Graves, G. Wayne, and I. Danihelka. Neural Turing machines. <a href=\"https://arxiv.org/abs/1410.5401\">arXiv:1410.5401</a>, 2014.",
+  "dnc": "A. Graves, G. Wayne, M. Reynolds, et al. Hybrid computing using a neural network with dynamic external memory. <em>Nature</em>, 538:471–476, 2016.",
+  "npi": "S. Reed and N. de Freitas. Neural programmer-interpreters. In <em>ICLR</em>, 2016. <a href=\"https://arxiv.org/abs/1511.06279\">arXiv:1511.06279</a>.",
+  "nram": "K. Kurach, M. Andrychowicz, and I. Sutskever. Neural random-access machines. In <em>ICLR</em>, 2016. <a href=\"https://arxiv.org/abs/1511.06392\">arXiv:1511.06392</a>.",
+  "nhc": "D. Tanneberg, E. Rueckert, and J. Peters. Evolutionary training and abstraction yields algorithmic generalization of neural computers. <em>Nature Machine Intelligence</em>, 2020. <a href=\"https://arxiv.org/abs/2105.07957\">arXiv:2105.07957</a>.",
+  "forth": "M. Bošnjak, T. Rocktäschel, J. Naradowsky, and S. Riedel. Programming with a differentiable Forth interpreter. In <em>ICML</em>, 2017. <a href=\"https://arxiv.org/abs/1605.06640\">arXiv:1605.06640</a>.",
+  "toolken": "S. Hao, T. Liu, Z. Wang, and Z. Hu. ToolkenGPT: Augmenting frozen language models with massive tools via tool embeddings. In <em>NeurIPS</em>, 2023. <a href=\"https://arxiv.org/abs/2305.11554\">arXiv:2305.11554</a>.",
+  "fwp": "I. Schlag, K. Irie, and J. Schmidhuber. Linear transformers are secretly fast weight programmers. In <em>ICML</em>, 2021. <a href=\"https://arxiv.org/abs/2102.11174\">arXiv:2102.11174</a>.",
+  "gdn": "S. Yang, J. Kautz, and A. Hatamizadeh. Gated delta networks: Improving Mamba2 with delta rule. In <em>ICLR</em>, 2025. <a href=\"https://arxiv.org/abs/2412.06464\">arXiv:2412.06464</a>.",
+  "negeig": "R. Grazzi, J. Siems, A. Zela, J. K. H. Franke, F. Hutter, and M. Pontil. Unlocking state-tracking in linear RNNs through negative eigenvalues. In <em>ICLR</em>, 2025. <a href=\"https://arxiv.org/abs/2411.12537\">arXiv:2411.12537</a>.",
+  "deltaproduct": "J. Siems, T. Carstensen, A. Zela, F. Hutter, M. Pontil, and R. Grazzi. DeltaProduct: Improving state-tracking in linear RNNs via Householder products. <a href=\"https://arxiv.org/abs/2502.10297\">arXiv:2502.10297</a>, 2025."
+}

@@ -33,12 +33,12 @@
 <main>
   <section id="abstract" class="abstract" aria-labelledby="abstract-title">
     <h2 id="abstract-title">Abstract</h2>
-    <p>Language models that need exact computation typically call external tools, exchanging requests and results as text. An alternative is an internal interface, through which a model issues typed actions to a machine and receives typed observations within its own computation. Studying such an interface first requires machines that execute exactly when expressed in neural-network arithmetic. We separate the machine specification, its implementation, the controller interface, and the task, and we check every implementation against an independent integer oracle after every action, recording the residue of stored values before they are decoded. We implement a random-access memory in the state matrix of a Gated DeltaNet recurrence, finite-state transducers as two-layer ReLU lookup circuits, and a bounded stack built from delta-rule memory and a one-hot pointer. On CPU, in float32, float64, bfloat16, and float16, these implementations matched their oracles with zero residue on every one of the <span class="total-actions">recorded</span> actions checked, with up to 10<sup>6</sup> actions per configuration. These are finite conformance results rather than proofs. A comparison of learned controllers that use no machine, a textual tool, or an internal interface with native and compiled executors is in progress.</p>
+    <p>Language models that need exact computation typically call external tools, exchanging requests and results as text. An alternative is an internal interface, through which a model issues typed actions to a machine and receives typed observations within its own computation. Studying such an interface first requires machines that execute exactly when expressed in neural-network arithmetic. We separate the machine specification, its implementation, the controller interface, and the task, and we check every implementation against an independent integer oracle after every action, recording the residue of stored values before they are decoded. We implement a random-access memory in the state matrix of a Gated DeltaNet recurrence, finite-state transducers as two-layer ReLU lookup circuits, and a bounded stack built from delta-rule memory and a one-hot pointer. On CPU, in float32, float64, bfloat16, and float16, {{abstract_result}}. These are finite conformance results rather than proofs. A comparison of learned controllers that use no machine, a textual tool, or an internal interface with native and compiled executors is in progress.</p>
   </section>
 
   <section id="introduction">
     <h2>1&ensp;Introduction</h2>
-    <p>Language models that need exact computation are commonly paired with external tools: the model writes a request as text, a conventional program executes it, and the result is appended to the context. Recent systems compile complete machines into transformer weights [<a href="#ref-qwenputer">1</a>, <a href="#ref-percepta">2</a>], building on earlier compilers from programs to transformers [<a href="#ref-tracr">3</a>, <a href="#ref-alta">4</a>, <a href="#ref-looped">5</a>]. In these systems the model still communicates with the compiled machine through tokens, much as it would with an external tool.</p>
+    <p>Language models that need exact computation are commonly paired with external tools: the model writes a request as text, a conventional program executes it, and the result is appended to the context. Recent systems compile complete machines into transformer weights {{cite:qwenputer,percepta}}, building on earlier compilers from programs to transformers {{cite:tracr,alta,looped}}. In these systems the model still communicates with the compiled machine through tokens, much as it would with an external tool.</p>
     <p>We ask whether a model benefits from acting on a machine through an internal interface instead, and if so whether the benefit comes from the interface or from compiling the machine into the network. Answering either question requires a machine whose neural implementation is exact. Agreement on final answers is insufficient for this purpose, because an implementation can produce correct outputs while its stored state drifts.</p>
     <p>We therefore treat exactness as a property to be tested at every step. The program separates four components: the <em>machine</em>, a specified transition function with an integer reference implementation (the oracle); the <em>backend</em>, which implements the machine in conventional code or tensor arithmetic; the <em>interface</em>, which determines what a controller observes and how it acts; and the <em>task</em>, which supplies inputs and ground truth. An experiment varies one component while holding the others fixed.</p>
     <p>This report makes the following contributions:</p>
@@ -53,9 +53,9 @@
 
   <section id="related">
     <h2>2&ensp;Related work</h2>
-    <p><strong>Programs compiled into neural networks.</strong> Tracr [<a href="#ref-tracr">3</a>] compiles RASP programs into transformer weights, and ALTA [<a href="#ref-alta">4</a>] extends compilation to looped transformers with categorical state. Giannou et al. [<a href="#ref-looped">5</a>] construct a looped transformer that executes a simple instruction set, with an analysis of accumulated approximation error. Qwenputer [<a href="#ref-qwenputer">1</a>] adds a compiled RISC-V CPU to a pretrained language model and stores its registers and memory in Gated DeltaNet state; QwenFX [<a href="#ref-qwenfx">6</a>] runs a coding agent on that CPU, which in turn calls the same model. Percepta [<a href="#ref-percepta">2</a>] compiles a WebAssembly interpreter into attention over an append-only execution trace, as does chipformer [<a href="#ref-chipformer">7</a>] for CHIP-8. Neural Comprehension [<a href="#ref-comprehension">8</a>] combines compiled modules with a language model's output distribution, and Tracr-Injection [<a href="#ref-injection">9</a>] trains a language model's residual stream to imitate a compiled program. None of the systems above evaluates a learned internal interface against matched textual-tool and native baselines.</p>
-    <p><strong>Learned controllers with explicit memory.</strong> Neural Turing Machines [<a href="#ref-ntm">10</a>] and the Differentiable Neural Computer [<a href="#ref-dnc">11</a>] learn soft read and write operations over external memory. Neural Programmer-Interpreters [<a href="#ref-npi">12</a>], Neural Random-Access Machines [<a href="#ref-nram">13</a>], the Neural Harvard Computer [<a href="#ref-nhc">14</a>], and differentiable Forth [<a href="#ref-forth">15</a>] learn to control program or memory operations, typically on algorithmic tasks and without a pretrained language model. ToolkenGPT [<a href="#ref-toolken">16</a>] learns tool embeddings for a frozen language model, while arguments remain textual and tools execute externally.</p>
-    <p><strong>Linear recurrences as memory.</strong> Schlag et al. [<a href="#ref-fwp">17</a>] relate linear attention to fast-weight programmers that write memory with the delta rule. Gated DeltaNet [<a href="#ref-gdn">18</a>] adds a decay gate to the delta rule, and our memory backend uses its recurrence. Allowing negative eigenvalues in the state transition [<a href="#ref-negeig">19</a>, <a href="#ref-deltaproduct">20</a>] extends the state-tracking capacity of linear recurrences, which is relevant to the parity and permutation targets in Section&nbsp;3.3.</p>
+    <p><strong>Programs compiled into neural networks.</strong> Tracr {{cite:tracr}} compiles RASP programs into transformer weights, and ALTA {{cite:alta}} extends compilation to looped transformers with categorical state. Giannou et al. {{cite:looped}} construct a looped transformer that executes a simple instruction set, with an analysis of accumulated approximation error. Qwenputer {{cite:qwenputer}} adds a compiled RISC-V CPU to a pretrained language model and stores its registers and memory in Gated DeltaNet state; QwenFX {{cite:qwenfx}} runs a coding agent on that CPU, which in turn calls the same model. Percepta {{cite:percepta}} compiles a WebAssembly interpreter into attention over an append-only execution trace, as does chipformer {{cite:chipformer}} for CHIP-8. Neural Comprehension {{cite:comprehension}} combines compiled modules with a language model's output distribution, and Tracr-Injection {{cite:injection}} trains a language model's residual stream to imitate a compiled program. None of the systems above evaluates a learned internal interface against matched textual-tool and native baselines.</p>
+    <p><strong>Learned controllers with explicit memory.</strong> Neural Turing Machines {{cite:ntm}} and the Differentiable Neural Computer {{cite:dnc}} learn soft read and write operations over external memory. Neural Programmer-Interpreters {{cite:npi}}, Neural Random-Access Machines {{cite:nram}}, the Neural Harvard Computer {{cite:nhc}}, and differentiable Forth {{cite:forth}} learn to control program or memory operations, typically on algorithmic tasks and without a pretrained language model. ToolkenGPT {{cite:toolken}} learns tool embeddings for a frozen language model, while arguments remain textual and tools execute externally.</p>
+    <p><strong>Linear recurrences as memory.</strong> Schlag et al. {{cite:fwp}} relate linear attention to fast-weight programmers that write memory with the delta rule. Gated DeltaNet {{cite:gdn}} adds a decay gate to the delta rule, and our memory backend uses its recurrence. Allowing negative eigenvalues in the state transition {{cite:negeig,deltaproduct}} extends the state-tracking capacity of linear recurrences, which is relevant to the parity and permutation targets in Section&nbsp;3.3.</p>
   </section>
 
   <section id="method">
@@ -63,10 +63,10 @@
 
     <h3>3.1&ensp;Machines, backends, and conformance</h3>
     <p>A machine is a transition function</p>
-    $$ T : (s, a) \mapsto (s', e, w), \tag{1} $$
-    <p>mapping a state \(s\) and an action \(a\) to a next state \(s'\), an event \(e\) (continue, output with a value, halt, or fault with a reason), and a work count \(w\). Invalid actions produce faults and leave the state unchanged; values are never clamped or wrapped. Each machine has an integer oracle that implements \(T\) directly. A backend implements the same transitions on its own state \(\sigma\) and provides a decoding \(\mathrm{dec}(\sigma)\) to canonical machine state, used only for checking and never shown to a controller (Figure&nbsp;1).</p>
+    $$ T : (s, a) \mapsto (s', e, w), \tag{{{eqtag:transition}}} $$
+    <p>mapping a state \(s\) and an action \(a\) to a next state \(s'\), an event \(e\) (continue, output with a value, halt, or fault with a reason), and a work count \(w\). Invalid actions produce faults and leave the state unchanged; values are never clamped or wrapped. Each machine has an integer oracle that implements \(T\) directly. A backend implements the same transitions on its own state \(\sigma\) and provides a decoding \(\mathrm{dec}(\sigma)\) to canonical machine state, used only for checking and never shown to a controller ({{fig:components}}).</p>
     <p>Given a sequence of actions, we step the oracle and the backend together. Step \(t\) conforms if the events and work counts are equal and \(\mathrm{dec}(\sigma_t) = s_t\); a run stops at the first nonconforming step. We also record the residue</p>
-    $$ \rho(\sigma) = \max_i \, \min\!\big(|\sigma_i|,\ |\sigma_i - 1|\big), \tag{2} $$
+    $$ \rho(\sigma) = \max_i \, \min\!\big(|\sigma_i|,\ |\sigma_i - 1|\big), \tag{{{eqtag:residue}}} $$
     <p>the largest distance of any stored value from 0 or 1. Decoding thresholds each value at 0.5, so a nonzero residue can coexist with correct outputs; recording \(\rho\) exposes this loss of margin. Midway through each run, the decoded state is serialized to JSON, restored, and re-encoded, and the result must equal the live backend state exactly. A backend is <em>exact</em> on a run if every step conforms, \(\rho = 0\) throughout, and the snapshot check passes.</p>
     <figure class="figure">
       <pre class="mermaid">
@@ -78,14 +78,14 @@ flowchart LR
     B -->|event| I
     B -.->|"decoded state, checks only"| M["Machine<br/>specification, oracle"]
       </pre>
-      <figcaption class="caption"><strong>Figure 1:</strong> Components of an experiment. Solid edges form the execution path. The dotted edge carries decoded backend state to the oracle for conformance checks and is not visible to the controller.</figcaption>
+      <figcaption class="caption"><strong>{{figure:components}}:</strong> Components of an experiment. Solid edges form the execution path. The dotted edge carries decoded backend state to the oracle for conformance checks and is not visible to the controller.</figcaption>
     </figure>
 
     <h3>3.2&ensp;Random-access memory in a delta-rule state matrix</h3>
-    <p>The Gated DeltaNet recurrence [<a href="#ref-gdn">18</a>] updates a state matrix \(S_t\) with a key \(k_t\), value \(v_t\), retention gate \(\alpha_t\), and write strength \(\beta_t\), and reads with a query \(q_t\):</p>
-    $$ S_t = \alpha_t\, S_{t-1}\big(I - \beta_t k_t k_t^\top\big) + \beta_t\, v_t k_t^\top, \qquad o_t = S_t q_t. \tag{3} $$
+    <p>The Gated DeltaNet recurrence {{cite:gdn}} updates a state matrix \(S_t\) with a key \(k_t\), value \(v_t\), retention gate \(\alpha_t\), and write strength \(\beta_t\), and reads with a query \(q_t\):</p>
+    $$ S_t = \alpha_t\, S_{t-1}\big(I - \beta_t k_t k_t^\top\big) + \beta_t\, v_t k_t^\top, \qquad o_t = S_t q_t. \tag{{{eqtag:delta}}} $$
     <p>We store a memory of \(N\) words of \(B\) bits in \(S \in \mathbb{R}^{B \times N}\), one column per slot and one row per bit. A write to slot \(j\) uses \(k_t = e_j\), the bits of the word as \(v_t\), \(\alpha_t = 1\), and \(\beta_t = 1\); a read uses \(\beta_t = 0\) and \(q_t = e_j\). Keys and queries are normalized as \(x / \max(\lVert x \rVert, \epsilon)\), which leaves one-hot vectors unchanged. The computation is evaluated as \(\alpha(S - \beta (S k) k^\top) + \beta v k^\top\) without forming the \(N \times N\) transition matrix.</p>
-    <p>Under these settings every entry of \(S\) stays in \(\{0, 1\}\). Each product in Equation&nbsp;(3) then involves only 0 and 1, each sum has at most one nonzero term, and the subtraction that clears column \(j\) computes \(x - x = 0\), so every operation is exact in any binary floating-point format and the update replaces column \(j\) while leaving the others unchanged. The argument depends on the gates being exactly 0 or 1 and on the normalization leaving one-hot keys unchanged. A retention gate slightly below 1, or a normalization that adds \(\epsilon\) inside the square root, breaks it, as Figure&nbsp;2 shows. Host code checks addresses and values before the tensor update, and invalid actions do not modify \(S\).</p>
+    <p>Under these settings every entry of \(S\) stays in \(\{0, 1\}\). Each product in Equation&nbsp;{{eq:delta}} then involves only 0 and 1, each sum has at most one nonzero term, and the subtraction that clears column \(j\) computes \(x - x = 0\), so every operation is exact in any binary floating-point format and the update replaces column \(j\) while leaving the others unchanged. The argument depends on the gates being exactly 0 or 1 and on the normalization leaving one-hot keys unchanged. A retention gate slightly below 1, or a normalization that adds \(\epsilon\) inside the square root, breaks it, as {{fig:playground}} shows. Host code checks addresses and values before the tensor update, and invalid actions do not modify \(S\).</p>
 
     <figure class="playground" id="playground">
       <div class="pg-head">
@@ -111,17 +111,17 @@ flowchart LR
         <span id="pg-match">matches the oracle</span>
       </div>
       <ol class="pg-log" id="pg-log" reversed></ol>
-      <figcaption class="caption"><strong>Figure 2:</strong> Equation&nbsp;(3) evaluated in float32 beside an integer oracle. Each cell is an entry of \(S\); the bottom rows compare decoded words with the oracle. With \(\alpha = 0.999\), 1,000 idle steps scale stored values by about 0.37 and decoded words become wrong. With \(\epsilon\) inside the square root, each written value deviates from 1 by about \(5 \times 10^{-7}\), the decoded words remain correct, and only the residue reveals the error.</figcaption>
+      <figcaption class="caption"><strong>{{figure:playground}}:</strong> Equation&nbsp;{{eq:delta}} evaluated in float32 beside an integer oracle. Each cell is an entry of \(S\); the bottom rows compare decoded words with the oracle. With \(\alpha = 0.999\), 1,000 idle steps scale stored values by about 0.37 and decoded words become wrong. With \(\epsilon\) inside the square root, each written value deviates from 1 by about \(5 \times 10^{-7}\), the decoded words remain correct, and only the residue reveals the error.</figcaption>
     </figure>
 
     <h3>3.3&ensp;Finite-state transducers as ReLU lookup circuits</h3>
     <p>A deterministic transducer with states \(Q\), input alphabet \(\Sigma\), transition table \(\delta\), and output table \(\lambda\) is compiled into a two-layer ReLU network with feedback. The state is a one-hot vector \(s \in \{0,1\}^{|Q|}\) and the input symbol a one-hot vector \(x \in \{0,1\}^{|\Sigma|}\):</p>
-    $$ z = \mathrm{ReLU}\big(W_{\mathrm{in}} [s; x] - \mathbf{1}\big), \qquad s' = W_{\mathrm{next}}\, z, \qquad y = W_{\mathrm{out}}\, z. \tag{4} $$
+    $$ z = \mathrm{ReLU}\big(W_{\mathrm{in}} [s; x] - \mathbf{1}\big), \qquad s' = W_{\mathrm{next}}\, z, \qquad y = W_{\mathrm{out}}\, z. \tag{{{eqtag:lookup}}} $$
     <p>The hidden layer has one unit for each pair \((q, \sigma)\), with weight 1 on \(s_q\) and on \(x_\sigma\), so the unit is 1 exactly when both inputs are active. Its outgoing weights select \(\delta(q, \sigma)\) in \(W_{\mathrm{next}}\) and \(\lambda(q, \sigma)\) in \(W_{\mathrm{out}}\). The circuit has width \(|Q||\Sigma|\), depth 2, and four nonzero weights per hidden unit, and every intermediate value is an integer between \(-1\) and 2. We compile three targets: running parity, a counter modulo 5 over increments 0–2, and tracking of a permutation of three items under adjacent transpositions, for which the order of inputs matters.</p>
 
     <h3>3.4&ensp;A bounded stack</h3>
     <p>A stack of capacity \(N\) stores its items in a delta-rule matrix as in Section&nbsp;3.2 and its depth in a one-hot pointer \(p \in \{0,1\}^{N+1}\). With the shift matrix \(U\) defined by \(U_{d+1,d} = 1\),</p>
-    $$ \textsf{push}(v):\ S \leftarrow S + (v - S p_{1:N})\, p_{1:N}^\top,\ \ p \leftarrow U p; \qquad \textsf{pop}:\ p \leftarrow U^\top p,\ \ o = S p_{1:N},\ \ S \leftarrow S - (S p_{1:N})\, p_{1:N}^\top. \tag{5} $$
+    $$ \textsf{push}(v):\ S \leftarrow S + (v - S p_{1:N})\, p_{1:N}^\top,\ \ p \leftarrow U p; \qquad \textsf{pop}:\ p \leftarrow U^\top p,\ \ o = S p_{1:N},\ \ S \leftarrow S - (S p_{1:N})\, p_{1:N}^\top. \tag{{{eqtag:stack}}} $$
     <p>Pop clears the freed slot, so the tensors always equal the encoding of the canonical stack. Overflow and underflow are read from the entries \(p_{N+1}\) and \(p_1\) of the pointer itself.</p>
   </section>
 
@@ -134,15 +134,15 @@ flowchart LR
     <p><strong>Protocol.</strong> Every workload is run in float32, float64, bfloat16, and float16. Sweeps of 10<sup>3</sup> actions per configuration use three seeds; sweeps of 10<sup>5</sup> and 10<sup>6</sup> actions use one. All runs use eager PyTorch 2.15 on CPU, either on an Intel i7-1365U or on Hugging Face Jobs (AMD EPYC 7R13, 8 CPUs), from committed source revisions recorded with each run.</p>
 
     <h3>4.2&ensp;Results</h3>
-    <p>Tables&nbsp;1–4 are generated from the committed run records. Every configuration in every recorded run is classified as exact: no step failed to conform, the residue was zero throughout, and every snapshot restored the live state exactly. The workloads triggered every specified fault, including invalid addresses and values, invalid symbols, stack overflow, and stack underflow. The bracket-matching workload underflowed but never overflowed at capacity 8; overflow is exercised by the other stack workloads.</p>
-    <div id="results-tables"><p class="muted">Loading results…</p></div>
+    <p>The tables below are generated from the committed run records. {{conformance_summary}} The workloads triggered every specified fault, including invalid addresses and values, invalid symbols, stack overflow, and stack underflow. The bracket-matching workload underflowed but never overflowed at capacity 8; overflow is exercised by the other stack workloads.</p>
+    <div id="results-tables">{{results}}</div>
   </section>
 
   <section id="ongoing">
     <h2>5&ensp;Learned controllers (in progress)</h2>
-    <p>The next experiment, E02, compares learned controllers on a record-update task. Programs such as “Set c to 7. What is c?” assign values from 0 to 15 to eight records and ask for their current values. A frozen SmolLM2-135M model reads each program, and only small heads that read its hidden states are trained: an action head that chooses an operation, a record, and a value, and an answer head. The four arms in Table&nbsp;5 share the task, the frozen features, and the head architecture.</p>
+    <p>The next experiment, E02, compares learned controllers on a record-update task. Programs such as “Set c to 7. What is c?” assign values from 0 to 15 to eight records and ask for their current values. A frozen SmolLM2-135M model reads each program, and only small heads that read its hidden states are trained: an action head that chooses an operation, a record, and a value, and an answer head. The four arms in {{tab:e02-arms}} share the task, the frozen features, and the head architecture.</p>
     <figure class="figure">
-      <figcaption class="caption"><strong>Table 5:</strong> Arms of the E02 comparison. B and C differ only in how requests and replies are carried; C and D differ only in the executor.</figcaption>
+      <figcaption class="caption"><strong>{{table:e02-arms}}:</strong> Arms of the E02 comparison. B and C differ only in how requests and replies are carried; C and D differ only in the executor.</figcaption>
       <div class="table-wrap"><table>
         <thead><tr><th>Arm</th><th>Interface</th><th>Executor</th></tr></thead>
         <tbody>
@@ -153,7 +153,7 @@ flowchart LR
         </tbody>
       </table></div>
     </figure>
-    <p>Controllers are trained on programs of 2 to 8 statements and evaluated without teacher forcing, so a wrong write affects later answers, on programs of the same length, on programs of 32 and 64 statements, and on record-value pairs withheld from training. Comparisons will use three training seeds and the same test programs for every arm. The implementation is complete; no E02 result is reported yet. Later experiments (Figure&nbsp;3) test non-text feedback into the model and machines beyond random-access memory.</p>
+    <p>Controllers are trained on programs of 2 to 8 statements and evaluated without teacher forcing, so a wrong write affects later answers, on programs of the same length, on programs of 32 and 64 statements, and on record-value pairs withheld from training. Comparisons will use three training seeds and the same test programs for every arm. The implementation is complete; no E02 result is reported yet. Later experiments ({{fig:roadmap}}) test non-text feedback into the model and machines beyond random-access memory.</p>
     <figure class="figure">
       <pre class="mermaid">
 flowchart LR
@@ -162,7 +162,7 @@ flowchart LR
     E02 --> E03["E03<br/>latent feedback"]
     E01 --> E04["E04-E08<br/>dataflow, graphs, grids,<br/>optimizers, search"]
       </pre>
-      <figcaption class="caption"><strong>Figure 3:</strong> Experiment dependencies. E00 and E01 have recorded results; E02 is in progress; E03–E08 are planned.</figcaption>
+      <figcaption class="caption"><strong>{{figure:roadmap}}:</strong> Experiment dependencies. {{experiment_status}}</figcaption>
     </figure>
   </section>
 
@@ -178,28 +178,7 @@ flowchart LR
 
   <section id="references">
     <h2>References</h2>
-    <ol>
-      <li id="ref-qwenputer">D. Agrawal. Qwenputer: a computer compiled into the weights of a language model. <a href="https://divagr.com/blog/qwenputer">Blog post</a> and <a href="https://github.com/divagr18/qwenputer">code</a>, 2026.</li>
-      <li id="ref-percepta">Percepta. Constructing an LLM computer. <a href="https://www.percepta.ai/blog/constructing-llm-computer">Blog post</a>, 2026.</li>
-      <li id="ref-tracr">D. Lindner, J. Kramár, S. Farquhar, M. Rahtz, T. McGrath, and V. Mikulik. Tracr: Compiled transformers as a laboratory for interpretability. In <em>NeurIPS</em>, 2023. <a href="https://arxiv.org/abs/2301.05062">arXiv:2301.05062</a>.</li>
-      <li id="ref-alta">P. Shaw, J. Cohan, J. Eisenstein, K. Lee, J. Berant, and K. Toutanova. ALTA: Compiler-based analysis of transformers. <a href="https://arxiv.org/abs/2410.18077">arXiv:2410.18077</a>, 2024.</li>
-      <li id="ref-looped">A. Giannou, S. Rajput, J. Sohn, K. Lee, J. D. Lee, and D. Papailiopoulos. Looped transformers as programmable computers. In <em>ICML</em>, 2023. <a href="https://arxiv.org/abs/2301.13196">arXiv:2301.13196</a>.</li>
-      <li id="ref-qwenfx">D. Agrawal. QwenFX: a coding agent running inside the weights of the model it drives. <a href="https://github.com/divagr18/QwenFX">Code</a>, 2026.</li>
-      <li id="ref-chipformer">D. Agrawal. chipformer: a transformer that is a CHIP-8 computer. <a href="https://github.com/divagr18/chipformer">Code</a>, 2026.</li>
-      <li id="ref-comprehension">Y. Weng, M. Zhu, F. Xia, B. Li, S. He, K. Liu, and J. Zhao. Mastering symbolic operations: Augmenting language models with compiled neural networks. In <em>ICLR</em>, 2024. <a href="https://arxiv.org/abs/2304.01665">arXiv:2304.01665</a>.</li>
-      <li id="ref-injection">T. Vergara-Browne and Á. Soto. Tracr-Injection: Distilling algorithms into pre-trained language models. <a href="https://arxiv.org/abs/2505.10719">arXiv:2505.10719</a>, 2025.</li>
-      <li id="ref-ntm">A. Graves, G. Wayne, and I. Danihelka. Neural Turing machines. <a href="https://arxiv.org/abs/1410.5401">arXiv:1410.5401</a>, 2014.</li>
-      <li id="ref-dnc">A. Graves, G. Wayne, M. Reynolds, et al. Hybrid computing using a neural network with dynamic external memory. <em>Nature</em>, 538:471–476, 2016.</li>
-      <li id="ref-npi">S. Reed and N. de Freitas. Neural programmer-interpreters. In <em>ICLR</em>, 2016. <a href="https://arxiv.org/abs/1511.06279">arXiv:1511.06279</a>.</li>
-      <li id="ref-nram">K. Kurach, M. Andrychowicz, and I. Sutskever. Neural random-access machines. In <em>ICLR</em>, 2016. <a href="https://arxiv.org/abs/1511.06392">arXiv:1511.06392</a>.</li>
-      <li id="ref-nhc">D. Tanneberg, E. Rueckert, and J. Peters. Evolutionary training and abstraction yields algorithmic generalization of neural computers. <em>Nature Machine Intelligence</em>, 2020. <a href="https://arxiv.org/abs/2105.07957">arXiv:2105.07957</a>.</li>
-      <li id="ref-forth">M. Bošnjak, T. Rocktäschel, J. Naradowsky, and S. Riedel. Programming with a differentiable Forth interpreter. In <em>ICML</em>, 2017. <a href="https://arxiv.org/abs/1605.06640">arXiv:1605.06640</a>.</li>
-      <li id="ref-toolken">S. Hao, T. Liu, Z. Wang, and Z. Hu. ToolkenGPT: Augmenting frozen language models with massive tools via tool embeddings. In <em>NeurIPS</em>, 2023. <a href="https://arxiv.org/abs/2305.11554">arXiv:2305.11554</a>.</li>
-      <li id="ref-fwp">I. Schlag, K. Irie, and J. Schmidhuber. Linear transformers are secretly fast weight programmers. In <em>ICML</em>, 2021. <a href="https://arxiv.org/abs/2102.11174">arXiv:2102.11174</a>.</li>
-      <li id="ref-gdn">S. Yang, J. Kautz, and A. Hatamizadeh. Gated delta networks: Improving Mamba2 with delta rule. In <em>ICLR</em>, 2025. <a href="https://arxiv.org/abs/2412.06464">arXiv:2412.06464</a>.</li>
-      <li id="ref-negeig">R. Grazzi, J. Siems, A. Zela, J. K. H. Franke, F. Hutter, and M. Pontil. Unlocking state-tracking in linear RNNs through negative eigenvalues. In <em>ICLR</em>, 2025. <a href="https://arxiv.org/abs/2411.12537">arXiv:2411.12537</a>.</li>
-      <li id="ref-deltaproduct">J. Siems, T. Carstensen, A. Zela, F. Hutter, M. Pontil, and R. Grazzi. DeltaProduct: Improving state-tracking in linear RNNs via Householder products. <a href="https://arxiv.org/abs/2502.10297">arXiv:2502.10297</a>, 2025.</li>
-    </ol>
+    {{references}}
   </section>
 
   <section id="cite">
@@ -229,6 +208,7 @@ flowchart LR
   const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "neutral", fontFamily: "Source Sans 3, sans-serif" });
 </script>
+<script type="application/json" id="results-data">{{results_data}}</script>
 <script src="app.js" defer></script>
 </body>
 </html>
