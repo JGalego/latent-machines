@@ -362,6 +362,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--threads", type=int, default=0, help="torch threads (0: default)"
     )
+    parser.add_argument("--device", default="cpu", help="device for the frozen model")
     parser.add_argument("--out", default="runs")
     args = parser.parse_args(argv)
     if min(args.train, args.test, args.long_test, args.epochs) < 1:
@@ -372,6 +373,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     args = parse_args(argv)
+    if args.device.startswith("cuda") and not torch.cuda.is_available():
+        raise SystemExit("--device cuda requested but CUDA is not available")
     if args.threads:
         torch.set_num_threads(args.threads)
     config = Config(
@@ -399,15 +402,20 @@ def main(argv: list[str] | None = None) -> int:
         source=source,
         root=root,
         config=asdict(config),
-        device="cpu",
+        device=args.device,
     )
+    if args.device.startswith("cuda"):
+        header["environment"] |= {
+            "gpu": torch.cuda.get_device_name(args.device),
+            "cuda": torch.version.cuda,
+        }
     rows: list[dict[str, Any]] = []
     trace: list[dict[str, Any]] = []
     trained: dict[str, Any] = {}
     error = None
     lm = None
     try:
-        lm = FrozenLM.load(config.model, config.revision)
+        lm = FrozenLM.load(config.model, config.revision, args.device)
         train_programs = data["train"][1]
         examples = {
             arm: build_examples(lm, train_programs, arm) for arm in ("A", "B", "C")

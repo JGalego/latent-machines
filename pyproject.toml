@@ -12,6 +12,10 @@ dependencies = []
 torch-cpu = [
     "torch>=2.15.0",
 ]
+# CUDA 13.2 build from PyPI, for GPU jobs; conflicts with torch-cpu.
+torch-cuda = [
+    "torch>=2.15.0",
+]
 lm = [
     "transformers>=5.23",
 ]
@@ -27,7 +31,10 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [tool.uv.sources]
-torch = { index = "pytorch-cpu" }
+torch = [{ index = "pytorch-cpu", extra = "torch-cpu" }]
+
+[tool.uv]
+conflicts = [[{ extra = "torch-cpu" }, { extra = "torch-cuda" }]]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP"]

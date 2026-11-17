@@ -8,7 +8,8 @@ at once (``chunk_features``) or one at a time with a key-value cache
 token. No parameter of the model is trained.
 
 ``load("tiny-random")`` builds a 2-layer random Llama with a byte tokenizer
-for tests; it downloads nothing.
+for tests; it downloads nothing. With ``device="cuda"`` the model runs on the
+GPU and features are returned on the CPU, where the heads and executors run.
 """
 
 from collections.abc import Callable
@@ -25,6 +26,7 @@ class FrozenLM:
         encode: Callable[[str], list[int]],
         name: str,
         revision: str | None,
+        device: str = "cpu",
     ) -> None:
         self.model, self.encode, self.name, self.revision = (
             model,
@@ -32,6 +34,8 @@ class FrozenLM:
             name,
             revision,
         )
+        self.device = torch.device(device)
+        self.model.to(self.device)
         self.model.eval()
         for parameter in self.model.parameters():
             parameter.requires_grad_(False)
@@ -39,7 +43,9 @@ class FrozenLM:
         self.parameters = sum(p.numel() for p in model.parameters())
 
     @classmethod
-    def load(cls, name: str, revision: str | None = None) -> "FrozenLM":
+    def load(
+        cls, name: str, revision: str | None = None, device: str = "cpu"
+    ) -> "FrozenLM":
         from transformers import AutoModel, AutoTokenizer, LlamaConfig, LlamaModel
 
         if name == TINY_RANDOM:
@@ -53,14 +59,15 @@ class FrozenLM:
                 num_key_value_heads=2,
                 max_position_embeddings=8192,
             )
-            return cls(LlamaModel(config), lambda text: list(text.encode()), name, None)
+            model = LlamaModel(config)
+            return cls(model, lambda text: list(text.encode()), name, None, device)
         tokenizer = AutoTokenizer.from_pretrained(name, revision=revision)
         model = AutoModel.from_pretrained(name, revision=revision, dtype=torch.float32)
 
         def encode(text: str) -> list[int]:
             return tokenizer(text, add_special_tokens=False)["input_ids"]
 
-        return cls(model, encode, name, revision)
+        return cls(model, encode, name, revision, device)
 
     def tokens(self, chunks: list[str]) -> list[list[int]]:
         ids = [self.encode(chunk) for chunk in chunks]
@@ -73,9 +80,9 @@ class FrozenLM:
         """Features ``(len(chunks), hidden_size)`` from one forward pass."""
         ids = self.tokens(chunks)
         flat = torch.tensor([token for chunk_ids in ids for token in chunk_ids])
-        hidden = self.model(input_ids=flat[None]).last_hidden_state[0]
-        ends = torch.tensor(ids_ends(ids))
-        return hidden[ends]
+        hidden = self.model(input_ids=flat[None].to(self.device)).last_hidden_state[0]
+        ends = torch.tensor(ids_ends(ids), device=self.device)
+        return hidden[ends].cpu()
 
     def session(self) -> "Session":
         return Session(self)
@@ -100,10 +107,10 @@ class Session:
     def feed(self, chunk: str) -> torch.Tensor:
         (ids,) = self.lm.tokens([chunk])
         output = self.lm.model(
-            input_ids=torch.tensor(ids)[None],
+            input_ids=torch.tensor(ids, device=self.lm.device)[None],
             past_key_values=self.cache,
             use_cache=True,
         )
         self.cache = output.past_key_values
         self.tokens += len(ids)
-        return output.last_hidden_state[0, -1]
+        return output.last_hidden_state[0, -1].cpu()
