@@ -65,7 +65,7 @@ def test_mismatch_writes_first_failure_and_exits_1(
     assert (m["classification"], m["mismatches"]) == ("mismatch", 1)
     (failure,) = load(run_dir, "failure.json")
     assert failure["action_index"] == m["first_mismatch"]
-    assert failure["differing_slots"]
+    assert failure["actual"]["decoded_state"] != failure["expected"]["state"]
     assert "--horizon" in failure["reproduce"]
 
 
