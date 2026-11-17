@@ -1,8 +1,12 @@
 # Experiments
 
+> **TL;DR:** Runnable experiments that tie the parts together and leave a receipt.
+
 Runnable entry points that compose machines, backends, and task generators and write run records. See the [experiment program](../../../EXPERIMENTS.md#experiments) and the [run-record contract](../../../EXPERIMENTS.md#run-records-and-results).
 
 ## E00: memory conformance
+
+> **TL;DR:** Run reference and neural memory side by side, and stop at the first disagreement.
 
 [e00.py](e00.py) checks the eager [delta-rule backend](../backends/README.md) against the [`memory/v1`](../machines/README.md#memoryv1) oracle on every [workload](../tasks/memory_workloads.py) and number format, one action at a time.
 

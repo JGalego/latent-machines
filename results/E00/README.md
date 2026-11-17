@@ -1,8 +1,12 @@
 # E00 results: delta-rule memory conformance
 
-**TL;DR:** we stored a small computer memory inside the update rule of a neural-network layer (Gated DeltaNet) and checked it against a plain reference after every single action. Across 35 million checked actions in four number formats, it never disagreed and never drifted, even slightly. This holds for the tested setup only (16 slots of 8 bits, CPU, an explicit implementation of the update rule), not for neural networks in general.
+> **TL;DR:** Neural-network memory matched the reference exactly for 35 million actions, in the tested setup.
+
+In plain terms: we stored a small computer memory inside the update rule of a neural-network layer (Gated DeltaNet) and checked it against a plain reference after every single action. Across 35 million checked actions in four number formats, it never disagreed and never drifted, even slightly. This holds for the tested setup only (16 slots of 8 bits, CPU, an explicit implementation of the update rule), not for neural networks in general.
 
 ## Question and hypothesis
+
+> **TL;DR:** Can a Gated DeltaNet state matrix act as exact memory? The hypothesis says yes.
 
 [E00](../../EXPERIMENTS.md#e00---memory-and-transition-conformance) asks which layer families implement the required storage semantics on the chosen execution path. This first run tests one variant, delta replacement:
 
@@ -10,9 +14,13 @@
 
 ## Evidence class
 
+> **TL;DR:** Our own finite tests: strong evidence for this setup, not a proof.
+
 Local conformance on a finite, declared suite, run by this project; not independently checked. Every action is compared with the integer oracle: event, work, and decoded state, plus residue before decoding. Passing is evidence for the tested configuration, not a proof of exactness for other inputs, sizes, or kernels. The method is described in the [E00 runner](../../src/latent_machines/experiments/README.md#e00-memory-conformance).
 
 ## Setup
+
+> **TL;DR:** 16 slots of 8 bits, 8 workloads, and 4 number formats, on CPU.
 
 | Item | Value |
 |---|---|
@@ -27,6 +35,8 @@ A variant is one workload in one number format: 32 per run.
 
 ## Results
 
+> **TL;DR:** Five runs, zero mismatches, zero drift, and every snapshot restored.
+
 | Horizon per variant | Seed | Where | Actions checked | Mismatches | Max residue | Snapshots | Status | Record |
 |---|---|---|---|---|---|---|---|---|
 | 10^3 | 0 | local, Intel i7-1365U | 32,000 | 0 | 0 | 32/32 agree | passed | [69f9](e00-20261117T000402Z-ad888ad-69f9/metrics.json) |
@@ -39,11 +49,15 @@ Every variant in every run is classified `exact`: no first mismatch exists up to
 
 ## Costs
 
+> **TL;DR:** A minute of laptop time plus about two cents of cloud compute.
+
 - Local 10^3 runs: under 25 s each.
 - HF job [`6afb99e5…`](https://huggingface.co/jobs/jgalego/6afb99e5186b78cad7b6ceb9): 2,236 s running on `cpu-upgrade` at $0.03/h, about $0.02, with 8 worker processes.
 - End-to-end time on HF was 0.3–0.7 ms per action, including oracle stepping and checks. This is not a backend latency measurement.
 
 ## Limits
+
+> **TL;DR:** One layer type in one setup; GPUs, fast kernels, and learning are untested.
 
 - **Not tested:** other capacities and word widths, multi-hot or learned keys, gates away from their endpoints, kernel-style normalization (eps inside the square root), chunked or fused kernels, GPUs, output normalization and gating of a full layer, the KDA, RWKV-7, SSM, and LSTM/GRU variants, and learned control.
 - **One seed for the long sweeps:** the 10^5 and 10^6 sweeps used seed 0 only.
@@ -51,6 +65,8 @@ Every variant in every run is classified `exact`: no first mismatch exists up to
 - **Validation is host-side:** ordinary Python checks actions and tracks halting, not the tensor. The result covers storage and readout in the tensor.
 
 ## Artifacts
+
+> **TL;DR:** Summaries live here; raw traces live in a private Hub dataset.
 
 Run manifests (`run.json`, `metrics.json`) are in this directory. Raw traces (first 1,000 transitions per variant) and snapshots from the HF runs are in the private Hub dataset `jgalego/latent-machines-runs` at commit `4b00d50e`. The local runs' raw directories exist only on the machine that ran them, in the ignored `runs/` directory.
 
@@ -62,6 +78,8 @@ uv run --locked python -m latent_machines.experiments.e00 --horizon 100000 --job
 ```
 
 ## Decision
+
+> **TL;DR:** This backend clears its checks; next, build E01 and test more E00 variants.
 
 For this backend and configuration, the result meets the conformance and snapshot condition of [scope gate 1](../../EXPERIMENTS.md#gates-for-expanding-scope). Next steps:
 - **Slice:** continue with step 5 (E01 machines).

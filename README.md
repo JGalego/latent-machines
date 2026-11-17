@@ -5,6 +5,8 @@
 
 # Latent Machines
 
+> **TL;DR:** Can a neural network run a precise little computer inside itself, and is that better than calling a tool?
+
 Neural models as programmable machines.
 
 Research into programs compiled into weights, persistent memory, and learned control over exact execution.
@@ -15,6 +17,8 @@ Research into programs compiled into weights, persistent memory, and learned con
 
 ## Scope
 
+> **TL;DR:** Four things we study: learned control, programs in weights, matching implementations, and fair comparisons.
+
 - Learned controllers with explicit memory and machine operations.
 - Programs compiled into neural weights.
 - Native and tensor implementations of the same state transitions.
@@ -23,6 +27,8 @@ Research into programs compiled into weights, persistent memory, and learned con
 "Exact" means following specified computational semantics within stated numerical and resource limits. It does not exclude weight-space programming. "Persistent" means state survives computation steps; persistence across runs requires saving and restoring it.
 
 ## Research
+
+> **TL;DR:** The plan lives in two documents: what is known (RESEARCH) and how we test it (EXPERIMENTS).
 
 See [RESEARCH.md](RESEARCH.md) for the source-backed landscape, programmable layer families, and alternative computation models.
 
@@ -41,8 +47,12 @@ Implementation follows the [first implementation slice](EXPERIMENTS.md#first-imp
 
 ## Contributing
 
+> **TL;DR:** How to help: small, checked, reproducible changes.
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for code style and research standards: minimal code and dependencies, uv, pre-commit, small frequent commits, commit messages, diagrams as code, reproducible experiments, and mandatory result verification.
 
 ## License
+
+> **TL;DR:** Free to use, change, and share under Apache 2.0.
 
 [Apache License 2.0](LICENSE).

@@ -1,8 +1,12 @@
 # Experiment program
 
-Status: proposed, 2026-11-16. The repository currently contains research documents, not an implementation or reproduced results. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
+> **TL;DR:** Nine experiments, ordered so each builds on checked foundations.
+
+Status, 2026-11-17: E00 has a first result for delta-rule memory ([report](results/E00/README.md)); the other experiments are proposed. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
 
 ## Questions and priorities
+
+> **TL;DR:** Separate what runs, how it runs, how it is controlled, and what it is for; start with E00.
 
 Separate four axes:
 
@@ -27,6 +31,8 @@ E00 executor conformance
 E04-E08 are independent follow-on branches after their prerequisites pass, not requirements for the first implementation. A negative result is a result: report it before adding a larger model or a more elaborate compiler.
 
 ## Repository organization
+
+> **TL;DR:** Where code lives: one folder per part, plus curated results and ignored raw runs.
 
 Keep the current research documents at the root. Add implementation directories only when they contain a working experiment; the following is a target layout, not a list of existing files:
 
@@ -53,6 +59,8 @@ assets/
 ```
 
 ### Ownership boundaries
+
+> **TL;DR:** Each folder owns one job, and the controller never sees the answer key.
 
 ```mermaid
 flowchart LR
@@ -87,6 +95,8 @@ Do not start with a general compiler, plugin registry, training framework, Rust 
 
 ### First implementation slice
 
+> **TL;DR:** Six build steps from a memory reference to the first learning test; four are done.
+
 1. Add the uv-managed package and lockfile, focused tests, an integer memory oracle, pinned pre-commit hooks, and fast CPU CI.
 2. Specify fixed capacity, word domain, reads/writes, invalid-address behavior, event ordering, and non-mutating faults.
 3. Implement an explicit eager delta-rule tensor backend with the same observations and actions. Validate every step, not just the final answer.
@@ -98,9 +108,13 @@ Keep CPU runs small by default. GPU sweeps, model downloads, paid jobs, and long
 
 ## Shared execution and evidence contracts
 
+> **TL;DR:** Rules every machine, interface, and number format must follow for a result to count.
+
 These are semantic requirements, not a frozen public Python API.
 
 ### Machine transitions
+
+> **TL;DR:** Every machine states exactly what each action does, including errors and costs.
 
 Specify `(state, action) -> (next_state, event, work)` with:
 
@@ -117,6 +131,8 @@ Reference, dense tensor, and fused backends should produce the same canonical tr
 
 ### Controller and interface
 
+> **TL;DR:** Compare interfaces fairly: same information, same budgets, no secret hints.
+
 Hold constant across interface variants:
 
 - The information available, action semantics, value precision, capacity, stopping rules, and error messages.
@@ -128,6 +144,8 @@ Interfaces can have different encodings, but compare them over the same underlyi
 Use oracle action replay to isolate executor cost, and free-running learned control to measure the full system. Label teacher forcing and oracle routing clearly; neither establishes autonomous reliability.
 
 ### Numerical conformance
+
+> **TL;DR:** Check every rounding trap, and record near-misses even when answers look right.
 
 Record weights, activations, accumulators, stored state, and index/key precision separately. Check:
 
@@ -144,7 +162,11 @@ An approximate backend must declare a reference, error metric, tolerance, horizo
 
 ## Experiments
 
+> **TL;DR:** E00 to E08, from basic memory checks to search with an exact checker.
+
 ### E00 - Memory and transition conformance
+
+> **TL;DR:** Does neural-network memory behave exactly like real memory?
 
 **Question:** which layer families actually implement the required storage semantics on the chosen execution path?
 
@@ -162,6 +184,8 @@ An approximate backend must declare a reference, error metric, tolerance, horizo
 
 ### E01 - Exact streaming machines and transition algebras
 
+> **TL;DR:** Can simple exact machines, like counters and parsers, run directly in layers?
+
 **Question:** can useful specified algorithms run directly without a general-purpose CPU?
 
 **Prerequisite:** E00 for each stateful backend used. A backend used here only for state tracking, not as addressed memory, needs E00's retention, idle, and snapshot checks for its declared state rather than RAM conformance.
@@ -177,6 +201,8 @@ An approximate backend must declare a reference, error metric, tolerance, horizo
 **Discriminator:** establish whether a backend executes assignment, self-referential updates, or permutations directly, or pays for additional nonlinear feedback steps. Count a transition as supported only when it executes exactly at the tested precision and horizon, not because the architecture can represent it in theory.
 
 ### E02 - Learned interface comparison
+
+> **TL;DR:** Does a model do better with an internal machine than with a tool, and why?
 
 **Question:** does an internal machine interface help a learned controller, and does compiling the machine add anything beyond native integration?
 
@@ -205,6 +231,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 ### E03 - Latent ticks and explicit events
 
+> **TL;DR:** Can model and machine talk without text, and is that actually cheaper?
+
 **Question:** does an explicit non-text feedback path improve cost or control without changing the available information or permitted computation?
 
 **Prerequisites:** E01 and E02, including the native internal baseline.
@@ -218,6 +246,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 **Discriminator:** improvements must survive comparison with an efficient native loop and cannot come solely from providing hidden privileged state.
 
 ### E04 - Dataflow, specialization, and conditional units
+
+> **TL;DR:** Is computing a whole pipeline at once better than one instruction at a time?
 
 **Question:** is direct scheduling a better fit than scalar interpretation?
 
@@ -235,6 +265,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 ### E05 - Graph, semiring, and logic execution
 
+> **TL;DR:** Can exact graph and logic engines replace step-by-step instructions?
+
 **Question:** can a small exact relational/message-passing machine replace scalar instruction dispatch for suitable workloads?
 
 **Prerequisites:** E00 plus a declared bounded Boolean or integer arithmetic contract.
@@ -250,6 +282,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 **Discriminator:** learned approximate answers cannot be counted as exact entailment; dense tensor speedups must be compared at realistic sparse sizes.
 
 ### E06 - Spatial and structured dynamical machines
+
+> **TL;DR:** When do grid-like or filter-like layers beat pretending to be memory?
 
 **Question:** when does local or structured state evolution provide a better substrate than random-access emulation?
 
@@ -267,6 +301,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 ### E07 - Optimization-defined state updates
 
+> **TL;DR:** Which learning-style memory updates still behave like exact memory?
+
 **Question:** which optimizer settings preserve useful specified memory or adaptation semantics?
 
 **Prerequisite:** E00 reference traces; an independently specified optimizer for non-RAM variants.
@@ -283,6 +319,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 ### E08 - Heuristic search with an exact verifier
 
+> **TL;DR:** Do neural guesses plus an exact checker find more valid answers for the same budget?
+
 **Question:** can neural or energy-based candidate generation improve verified solution yield at a fixed budget?
 
 **Prerequisite:** an independently tested verifier and conventional search baseline; recurrent backends also need the relevant E00 checks.
@@ -296,6 +334,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 **Discriminator:** separate better proposals from faster verification, and do not infer efficient global optimization from associative-memory convergence.
 
 ## Research coverage
+
+> **TL;DR:** Every idea in RESEARCH.md points to the experiment that tests it, or says why not yet.
 
 Every claim, proposal, and open question in [RESEARCH.md](RESEARCH.md) maps to an experiment, a [scope gate](#gates-for-expanding-scope) that defers it, or context only. When RESEARCH.md gains one, add a row here in the same change.
 
@@ -345,6 +385,8 @@ Layer families appear under the experiments that test their natural primitive, n
 
 ## Run records and results
 
+> **TL;DR:** Every run leaves a receipt: what ran, from which code, and what happened.
+
 The first runner should write a unique directory under ignored `runs/` containing:
 
 | File | Required content |
@@ -364,6 +406,8 @@ Commit curated summaries and small manifests to `results/`, including failed hyp
 Each curated report should state the hypothesis, evidence class, matched controls, source/configuration identifiers, correctness outcomes, uncertainty across task and training seeds where relevant, costs, and the decision made. Report first-mismatch horizons and capacity limits, not just average task accuracy.
 
 ## Gates for expanding scope
+
+> **TL;DR:** Six checkpoints that must pass before the project grows more ambitious.
 
 1. **Before learned control:** the executor passes bounded conformance and snapshot tests.
 2. **Before speed claims:** correctness passes on the exact timed path, and the conventional baseline and budgets are credible.

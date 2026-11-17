@@ -1,8 +1,12 @@
 # Research
 
+> **TL;DR:** What others have built, what it proves, and what is still open.
+
 Reviewed: 2026-11-16. Primary-source literature and implementation review; experiments have not been reproduced here. Benchmark results below are attributed reports, not independent validation.
 
 ## Terms
+
+> **TL;DR:** Five words we use precisely, so claims can't quietly stretch.
 
 - **Exact execution:** transitions match a specified machine, within an explicit representation, precision, and resource budget. Deterministic output alone is insufficient.
 - **Learned control:** a network chooses operations, arguments, or addresses. Exact execution does not make those choices correct.
@@ -12,11 +16,15 @@ Reviewed: 2026-11-16. Primary-source literature and implementation review; exper
 
 ## Findings
 
+> **TL;DR:** The pieces exist separately; nobody has shown the whole combination yet.
+
 The broad idea is not new. Learned controllers with explicit state predate modern LLMs. Compiled neural programs have also been combined with pretrained language models.
 
 The less-established combination is a pretrained LM with a learned internal interface to an exact, mutable machine, evaluated against both external tools and native in-process implementations. The sources below establish parts of this combination, not a mature general solution. This is a research hypothesis, not a novelty claim.
 
 ## Closest systems
+
+> **TL;DR:** Seven systems that come closest, and where each one stops.
 
 | Work | Mechanism | Relevance and limit |
 |---|---|---|
@@ -30,6 +38,8 @@ The less-established combination is a pretrained LM with a learned internal inte
 
 ### Qwenputer: internal execution, tool-shaped interaction
 
+> **TL;DR:** A CPU inside a language model, but the model still talks to it like a tool.
+
 The original Qwen language weights are unchanged. Added compiled layers implement the CPU. The LM emits a familiar tool-call format; the circuit receives those tokens and executes the request.
 
 The RV32 driver keeps CPU trace tokens out of Qwen's language layers and caches. This is not a learned latent read/write channel between the LM residual stream and arbitrary machine state. The RV32 variant also needs its driver rather than a plain `generate()` call.
@@ -41,6 +51,8 @@ The filesystem variant saves selected state through host-managed files. Cross-se
 Sources: [code](https://github.com/divagr18/qwenputer), [design and results](https://divagr.com/blog/qwenputer), [model](https://huggingface.co/divagr1925/Qwen3.5-4B-Qwenputer).
 
 ### Percepta: a different memory architecture
+
+> **TL;DR:** A computer built from attention that remembers by keeping an ever-growing log.
 
 Machine state is represented through an append-only history and attention lookups, rather than Qwenputer's recurrent RAM. These designs have different memory-growth and execution-cost tradeoffs.
 
@@ -54,6 +66,8 @@ Sources: [construction](https://www.percepta.ai/blog/constructing-llm-computer),
 
 ### Neural Comprehension: compiled modules already influence decoding
 
+> **TL;DR:** Compiled rule modules already steer a model's next word, so mixing the two isn't new.
+
 Compiled neural networks encode symbolic rules using constructed attention weights. A gate combines their one-hot outputs with the LM's output distribution during generation.
 
 This is a relevant counterexample to any broad claim that combining LMs and compiled neural programs is new. It is output-level integration over context, not a demonstrated general RAM that the LM reads and updates through latent actions.
@@ -64,6 +78,8 @@ Sources: [paper, section 4.1](https://arxiv.org/html/2304.01665v3#S4.SS1), [code
 
 ### Tracr-Injection: algorithm supervision is not exact execution
 
+> **TL;DR:** Teaching a model to imitate a program is not the same as running the program.
+
 A Tracr-compiled model supplies training targets. GPT-2 is trained so a linear projection of its residual stream resembles the compiled model's variables. The compiled model does not execute at inference.
 
 Reported out-of-distribution results improve on some Dyck-language cases but remain weak on several counting and addition cases. The method does not preserve the compiled algorithm's semantics as a guarantee.
@@ -73,6 +89,8 @@ The repository also labels an earlier live compiled-model coupling attempt as fa
 Sources: [paper](https://arxiv.org/abs/2505.10719), [code and prototype](https://github.com/tvergara/tracr-injection). Check upstream licensing before reusing code.
 
 ## Foundations
+
+> **TL;DR:** Earlier work showing that programs and memory can live inside network weights.
 
 | Work | Contribution | Boundary |
 |---|---|---|
@@ -86,6 +104,8 @@ Sources: [paper](https://arxiv.org/abs/2505.10719), [code and prototype](https:/
 The Neural Harvard Computer is especially relevant to experiment design: its controller and memory-access interfaces operate on a control stream separated from data manipulation. It uses hard memory decisions and evolutionary training. Reported generalization to much larger task configurations is empirical, not a proof that every learned controller implements the intended algorithm.
 
 ## Adjacent work
+
+> **TL;DR:** Related memory and interface ideas that stop short of an exact machine.
 
 These are useful interface or memory precedents, but do not establish an exact persistent machine inside a pretrained LM.
 
@@ -103,6 +123,8 @@ These are useful interface or memory precedents, but do not establish an exact p
 
 ## Expanding the programmable substrate
 
+> **TL;DR:** Match each computation to the layer type that does it naturally; a CPU is just one option.
+
 The organizing hypothesis is not "put a CPU in every model." It is to compile specified state transitions into the layer families that implement them naturally. A CPU is one target, not the definition of the system.
 
 Three ingredients should be considered independently:
@@ -116,6 +138,8 @@ Three ingredients should be considered independently:
 An existing demonstration, a theorem under explicit assumptions, and an untested proposed backend are different kinds of evidence. None alone demonstrates that an unchanged pretrained model already implements an exact machine.
 
 ### Delta-rule memory and its optimization interpretation
+
+> **TL;DR:** The delta rule can overwrite one memory slot exactly, and it is also one step of learning.
 
 Writing the state as a matrix whose columns are slots:
 
@@ -140,6 +164,8 @@ Sources: [Gated Delta Networks](https://arxiv.org/abs/2412.06464), [Fast Weight 
 
 ### Candidate layer families
 
+> **TL;DR:** A menu of layer types, each with a natural skill to test, not a promise that it works.
+
 These are capabilities to test, not a compatibility list. [Research coverage](EXPERIMENTS.md#research-coverage) records where each is tested.
 
 | Family | Natural primitive | Boundary and proposed use |
@@ -163,6 +189,8 @@ An ordinary frozen MLP's "key-value memory" is not writable runtime RAM. [Geva e
 
 ### Transition algebra matters more than architecture names
 
+> **TL;DR:** What a layer can compute depends on which state changes its math allows, not on its name.
+
 For a recurrence `h_next = A(input) @ h + b(input)`, the allowed transition matrices matter: scalar, diagonal, permutation, diagonal-plus-low-rank, products of reflections, or unrestricted dense transformations.
 
 For a unit key, `I - beta * key @ key.T` removes a component at beta = 1 and reflects it at beta = 2. Negative or signed transitions enable state-tracking behaviors that positive transitions cannot directly express in some linear-recurrence regimes.
@@ -180,7 +208,11 @@ Proposed compiler direction: use assignment-oriented memory for writes, permutat
 
 ## Computation models beyond a scalar CPU
 
+> **TL;DR:** Many jobs fit simpler machines better than a general-purpose CPU.
+
 ### Streaming transducers, stacks, and parsers
+
+> **TL;DR:** Small state machines plus a stack can parse and track nesting without a whole CPU.
 
 A deterministic finite-state transition can be `state_next = P_symbol @ state`, with a one-hot state and compiled transition matrices. Add a bounded stack and explicit overflow behavior for nested scopes, expression evaluation, or parsing.
 
@@ -190,6 +222,8 @@ Evidence includes the automata, compiled-program, and differentiable-stack found
 
 ### Dataflow, vector, and conditional functional-unit machines
 
+> **TL;DR:** Compute whole data pipelines at once instead of one instruction at a time.
+
 Compile `gather -> map -> reduce -> scatter` or a scheduled arithmetic graph instead of serial scalar instructions. Potential workloads include bit-parallel arithmetic, expression evaluation, fixed-point inference, and specialized hot paths.
 
 This direction already has a concrete precedent: [QwenPU](https://github.com/divagr18/QwenPU) adds compiled vector operations and dedicated DeltaNet memories. The author reports reducing work for one generated token of the nested stories260K model from 2,430,000 trace tokens in ordinary C, to 225,000 with dot-product extensions, to 53,000 with its vector unit. These are related-system implementation reports, not a speedup over native model inference or a matched backend-only experiment.
@@ -197,6 +231,8 @@ This direction already has a concrete precedent: [QwenPU](https://github.com/div
 Proposals: generalize to a small dataflow IR; compare dense predication with expert dispatch; specialize hot programs or basic blocks. Compare interpreter and specialized variants separately, account for construction time, and preserve precise faults and work budgets.
 
 ### Graph, semiring, and finite-domain logic machines
+
+> **TL;DR:** Graph problems and logic rules become repeated combine-and-reduce steps.
 
 Many dynamic programs consist of repeated local composition and reduction. Shortest-path relaxation uses min-plus; reachability uses Boolean AND/OR. A machine can expose edge-local computation, neighborhood reduction, and bounded iteration rather than scalar loads and branches.
 
@@ -208,6 +244,8 @@ Proposals here require bounded arithmetic, explicit infinity sentinels, determin
 
 ### Cellular automata, systolic arrays, and signal processing
 
+> **TL;DR:** Grids of cells updating by local rules, like a spreadsheet that runs itself.
+
 For a binary three-cell neighborhood, a local operator can form `left + 2 * center + 4 * right`; a compiled eight-entry table supplies the next cell. Repeated convolution and local lookup then implement a cellular rule.
 
 Sequence positions or a grid can be cells, channels can be registers, and repeated execution can represent time. Simultaneous updates need preserved old state, usually double buffering; boundary conditions are part of the specification.
@@ -218,6 +256,8 @@ Related but distinct: structured SSMs may be better used as compiled filters and
 
 ### Optimizers as machines
 
+> **TL;DR:** Some memory updates are learning steps: useful, but exact only in special cases.
+
 The quadratic-loss derivation above makes delta memory a restricted optimizer. Broader TTT/Titans-style updates suggest online regression, adaptive filtering, or task-local fitting as computation models.
 
 The first discriminating check is repeated writes to the same address within an update chunk. Sequential quadratic updates can replace the slot; stale gradients can produce a different result. Momentum and forgetting are additional state, not harmless implementation details.
@@ -226,13 +266,19 @@ This is a proposal for specified optimization machines, not a claim that arbitra
 
 ### Energy-based search with an exact verifier
 
+> **TL;DR:** Let a network guess answers, then let an exact checker accept or reject each one.
+
 [Modern Hopfield networks](https://arxiv.org/abs/2008.02217) connect attention with associative energy-based dynamics. This motivates candidate retrieval or constraint-search systems, not a generic efficient global optimizer.
 
 A useful hybrid is heuristic search followed by a fixed exact verifier. Measure search quality and verification correctness independently. Rejecting invalid candidates does not prove that failure to find a candidate means none exists. Compare equal search budgets against conventional algorithms.
 
 ## Latent execution and compilation
 
+> **TL;DR:** Run the machine without text messages, and treat compiling programs into weights as careful work.
+
 ### Replace execution tokens with an explicit feedback contract
+
+> **TL;DR:** Skip text between model and machine, but define exactly how results flow back.
 
 An experimental latent transition can be specified as:
 
@@ -249,6 +295,8 @@ Compare token feedback, repeated latent computation, and an ordinary native in-p
 
 ### A compiler target, not a claim of free computation
 
+> **TL;DR:** A general compiler is a goal; nothing about it is free or proven yet.
+
 RASP/Tracr, ALTA, looped transformers, Qwenputer, and Percepta provide complementary precedents for program representation, recurrence, memory, scheduling, and optimized execution. A general compiler combining their strengths remains a research direction.
 
 Separate fixed weights as code/ROM, recurrent state as writable storage, KV history as a log, and runtime-updated fast weights. A capability description should eventually record value domains, state-update semantics, communication, numerical obligations, work units, and snapshot behavior.
@@ -256,6 +304,8 @@ Separate fixed weights as code/ROM, recurrent state as writable storage, KV hist
 Proposed proof-oriented compilation would emit bounds on intermediate values and reductions, representability obligations at casts, addressing invariants, and checks against reference transitions. Testing supports a claim only for the tested cases; a compiler certificate would require a separately defined and validated checker and floating-point model.
 
 ## Numerical and resource limits
+
+> **TL;DR:** Tiny rounding errors, finite memory, and hidden costs can quietly break exactness.
 
 - **Retention:** intended alpha = 1 must not quietly become `1 - epsilon`; idle state then decays as `(1 - epsilon)^steps`.
 - **Integer representation:** all consecutive integers through 2^8 in BF16, 2^11 in FP16, 2^24 in FP32, and 2^53 in FP64 are representable. Intermediates, reductions, and casts must also stay within the required domain.
@@ -268,6 +318,8 @@ Proposed proof-oriented compilation would emit bounds on intermediate values and
 - **Correct requests:** an exact executor can correctly run a mistaken program or argument choice. Controller correctness, program correctness, and execution correctness are separate.
 
 ## Open questions
+
+> **TL;DR:** Ten questions the literature doesn't answer, each mapped to an experiment.
 
 1. Can a pretrained LM learn reliable typed actions over exact state without serializing every action into text?
 2. Does that interface improve generalization or cost over a well-engineered external tool?
@@ -283,6 +335,8 @@ Proposed proof-oriented compilation would emit bounds on intermediate values and
 The reviewed sources do not settle this combination. Absence from this review is not evidence of novelty. [Research coverage](EXPERIMENTS.md#research-coverage) maps each question to an experiment or a scope gate that defers it.
 
 ## First controller experiment
+
+> **TL;DR:** The first learning test: does an internal machine beat a tool, and does compiling it matter?
 
 The executable research program and repository organization are specified in [EXPERIMENTS.md](EXPERIMENTS.md). Start with executor conformance and a streaming machine (E00/E01), then this controller study (E02), not a complete operating system. Keep transition rules fixed. Train action heads with supervised traces before attempting harder credit assignment.
 

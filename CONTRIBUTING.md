@@ -1,8 +1,12 @@
 # Contributing
 
+> **TL;DR:** How to make changes that others can trust, rerun, and build on.
+
 These guidelines apply to code, experiments, results, documentation, and automated contributions.
 
 ## 1. Clean, minimal code
+
+> **TL;DR:** Write the simplest code that does the job, nothing speculative.
 
 - Write the simplest implementation that satisfies the stated contract. Prefer small functions, explicit data flow, and descriptive names.
 - Keep machine semantics separate from backend optimizations, controller interfaces, and task definitions.
@@ -12,12 +16,16 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 2. Minimal dependencies
 
+> **TL;DR:** Add a library only when you truly need it.
+
 - Prefer the standard library when it solves the problem clearly. Add a dependency only for a concrete requirement, and explain why existing tools are insufficient.
 - Separate runtime, development, and optional accelerator/model dependencies. A small CPU experiment must not require the full research stack.
 - Default to Ruff, pytest, and pre-commit for Python development; add overlapping tools only for a demonstrated gap.
 - Do not require a hosted service for tests, run tracking, or basic reproduction.
 
 ## 3. Use uv
+
+> **TL;DR:** uv manages Python and packages, so everyone gets the same environment.
 
 - Manage Python environments, dependencies, and commands with uv. Declare dependencies in `pyproject.toml` and commit `uv.lock` with dependency changes.
 - Use `uv add` and `uv remove` rather than manually editing the lockfile. Declare the supported Python version; record the actual interpreter used for results.
@@ -26,12 +34,16 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 4. Use pre-commit
 
+> **TL;DR:** Automatic checks run before every commit.
+
 - Add a version-pinned `.pre-commit-config.yaml` with the first executable implementation. Use it for formatting, linting, and cheap repository hygiene checks.
 - Document hook installation and the full local check command when the configuration exists. Run the same checks in CI; local hooks are convenience, not the only enforcement.
 - Keep commit hooks fast, deterministic, and CPU-only. No model downloads, training, network-dependent tests, or long benchmarks in hooks.
 - Fix failures rather than routinely bypassing hooks. Any exceptional bypass needs an explanation and equivalent validation before integration.
 
 ## 5. Practice continuous integration
+
+> **TL;DR:** Small, frequent, checked changes beat big surprises.
 
 - Commit early and often, in small, coherent, validated increments. Integrate frequently rather than accumulating a large unreviewable branch.
 - A commit should be understandable and reproducible on its own. Separate refactoring, behavior changes, and scientific conclusions where practical.
@@ -40,6 +52,8 @@ These guidelines apply to code, experiments, results, documentation, and automat
 - Do not commit unrelated staged work, secrets, generated checkpoints, or raw run directories. Fix failures before merging; do not hide them by weakening assertions.
 
 ## 6. Write informative commit messages
+
+> **TL;DR:** Each commit says what changed in one clear line, and why in the body.
 
 - Write an imperative subject of at most 72 characters, ideally about 50, without a trailing period: `Add integer memory oracle`, not `Added oracle` or `wip`.
 - Optionally prefix the subject with an experiment ID or a top-level directory from the [repository layout](EXPERIMENTS.md#repository-organization), or `docs` for the root documents: `E01: add bounded stack parser`, `backends: validate gate endpoints`. Do not invent a separate type taxonomy.
@@ -53,6 +67,8 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 7. Reproducibility is part of the deliverable
 
+> **TL;DR:** Anyone should be able to rerun a result from a clean checkout.
+
 - Provide a command that runs from a clean checkout, with declared inputs, budgets, and expected outputs. No undocumented notebook state or manual file edits.
 - Record the source revision, resolved configuration, seeds, input/model hashes, environment, kernels, and relevant dtypes. Follow the [run-record contract](EXPERIMENTS.md#run-records-and-results).
 - Seeds alone do not ensure reproducibility. State which outcomes are bit-exact, tolerance-based, statistically replicated, or device-dependent.
@@ -60,6 +76,8 @@ These guidelines apply to code, experiments, results, documentation, and automat
 - Keep small reports and manifests in Git; keep large artifacts outside it with stable references and integrity hashes. Preserve failed runs and first-mismatch evidence.
 
 ## 8. Verified results are mandatory
+
+> **TL;DR:** No result counts until it is checked against an independent reference.
 
 - Do not present an experiment as successful until the stated acceptance criteria pass on the actual execution path being reported.
 - Test state transitions, events, and outputs against an independent reference. Final-answer agreement alone is insufficient for an exact-machine claim.
@@ -69,6 +87,8 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 9. Keep comparisons honest
 
+> **TL;DR:** Compare like with like, and report the losses too.
+
 - Use matched information, data, capacity, and work budgets. Separate interface benefits from executor, specialization, or implementation benefits.
 - Include a credible conventional baseline. Do not handicap textual tools with unnecessary subprocess or network overhead.
 - Separate initialization/compilation, steady-state execution, and end-to-end costs. Synchronize asynchronous work before timing.
@@ -77,12 +97,16 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 10. Make failures and limits explicit
 
+> **TL;DR:** Say exactly what happens at the edges, and never hide a failure.
+
 - Specify overflow, capacity, invalid actions, ties, stopping, and fault behavior. Never silently clamp, repair, or substitute a successful-looking output.
 - Keep a simple reference implementation independent of optimized code. Add focused regression cases for bugs and counterexamples.
 - Use small, local, bounded defaults. Downloads, paid compute, long jobs, and external services must require explicit opt-in.
 - Cite primary sources and respect code, model, and dataset licenses. Do not copy upstream code without checking its reuse terms.
 
 ## 11. Explain visually
+
+> **TL;DR:** Show structure with diagrams written as text, so they can be reviewed like code.
 
 - Accompany each new concept, machine, experiment, or data flow with a diagram when structure carries the meaning: state transitions, event order, ownership between axes, experiment arms and controls, and dependencies.
 - Write diagrams as code: [Mermaid](https://mermaid.js.org/) blocks in Markdown, which GitHub renders in files, issues, and pull requests. Place each next to the prose it illustrates. Do not commit exported or binary diagrams that cannot be reviewed in a diff.
@@ -92,6 +116,8 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 ## 12. Run intensive work on Hugging Face Jobs
 
+> **TL;DR:** Heavy runs go to Hugging Face Jobs, pinned to a pushed commit and a set timeout.
+
 - Run tests and sweeps that are too slow for local CPU, or that need a GPU, as [Hugging Face Jobs](https://huggingface.co/docs/huggingface_hub/guides/jobs). Keep the default test suite, hooks, and CI local and CPU-only.
 - Run a pushed commit: clone the public repository at that revision inside the job and restore the environment with `uv sync --locked`, so the run record names source anyone can fetch. Do not ship uncommitted code to a job.
 - Choose the smallest flavor that fits (`hf jobs hardware` lists flavors and prices) and always set `--timeout`. Label each job with its experiment and revision, for example `--label experiment=E00 --label revision=<sha>`.
@@ -99,7 +125,18 @@ These guidelines apply to code, experiments, results, documentation, and automat
 - The job's filesystem is discarded when it ends. Upload the run directory, for example to a Hub dataset, and record the job ID, flavor, image, timeout, wall time, and artifact location in the run record. Keep the logs of failed, timed-out, and cancelled jobs.
 - A job validates only the hardware, kernels, and dtypes it ran on; label results by flavor. GPU backends need a CUDA build of PyTorch, added as a separate extra when the first GPU job requires it.
 
+## 13. Lead every page and section with a TL;DR
+
+> **TL;DR:** One memorable line under every heading tells a newcomer what it is for.
+
+- Start every Markdown page, section, and subsection with a one-line TL;DR directly under its heading, written as `> **TL;DR:** …`.
+- Write it for a newcomer, including non-specialists: plain words, intuitive, and memorable. Use one sentence, ideally under 20 words, and no jargon the section does not explain.
+- A TL;DR summarizes; it adds no claims. Keep the evidence class: a proposal stays a proposal, and a finite test stays a finite test.
+- Update a section's TL;DR in the same change as the section. Pointer files such as CLAUDE.md are exempt.
+
 ## Current tooling status
+
+> **TL;DR:** What is set up today, and the commands to use it.
 
 The uv project, Ruff, pytest, pre-commit hooks, and CI are configured. Python 3.13 or later is required; `.python-version` selects 3.13 for development and CI.
 

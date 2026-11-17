@@ -1,8 +1,12 @@
 # AGENTS.md
 
+> **TL;DR:** Orientation for AI agents: current state, key files, architecture, and house rules.
+
 Guidance for coding agents working in this repository. [CONTRIBUTING.md](CONTRIBUTING.md) is the authoritative standard; this file covers orientation and the cross-file rules that are easy to miss.
 
 ## Current state
+
+> **TL;DR:** What exists now, and the commands to check it.
 
 The uv project, Ruff, pytest, pre-commit hooks, and CI are configured. E00 has a runner and a first result in `results/E00/`; no other experiment exists yet. The layout in EXPERIMENTS.md is a target, not existing files. Do not report a check as passing without running it.
 
@@ -19,6 +23,8 @@ CI (`.github/workflows/ci.yml`) runs the same locked sync, hooks, and tests on p
 
 ## Documents
 
+> **TL;DR:** Which file holds what, and the cross-links that must stay in sync.
+
 | File | Role |
 |---|---|
 | README.md | Pitch and scope |
@@ -34,6 +40,8 @@ Cross-file rules:
 
 ## Architecture
 
+> **TL;DR:** Four separate parts (machine, backend, interface, task), built in a fixed order.
+
 The program separates four axes, and the planned code mirrors them:
 
 - **Machine** (`machines/`): specified transitions `(state, action) -> (next_state, event, work)` with an independent integer oracle and no dependency on a model family or tensor backend.
@@ -47,6 +55,8 @@ Build in the order of the [first implementation slice](EXPERIMENTS.md#first-impl
 
 ## Evidence language
 
+> **TL;DR:** Never claim more than the evidence shows.
+
 The documents are precise about evidence class, and edits must preserve it:
 
 - "Exact" means matching a specified machine within declared representation, precision, and resource limits, not merely deterministic output.
@@ -56,8 +66,11 @@ The documents are precise about evidence class, and edits must preserve it:
 
 ## Working rules
 
+> **TL;DR:** Small CPU runs by default, HF Jobs up to $5, small commits, diagrams, and TL;DRs.
+
 - Keep runs small and CPU-only by default. Model downloads, GPU sweeps, training, paid compute, and network-dependent tests need explicit approval, except Hugging Face Jobs within the limit below.
 - Agents may launch [Hugging Face Jobs](CONTRIBUTING.md#12-run-intensive-work-on-hugging-face-jobs), CPU or GPU, for work too slow for local CPU when the worst-case cost of all jobs for one task (hourly price × timeout, summed) is at most $5. State the flavor, timeout, and worst-case cost when launching, and cancel jobs that are no longer needed. Anything above the limit needs explicit approval.
 - Follow the [commit message rules](CONTRIBUTING.md#6-write-informative-commit-messages): at most one experiment per commit, results committed separately after the code that produced them, and a `Co-Authored-By:` trailer for substantial agent-written changes.
 - When explaining a new concept, machine, or experiment, in documents, pull requests, or replies, include a diagram as code per [CONTRIBUTING.md](CONTRIBUTING.md#11-explain-visually).
+- Start every Markdown page, section, and subsection with a one-line `> **TL;DR:**` per [CONTRIBUTING.md](CONTRIBUTING.md#13-lead-every-page-and-section-with-a-tldr).
 - Raw runs go under the ignored `runs/` directory; curated summaries go under `results/` per the [run-record contract](EXPERIMENTS.md#run-records-and-results).

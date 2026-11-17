@@ -1,8 +1,12 @@
 # Backends
 
+> **TL;DR:** Ways to run a machine, each checked step by step against its reference.
+
 Implementations of machine semantics, validated step by step against the integer oracles in [machines/](../machines/). See [ownership boundaries](../../../EXPERIMENTS.md#ownership-boundaries).
 
 ## Delta-rule memory
+
+> **TL;DR:** Memory stored inside a neural layer's math: one column per slot, one row per bit.
 
 [delta.py](delta.py) stores [`memory/v1`](../machines/README.md#memoryv1) in a Gated DeltaNet state matrix `S` of shape `(word_bits, capacity)`: one column per slot, one row per bit. The module docstring is the authoritative description.
 
