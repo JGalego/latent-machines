@@ -29,6 +29,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from latent_machines.machines.events import Event, EventKind
+
 VERSION = "memory/v1"
 WORK_PER_ACTION = 1
 
@@ -71,24 +73,10 @@ type Action = Read | Write | Idle | Halt
 _ACTION_TYPES = (Read, Write, Idle, Halt)
 
 
-class EventKind(Enum):
-    CONTINUE = "continue"
-    OUTPUT = "output"
-    HALT = "halt"
-    FAULT = "fault"
-
-
 class FaultReason(Enum):
     HALTED = "halted"
     ADDRESS_OUT_OF_RANGE = "address_out_of_range"
     VALUE_OUT_OF_RANGE = "value_out_of_range"
-
-
-@dataclass(frozen=True, slots=True)
-class Event:
-    kind: EventKind
-    value: int | None = None  # the word read, for OUTPUT only
-    reason: FaultReason | None = None  # for FAULT only
 
 
 @dataclass(frozen=True, slots=True)
