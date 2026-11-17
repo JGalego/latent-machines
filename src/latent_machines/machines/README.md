@@ -26,3 +26,38 @@ flowchart TD
 ```
 
 Every outcome costs one work unit. Faults leave the state unchanged, and an action outside the schema raises `TypeError` before any check.
+
+## `transducer/v1`
+
+> **TL;DR:** A machine that reads symbols one at a time and looks up its next state and output in a table.
+
+Deterministic finite-state transducer, the reference for [E01](../../../EXPERIMENTS.md#e01---exact-streaming-machines-and-transition-algebras). [transducer.py](transducer.py) is the authoritative specification and builds the E01 targets: running parity, modular counters, and S_n permutation tracking.
+
+```mermaid
+flowchart LR
+    F["Feed(symbol)"] --> R{"0 ≤ symbol < alphabet?"}
+    R -->|no| X["fault: symbol_out_of_range<br/>state unchanged"]
+    R -->|yes| T["state ← next_state[state][symbol]"] --> O["output: output[state][symbol]"]
+```
+
+Snapshots carry a digest of both tables, so a snapshot cannot be restored into a different transducer.
+
+## `stack/v1`
+
+> **TL;DR:** A bounded last-in, first-out stack that refuses to overflow or underflow.
+
+Bounded stack of unsigned words, the reference for E01's stack parser. [stack.py](stack.py) is the authoritative specification.
+
+```mermaid
+flowchart LR
+    P["Push(v)"] --> V{"value in range?"}
+    V -->|no| FV["fault: value_out_of_range"]
+    V -->|yes| C{"full?"}
+    C -->|yes| FO["fault: overflow"]
+    C -->|no| OK1["push; continue"]
+    Q["Pop()"] --> E{"empty?"}
+    E -->|yes| FU["fault: underflow"]
+    E -->|no| OK2["pop; output top word"]
+```
+
+Every fault leaves the stack unchanged, and every action costs one work unit.

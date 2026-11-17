@@ -95,7 +95,7 @@ Do not start with a general compiler, plugin registry, training framework, Rust 
 
 ### First implementation slice
 
-> **TL;DR:** Six build steps from a memory reference to the first learning test; four are done.
+> **TL;DR:** Six build steps from a memory reference to the first learning test; five are done.
 
 1. Add the uv-managed package and lockfile, focused tests, an integer memory oracle, pinned pre-commit hooks, and fast CPU CI.
 2. Specify fixed capacity, word domain, reads/writes, invalid-address behavior, event ordering, and non-mutating faults.
