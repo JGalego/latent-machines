@@ -19,7 +19,7 @@ function rowKey(variant) {
   return variant.machine ? `${variant.machine} · ${variant.workload}` : variant.workload;
 }
 
-function renderExperiment(id, exp) {
+function renderExperiment(id, exp, firstTable) {
   const runs = [...exp.runs].sort((a, b) => a.horizon - b.horizon || a.seed - b.seed);
   const summary = runs
     .map(
@@ -51,15 +51,18 @@ function renderExperiment(id, exp) {
     .join("");
   const total = runs.reduce((sum, r) => sum + r.totals.actions_checked, 0);
 
-  return `<h3>${esc(id)}: ${esc(exp.title)}</h3>
-    <p>${fmtInt(total)} actions checked across ${runs.length} runs from revision${new Set(runs.map((r) => r.revision)).size > 1 ? "s" : ""}
-      ${[...new Set(runs.map((r) => r.revision.slice(0, 7)))].map((s) => `<code>${s}</code>`).join(", ")}.
-      ${exp.report ? `<a href="${esc(exp.report)}">Read the report</a>.` : "Report pending."}</p>
+  const title = exp.title.charAt(0).toUpperCase() + exp.title.slice(1);
+  const revisions = [...new Set(runs.map((r) => r.revision.slice(0, 7)))];
+  return `<p><strong>${esc(title)} (${esc(id)}).</strong>
+      ${fmtInt(total)} actions were checked in ${runs.length} runs from revision${revisions.length > 1 ? "s" : ""}
+      ${revisions.map((s) => `<code>${s}</code>`).join(", ")}.
+      ${exp.report ? `The <a href="${esc(exp.report)}">report</a> gives the setup and limits.` : ""}</p>
+    <p class="caption"><strong>Table ${firstTable}:</strong> ${esc(id)} runs. Mismatches count nonconforming steps; residue is Equation&nbsp;(2); a snapshot agrees if the restored state equals the live state.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>Actions per variant</th><th>Seed</th><th>Actions checked</th><th>Mismatches</th><th>Max residue</th><th>Snapshots agree</th><th>Status</th><th>CPU</th><th>Record</th></tr></thead>
+      <thead><tr><th>Actions per configuration</th><th>Seed</th><th>Actions checked</th><th>Mismatches</th><th>Max residue</th><th>Snapshots agree</th><th>Status</th><th>CPU</th><th>Record</th></tr></thead>
       <tbody>${summary}</tbody>
     </table></div>
-    <p class="caption">Variant classifications at ${fmtHorizon(largest.horizon)} actions per variant:</p>
+    <p class="caption"><strong>Table ${firstTable + 1}:</strong> Classification of each ${esc(id)} configuration in the run with ${fmtHorizon(largest.horizon)} actions per configuration. Hover over a cell for details.</p>
     <div class="table-wrap"><table class="grid-matrix">
       <thead><tr><th></th>${dtypes.map((d) => `<th>${esc(d)}</th>`).join("")}</tr></thead>
       <tbody>${matrix}</tbody>
@@ -74,8 +77,12 @@ async function loadResults() {
     const data = await response.json();
     const ids = Object.keys(data.experiments).sort();
     target.innerHTML = ids.length
-      ? ids.map((id) => renderExperiment(id, data.experiments[id])).join("")
+      ? ids.map((id, i) => renderExperiment(id, data.experiments[id], 2 * i + 1)).join("")
       : '<p class="muted">No results recorded yet.</p>';
+    const total = ids
+      .flatMap((id) => data.experiments[id].runs)
+      .reduce((sum, r) => sum + r.totals.actions_checked, 0);
+    for (const el of document.querySelectorAll(".total-actions")) el.textContent = fmtInt(total);
   } catch (error) {
     target.innerHTML = `<p class="muted">Results could not be loaded (${esc(error.message)}). They are also in the <a href="https://github.com/JGalego/latent-machines/tree/main/results">repository</a>.</p>`;
   }
