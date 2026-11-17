@@ -31,3 +31,21 @@ Every valid action runs one recurrence step with gates at their endpoints:
 | `Idle`, `Halt` | zero | zero | 1 | 0 | none |
 
 Conformance requires zero residue: every entry of `S` is exactly 0 or 1, so thresholding never hides drift. Normalization variants, non-endpoint gates, multi-hot keys, and chunked or fused kernels are separate backends to measure, not options of this one.
+
+## ReLU lookup circuit
+
+> **TL;DR:** A tiny two-layer network that looks up each next state, one neuron per state-symbol pair.
+
+[lookup.py](lookup.py) compiles a [`transducer/v1`](../machines/transducer.py) table into a ReLU network with explicit feedback. Hidden unit `(i, a)` fires only when the state is `i` and the symbol is `a`; its outgoing weights select the next state and the output.
+
+```mermaid
+flowchart LR
+    S["state s<br/>(one-hot)"] --> C["[s; x]"]
+    X["symbol x<br/>(one-hot)"] --> C
+    C --> Z["z = relu(W_in [s; x] − 1)<br/>one unit per (state, symbol)"]
+    Z --> N["s′ = W_next z"]
+    Z --> Y["y = W_out z → output event"]
+    N -.->|feedback| S
+```
+
+Every intermediate is 0, 1, or 2, so the circuit is exact in all four tested number formats. Width is `states × symbols`, depth is 2, and each unit has four nonzero weights. Smooth activations such as SwiGLU are a separate construction, not an option of this one.
