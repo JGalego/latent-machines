@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "experiment": "E01",
+  "run_id": "e01-20261117T104400Z-765c759-f4b4",
+  "command": [
+    "python",
+    "-m",
+    "latent_machines.experiments.e01",
+    "--seed",
+    "1",
+    "--jobs",
+    "4"
+  ],
+  "started_at": "2026-11-17T10:44:00+00:00",
+  "source": {
+    "revision": "765c759038867fecb4f609ff212ec35f5858cf40",
+    "dirty": false,
+    "dirty_fingerprint": null,
+    "untracked": []
+  },
+  "config": {
+    "machines": "parity,mod5-counter,s3-tracker,stack",
+    "stack_workloads": "brackets,random_ops,boundaries",
+    "stack_capacity": 8,
+    "word_bits": 8,
+    "horizon": 1000,
+    "snapshot_at": 500,
+    "seed": 1,
+    "dtypes": "float32,float64,bfloat16,float16",
+    "device": "cpu",
+    "trace_limit": 1000,
+    "jobs": 4,
+    "out": "runs"
+  },
+  "environment": {
+    "python": "3.13.13",
+    "implementation": "CPython",
+    "platform": "Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1365U",
+    "cpu_count": 12,
+    "cpu_quota": null,
+    "hf_job": null,
+    "launch": {},
+    "torch": "2.15.0+cpu",
+    "torch_threads_per_variant": 1,
+    "deterministic": false,
+    "device": "cpu",
+    "uv_lock_sha256": "7e49ea114c0751c11a32af1a9bec4d6ec8f9a455269eca0f5b054a1454437359"
+  },
+  "seeds": {
+    "seed": 1,
+    "derivation": "random.Random(f'{seed}:{machine}:{workload}')"
+  },
+  "machines": {
+    "transducer/v1": {
+      "parity": {
+        "states": 2,
+        "alphabet": 2,
+        "digest": "86db3cc775e764058bddeed9e1886f9d9eec3f18882421f9a38652abe9d4ea22"
+      },
+      "mod5-counter": {
+        "states": 5,
+        "alphabet": 3,
+        "digest": "b5aaddc3c85b058729215e4dde7e2453fee6cf2e91951eb340a8fc89d867bfcb"
+      },
+      "s3-tracker": {
+        "states": 6,
+        "alphabet": 2,
+        "digest": "77e61d5bf2248030f9ca7035d96324b7eb8314ee35de2bc151b7be4b5a31548a"
+      }
+    },
+    "stack/v1": {
+      "capacity": 8,
+      "word_bits": 8
+    }
+  },
+  "backends": {
+    "relu-lookup": "backends.lookup: z = relu(W_in [s; x] - 1), next = W_next z, output = W_out z; eager PyTorch",
+    "delta-stack": "latent_machines.backends.delta_stack: delta-rule memory plus one-hot depth pointer moved by shift matrices",
+    "dtypes": [
+      "float32",
+      "float64",
+      "bfloat16",
+      "float16"
+    ]
+  },
+  "variants": [
+    {
+      "machine": "parity",
+      "workload": "symbols",
+      "dtype": "float32",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/float32/parity/symbols"
+    },
+    {
+      "machine": "mod5-counter",
+      "workload": "symbols",
+      "dtype": "float32",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/float32/mod5-counter/symbols"
+    },
+    {
+      "machine": "s3-tracker",
+      "workload": "symbols",
+      "dtype": "float32",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/float32/s3-tracker/symbols"
+    },
+    {
+      "machine": "stack",
+      "workload": "brackets",
+      "dtype": "float32",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/float32/stack/brackets"
+    },
+    {
+      "machine": "stack",
+      "workload": "random_ops",
+      "dtype": "float32",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/float32/stack/random_ops"
+    },
+    {
+      "machine": "stack",
+      "workload": "boundaries",
+      "dtype": "float32",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/float32/stack/boundaries"
+    },
+    {
+      "machine": "parity",
+      "workload": "symbols",
+      "dtype": "float64",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/float64/parity/symbols"
+    },
+    {
+      "machine": "mod5-counter",
+      "workload": "symbols",
+      "dtype": "float64",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/float64/mod5-counter/symbols"
+    },
+    {
+      "machine": "s3-tracker",
+      "workload": "symbols",
+      "dtype": "float64",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/float64/s3-tracker/symbols"
+    },
+    {
+      "machine": "stack",
+      "workload": "brackets",
+      "dtype": "float64",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/float64/stack/brackets"
+    },
+    {
+      "machine": "stack",
+      "workload": "random_ops",
+      "dtype": "float64",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/float64/stack/random_ops"
+    },
+    {
+      "machine": "stack",
+      "workload": "boundaries",
+      "dtype": "float64",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/float64/stack/boundaries"
+    },
+    {
+      "machine": "parity",
+      "workload": "symbols",
+      "dtype": "bfloat16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/bfloat16/parity/symbols"
+    },
+    {
+      "machine": "mod5-counter",
+      "workload": "symbols",
+      "dtype": "bfloat16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/bfloat16/mod5-counter/symbols"
+    },
+    {
+      "machine": "s3-tracker",
+      "workload": "symbols",
+      "dtype": "bfloat16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/bfloat16/s3-tracker/symbols"
+    },
+    {
+      "machine": "stack",
+      "workload": "brackets",
+      "dtype": "bfloat16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/bfloat16/stack/brackets"
+    },
+    {
+      "machine": "stack",
+      "workload": "random_ops",
+      "dtype": "bfloat16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/bfloat16/stack/random_ops"
+    },
+    {
+      "machine": "stack",
+      "workload": "boundaries",
+      "dtype": "bfloat16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/bfloat16/stack/boundaries"
+    },
+    {
+      "machine": "parity",
+      "workload": "symbols",
+      "dtype": "float16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/float16/parity/symbols"
+    },
+    {
+      "machine": "mod5-counter",
+      "workload": "symbols",
+      "dtype": "float16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/float16/mod5-counter/symbols"
+    },
+    {
+      "machine": "s3-tracker",
+      "workload": "symbols",
+      "dtype": "float16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "relu-lookup/float16/s3-tracker/symbols"
+    },
+    {
+      "machine": "stack",
+      "workload": "brackets",
+      "dtype": "float16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/float16/stack/brackets"
+    },
+    {
+      "machine": "stack",
+      "workload": "random_ops",
+      "dtype": "float16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/float16/stack/random_ops"
+    },
+    {
+      "machine": "stack",
+      "workload": "boundaries",
+      "dtype": "float16",
+      "capacity": 8,
+      "word_bits": 8,
+      "horizon": 1000,
+      "snapshot_at": 500,
+      "seed": 1,
+      "trace_limit": 1000,
+      "device": "cpu",
+      "name": "delta-stack/float16/stack/boundaries"
+    }
+  ]
+}

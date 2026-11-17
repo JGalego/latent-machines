@@ -2,7 +2,7 @@
 
 > **TL;DR:** Nine experiments, ordered so each builds on checked foundations.
 
-Status, 2026-11-17: E00 has a first result for delta-rule memory ([report](results/E00/README.md)); the other experiments are proposed. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
+Status, 2026-11-17: E00 ([report](results/E00/README.md)) and E01 ([report](results/E01/README.md)) have first results on CPU; the other experiments are proposed. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
 
 ## Questions and priorities
 
@@ -95,7 +95,7 @@ Do not start with a general compiler, plugin registry, training framework, Rust 
 
 ### First implementation slice
 
-> **TL;DR:** Six build steps from a memory reference to the first learning test; five are done.
+> **TL;DR:** Six build steps from a memory reference to the first learning test; five are done, with recorded results.
 
 1. Add the uv-managed package and lockfile, focused tests, an integer memory oracle, pinned pre-commit hooks, and fast CPU CI.
 2. Specify fixed capacity, word domain, reads/writes, invalid-address behavior, event ordering, and non-mutating faults.
@@ -201,6 +201,8 @@ An approximate backend must declare a reference, error metric, tolerance, horizo
 **Measurements:** circuit width/depth, nonzero and stored weights, state bytes, ticks, total work, and the smallest margin between a smooth or saturating activation and its intended discrete value. Test longer input sequences within fixed capacity separately from increasing stack depth or number of states.
 
 **Discriminator:** establish whether a backend executes assignment, self-referential updates, or permutations directly, or pays for additional nonlinear feedback steps. Count a transition as supported only when it executes exactly at the tested precision and horizon, not because the architecture can represent it in theory.
+
+**Results:** [results/E01](results/E01/README.md). ReLU lookup circuits for parity, a mod-5 counter, and S3 tracking, and a delta-rule stack, matched their oracles exactly up to 10^6 actions on CPU; the other variants are untested.
 
 ### E02 - Learned interface comparison
 

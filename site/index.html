@@ -31,7 +31,7 @@
 <main>
   <aside class="tldr">
     <strong>TL;DR</strong>
-    <p>We compile small exact machines (a memory, a stack, state machines) into the arithmetic of neural network layers and check them against a plain reference after every single step. So far they agree exactly: 35 million memory actions with zero disagreements and zero drift. Next we ask whether a language model does better using such a machine internally than calling a tool.</p>
+    <p>We compile small exact machines (a memory, a stack, state machines) into the arithmetic of neural network layers and check them against a plain reference after every single step. So far they agree exactly: over 60 million checked actions with zero disagreements and zero drift. Next we ask whether a language model does better using such a machine internally than calling a tool.</p>
   </aside>
 
   <section id="question">
@@ -120,7 +120,7 @@ flowchart LR
     </div>
     <ul class="status">
       <li><span class="tag done">result</span> <strong>E00</strong>: does neural-network memory behave exactly like real memory? Delta replacement does, up to 10⁶ actions; other layer families are untested.</li>
-      <li><span class="tag progress">running</span> <strong>E01</strong>: can counters, permutation trackers, and a stack parser run directly in layers?</li>
+      <li><span class="tag done">result</span> <strong>E01</strong>: can counters, permutation trackers, and a stack parser run directly in layers? ReLU lookup circuits and a delta-rule stack do, up to 10⁶ actions; signed and smooth variants are untested.</li>
       <li><span class="tag next">next</span> <strong>E02</strong>: does a model do better with an internal machine than with a tool, and why?</li>
       <li><span class="tag">planned</span> <strong>E03–E08</strong>: latent feedback, dataflow, graph and logic engines, grids and filters, optimizer memories, search with an exact checker.</li>
     </ul>
