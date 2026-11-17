@@ -57,3 +57,24 @@ Variants are named `backend/dtype/machine/workload`, for example `delta-stack/bf
 uv run --locked python -m latent_machines.experiments.e01                                    # 10^3 actions per variant
 uv run --locked python -m latent_machines.experiments.e01 --horizon 1000000 --jobs 8 --trace-limit 1000
 ```
+
+## E05: graph, semiring, and logic execution
+
+> **TL;DR:** Check dense tensor graph kernels round by round against integer oracles, then time them against BFS and Dijkstra.
+
+[e05.py](e05.py) runs each [fixed-point machine](../machines/README.md#reachv1-minplusv1-chain-datalogv1) problem to its terminal event with the oracle, then replays that many `Iterate` actions through the [lockstep check](lockstep.py) with the [dense tensor backend](../backends/README.md#semiring-tensor-kernels). Conventional variants (`python-int`) compare each oracle fixed point with BFS, Dijkstra, or semi-naive evaluation.
+
+```mermaid
+flowchart LR
+    G["seeded problems<br/>(graphs, Datalog databases)"] --> O["oracle rounds<br/>to halt or fault"]
+    O --> L["lockstep: tensor backend<br/>per round, per dtype"]
+    O --> K["conventional algorithm<br/>same fixed point?"]
+    G --> T["timing benchmark<br/>larger sparse graphs"]
+```
+
+Variants are named `backend/dtype/machine/workload`. A tensor variant counts checked rounds and the problems with a nonconforming round; one problem per variant is snapshotted mid-run. The benchmark checks every timed answer against BFS or Dijkstra.
+
+```bash
+uv run --locked python -m latent_machines.experiments.e05                     # 40 problems per variant
+uv run --locked python -m latent_machines.experiments.e05 --horizon 200 --seed 1
+```

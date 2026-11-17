@@ -67,3 +67,21 @@ flowchart LR
 ```
 
 Clearing on pop keeps freed slots at zero, so the live tensors always equal a freshly encoded snapshot. Tests require this at every step.
+
+## Semiring tensor kernels
+
+> **TL;DR:** Graph rounds become dense matrix products: Boolean products clamped to 1, or min-plus broadcasts.
+
+[semiring.py](semiring.py) lowers each round of the [E05 machines](../machines/README.md#reachv1-minplusv1-chain-datalogv1) to dense `n × n` tensors; [graph_native.py](graph_native.py) holds the conventional sparse algorithms (BFS, Dijkstra, semi-naive Datalog) that compute the same fixed points directly.
+
+```mermaid
+flowchart LR
+    R["relation R (0/1)"] --> P["R · A"] --> U["clamp(R + R·A, max=1)"]
+    D["distances D (+inf = unreachable)"] --> M["min_k D[:, k] + W[k, :]"] --> N["min(D, ·)"]
+    X["IDB relations"] --> J["chain body: product of 0/1 matrices<br/>(transposed for inverted atoms), clamped"] --> V["union into head"]
+    U & N & V --> E{"equal to previous?"}
+    E -->|yes| H[halt]
+    E -->|no| C[continue]
+```
+
+No format-specific range check is made: integers beyond a format's exact range (256 in bfloat16, 2048 in float16) round, and the decoded state then disagrees with the oracle.
