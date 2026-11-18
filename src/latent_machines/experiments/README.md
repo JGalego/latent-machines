@@ -85,3 +85,33 @@ All arms execute on the delta-rule memory with a shadow oracle. For a sample of 
 uv run --locked python -m latent_machines.experiments.e03 --model tiny-random   # smoke run
 uv run --locked python -m latent_machines.experiments.e03 --device cuda         # recorded configuration
 ```
+
+## E08: search with an exact verifier
+
+> **TL;DR:** Check the compiled verifier against the oracle, then compare search procedures at the same step budget with every claimed solution re-verified.
+
+[e08.py](e08.py) has two parts. Verifier conformance compares the [tensor CNF verifier](../backends/README.md#tensor-cnf-verifier) with the [`cnf/v1`](../machines/README.md#cnfv1) oracle on every candidate of five [workloads](../tasks/sat_instances.py), in each lowering and dtype. Search runs the [procedures](../controllers/sat_search.py) on four 3-SAT instance classes:
+
+```mermaid
+flowchart LR
+    I["3-SAT instance"] --> D["DPLL<br/>(complete)"]
+    I --> W[WalkSAT]
+    I --> R["random proposals"]
+    I --> E["energy proposals<br/>(Langevin on a relaxation)"]
+    R --> O["cnf/v1 oracle"]
+    E --> O
+    E --> T["tensor verifier<br/>float32, bfloat16"]
+    D -->|"sat or unsat"| C{"oracle re-check;<br/>unsat by enumeration ≤ 20 vars"}
+    W -->|sat| C
+    O --> S["solved / unknown"]
+    T --> S
+```
+
+The budget is counted in steps: a variable assignment for DPLL, a flip for WalkSAT, a verified candidate for proposers. Only DPLL can report `unsat`; the others report `unknown` when the budget runs out. The two energy arms see the same proposals, so their accept decisions must be identical and their difference is verification cost alone.
+
+```bash
+uv run --locked python -m latent_machines.experiments.e08          # default run, about 3 minutes on 2 threads
+uv run --locked python -m latent_machines.experiments.e08 --instances 0 --horizon 10000   # verifier conformance only
+```
+
+Each variant records whether its formulas stay within the dtype's exact-integer range for clause counts (`within_declared_limits`). The run passes when every variant within range matches the oracle, every claimed solution is accepted by the oracle, the two energy arms agree, and every checked DPLL unsatisfiability claim is confirmed. Exit status is 0 on pass, 1 on a failed check, and 2 if the run failed.

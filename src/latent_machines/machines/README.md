@@ -61,3 +61,25 @@ flowchart LR
 ```
 
 Every fault leaves the stack unchanged, and every action costs one work unit.
+
+## `cnf/v1`
+
+> **TL;DR:** A stateless checker accepts an assignment only when every clause has a true literal; malformed assignments fault.
+
+Assignment verifier for CNF formulas, the reference for [E08](../../../EXPERIMENTS.md#e08---heuristic-search-with-an-exact-verifier). The docstring in [cnf.py](cnf.py) is the authoritative specification.
+
+```mermaid
+flowchart TD
+    C["check(formula, assignment)"] --> T{"every value an int?"}
+    T -->|no| E[TypeError]
+    T -->|yes| L{"length = num_vars?"}
+    L -->|no| FL["fault: wrong_length"]
+    L -->|yes| V{"every value 0 or 1?"}
+    V -->|no| FV["fault: value_out_of_range"]
+    V -->|yes| S["evaluate every clause"]
+    S --> A{"all satisfied?"}
+    A -->|yes| ACC["output 1: accept"]
+    A -->|no| REJ["output 0: reject,<br/>unsatisfied count, first index"]
+```
+
+A valid check costs one work unit per clause; a fault costs none. Accepting is the only claim the verifier makes: a rejection says nothing about whether another assignment satisfies the formula.

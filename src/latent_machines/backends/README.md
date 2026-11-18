@@ -67,3 +67,22 @@ flowchart LR
 ```
 
 Clearing on pop keeps freed slots at zero, so the live tensors always equal a freshly encoded snapshot. Tests require this at every step.
+
+## Tensor CNF verifier
+
+> **TL;DR:** Clause-literal incidence matrices count true literals per clause; a clause with a zero count rejects the assignment.
+
+[cnf_tensor.py](cnf_tensor.py) compiles a [`cnf/v1`](../machines/cnf.py) formula into incidence matrices `P` (positive literals) and `N` (negative literals) and checks a batch of 0/1 assignments in one evaluation:
+
+```mermaid
+flowchart LR
+    X["assignments x<br/>(batch × n, int)"] --> V{"length and<br/>0/1 values"}
+    V -->|bad| F[fault]
+    V -->|ok| I["incidence: P x + N (1 − x)"]
+    V -->|ok| D["folded: (P − N) x + N 1"]
+    I & D --> T{"every count ≥ 1?"}
+    T -->|yes| A[accept]
+    T -->|no| R["reject; unsatisfied count,<br/>first unsatisfied clause"]
+```
+
+Counts are exact while every partial sum is an integer the dtype represents: up to 256 in bfloat16, 2048 in float16, and 2^24 in float32. The incidence lowering adds only nonnegative terms, so a zero count stays zero and a positive count stays positive even beyond that range; the folded lowering saves one product but adds signed terms, so rounding can cancel a clause's only true literal. Validation runs on the integer input before the cast.

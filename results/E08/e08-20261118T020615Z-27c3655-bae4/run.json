@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "experiment": "E08",
+  "run_id": "e08-20261118T020615Z-27c3655-bae4",
+  "command": [
+    "python",
+    "-m",
+    "latent_machines.experiments.e08"
+  ],
+  "started_at": "2026-11-18T02:06:15+00:00",
+  "source": {
+    "revision": "27c36559f3195440776ad2910ee99cb82d95325d",
+    "dirty": false,
+    "dirty_fingerprint": null,
+    "untracked": []
+  },
+  "config": {
+    "horizon": 2000,
+    "seed": 0,
+    "lowerings": "incidence,folded",
+    "dtypes": "float32,bfloat16,float16",
+    "workloads": "random,near-miss,enumeration,malformed,wide-clauses",
+    "instances": 10,
+    "budget": 20000,
+    "chains": 32,
+    "arms": "dpll,walksat,random+oracle,energy+oracle,energy+tensor/float32,energy+tensor/bfloat16",
+    "trace_limit": 200,
+    "threads": 2,
+    "out": "runs"
+  },
+  "environment": {
+    "python": "3.13.13",
+    "implementation": "CPython",
+    "platform": "Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1365U",
+    "cpu_count": 12,
+    "cpu_quota": null,
+    "hf_job": null,
+    "launch": {},
+    "torch": "2.15.0+cpu",
+    "torch_threads_per_variant": 2,
+    "deterministic": false,
+    "device": "cpu",
+    "uv_lock_sha256": "ca3bf7296e19440f7703271d050f5b259db3a9a80eb7eb8d20f9359dbfd8dedb"
+  },
+  "seeds": {
+    "seed": 0,
+    "derivation": "workloads: random.Random(f'{seed}:{workload}'); instances: random.Random(f'{seed}:{class}:{index}'); proposals and WalkSAT: seed * 100003 + index"
+  },
+  "machine": {
+    "cnf/v1": "machines.cnf; stateless assignment verifier"
+  },
+  "backends": {
+    "cnf-tensor-incidence": "count = P x + N (1 - x); accept iff all >= 1",
+    "cnf-tensor-folded": "count = (P - N) x + N 1; accept iff all >= 1",
+    "exact_integer_limit": {
+      "float32": 16777216,
+      "float64": 9007199254740992,
+      "bfloat16": 256,
+      "float16": 2048
+    }
+  },
+  "search": {
+    "classes": {
+      "planted-50": {
+        "family": "planted",
+        "variables": 50,
+        "ratio": 4.2
+      },
+      "planted-100": {
+        "family": "planted",
+        "variables": 100,
+        "ratio": 4.2
+      },
+      "uniform-40": {
+        "family": "uniform",
+        "variables": 40,
+        "ratio": 4.26
+      },
+      "uniform-20-dense": {
+        "family": "uniform",
+        "variables": 20,
+        "ratio": 6.0
+      }
+    },
+    "budget_unit": "dpll: variable assignment; walksat: flip; proposers: verified candidate",
+    "energy_proposer": {
+      "learning_rate": 1.0,
+      "temperature": 0.02,
+      "chains": 32,
+      "selection": "best of four settings on six planted-50 development instances drawn with a separate seed, not these instances"
+    },
+    "walksat_noise": 0.5
+  },
+  "variants": [
+    {
+      "lowering": "incidence",
+      "dtype": "float32",
+      "workload": "random",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/float32/random"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "float32",
+      "workload": "near-miss",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/float32/near-miss"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "float32",
+      "workload": "enumeration",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/float32/enumeration"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "float32",
+      "workload": "malformed",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/float32/malformed"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "float32",
+      "workload": "wide-clauses",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/float32/wide-clauses"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "bfloat16",
+      "workload": "random",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/bfloat16/random"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "bfloat16",
+      "workload": "near-miss",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/bfloat16/near-miss"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "bfloat16",
+      "workload": "enumeration",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/bfloat16/enumeration"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "bfloat16",
+      "workload": "malformed",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/bfloat16/malformed"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "bfloat16",
+      "workload": "wide-clauses",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/bfloat16/wide-clauses"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "float16",
+      "workload": "random",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/float16/random"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "float16",
+      "workload": "near-miss",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/float16/near-miss"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "float16",
+      "workload": "enumeration",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/float16/enumeration"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "float16",
+      "workload": "malformed",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/float16/malformed"
+    },
+    {
+      "lowering": "incidence",
+      "dtype": "float16",
+      "workload": "wide-clauses",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-incidence/float16/wide-clauses"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "float32",
+      "workload": "random",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/float32/random"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "float32",
+      "workload": "near-miss",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/float32/near-miss"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "float32",
+      "workload": "enumeration",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/float32/enumeration"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "float32",
+      "workload": "malformed",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/float32/malformed"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "float32",
+      "workload": "wide-clauses",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/float32/wide-clauses"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "bfloat16",
+      "workload": "random",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/bfloat16/random"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "bfloat16",
+      "workload": "near-miss",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/bfloat16/near-miss"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "bfloat16",
+      "workload": "enumeration",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/bfloat16/enumeration"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "bfloat16",
+      "workload": "malformed",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/bfloat16/malformed"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "bfloat16",
+      "workload": "wide-clauses",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/bfloat16/wide-clauses"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "float16",
+      "workload": "random",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/float16/random"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "float16",
+      "workload": "near-miss",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/float16/near-miss"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "float16",
+      "workload": "enumeration",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/float16/enumeration"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "float16",
+      "workload": "malformed",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/float16/malformed"
+    },
+    {
+      "lowering": "folded",
+      "dtype": "float16",
+      "workload": "wide-clauses",
+      "horizon": 2000,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "cnf-tensor-folded/float16/wide-clauses"
+    }
+  ]
+}
