@@ -139,7 +139,7 @@ None of these numbers is a speed claim under [scope gate 2](../../EXPERIMENTS.md
 
 > **TL;DR:** The manifests are here; the full run directories are in the public Hub dataset.
 
-Run manifests (`run.json`, `metrics.json`) are in this directory. The full run directories, with traces, failures, and snapshots, are to be uploaded to the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs).
+Run manifests (`run.json`, `metrics.json`) are in this directory. The full run directories, with traces, failures, and snapshots, are in the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs) under `runs/`.
 
 ```bash
 git checkout 2ff9272 && uv sync --locked --extra torch-cpu

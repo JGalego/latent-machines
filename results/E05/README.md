@@ -114,9 +114,9 @@ At 4,096 vertices the dense frontier processes 168 M padded entries in its 10 ro
 
 ## Artifacts
 
-> **TL;DR:** Manifests are here; full run directories with traces and snapshots are kept with the raw runs.
+> **TL;DR:** Manifests are here; full run directories with traces and snapshots are in the public Hub dataset.
 
-Each run directory holds `run.json` and `metrics.json` here. The full directories, with `trace.jsonl`, `failure.json`, and snapshots, are under the ignored `runs/` directory and are to be published in the Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs).
+Each run directory holds `run.json` and `metrics.json` here. The full directories, with `trace.jsonl`, `failure.json`, and snapshots, are in the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs) under `runs/`.
 
 ```bash
 git checkout f06e4ee && uv sync --locked --extra torch-cpu

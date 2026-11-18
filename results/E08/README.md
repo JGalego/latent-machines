@@ -127,9 +127,9 @@ With the tensor verifier, proposal generation, not verification, dominates the e
 
 ## Artifacts
 
-> **TL;DR:** The manifest is here; the full run directory, with traces and the first failing candidate, is kept with the project's raw runs.
+> **TL;DR:** The manifest is here; the full run directory, with traces and the first failing candidate, is in the public Hub dataset.
 
-The run manifest (`run.json`, `metrics.json`, including per-instance search rows) is in [`e08-20261118T020615Z-27c3655-bae4/`](e08-20261118T020615Z-27c3655-bae4/metrics.json). The full run directory adds `trace.jsonl` and `failure.json`, which holds the first folded-bfloat16 mismatch with its formula and assignment.
+The run manifest (`run.json`, `metrics.json`, including per-instance search rows) is in [`e08-20261118T020615Z-27c3655-bae4/`](e08-20261118T020615Z-27c3655-bae4/metrics.json). The full run directory adds `trace.jsonl` and `failure.json`, which holds the first folded-bfloat16 mismatch with its formula and assignment; it is in the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs) under `runs/`.
 
 ```bash
 git checkout 27c3655 && uv sync --locked --extra torch-cpu

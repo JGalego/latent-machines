@@ -126,9 +126,9 @@ Mean per program, seed-0 run. Times in microseconds per evaluation; batched time
 
 ## Artifacts
 
-> **TL;DR:** Manifests are here; full run directories are kept outside Git.
+> **TL;DR:** Manifests are here; full run directories are in the public Hub dataset.
 
-The run manifests (`run.json`, `metrics.json`) are in this directory. The full run directories, with `trace.jsonl` and `failure.json` holding the first mismatching evaluation of each probe, are kept outside Git for upload to the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs).
+The run manifests (`run.json`, `metrics.json`) are in this directory. The full run directories, with `trace.jsonl` and `failure.json` holding the first mismatching evaluation of each probe, are in the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs) under `runs/`.
 
 ```bash
 git checkout 96681b5 && uv sync --locked --extra torch-cpu

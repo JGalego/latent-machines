@@ -9,7 +9,7 @@ Neural models as programmable machines. **[Project page](https://jgalego.github.
 
 Experiments with programs compiled into neural weights and learned control over persistent machine state.
 
-E00 and E01 have CPU conformance results: delta-rule memory, compiled state machines, and a delta-rule stack matched their references on the tested traces, up to 10^6 actions per variant ([E00](results/E00/README.md), [E01](results/E01/README.md)). In E02, a learned controller on a frozen SmolLM2-135M answered more record-update questions correctly through a typed internal interface than through a text tool on programs longer than those seen in training, and the delta-rule executor gave the same answers as the native one ([E02](results/E02/README.md)).
+Every planned experiment, E00 to E08, has a first recorded run. E00 and E01 have CPU conformance results: delta-rule memory, compiled state machines, and a delta-rule stack matched their references on the tested traces, up to 10^6 actions per variant ([E00](results/E00/README.md), [E01](results/E01/README.md)). In E02, a learned controller on a frozen SmolLM2-135M answered more record-update questions correctly through a typed internal interface than through a text tool on programs longer than those seen in training, and the delta-rule executor gave the same answers as the native one ([E02](results/E02/README.md)). In E03, feeding each machine step back into the model as a trained vector raised accuracy on long multi-step programs, but a control whose vectors carried no feedback did nearly as well, so the gain is mostly trained steering ([E03](results/E03/README.md)). Dataflow graphs, graph and Datalog fixed points, cellular automata, optimizer-written memory, and a SAT verifier matched their references in float32 and float64 within declared limits, were rarely faster than conventional algorithms, and failed in bfloat16 where precision ran out ([E04](results/E04/README.md)-[E08](results/E08/README.md)).
 
 > Can a model use a machine through an internal interface instead of textual tool calls?
 
@@ -28,7 +28,7 @@ E00 and E01 have CPU conformance results: delta-rule memory, compiled state mach
 
 See [RESEARCH.md](RESEARCH.md) for related systems, their evidence limits, and candidate layer families.
 
-See [EXPERIMENTS.md](EXPERIMENTS.md) for the proposed repository layout, experiment dependencies, correctness gates, and reproducibility contract.
+See [EXPERIMENTS.md](EXPERIMENTS.md) for the experiment program, repository layout, correctness gates, and reproducibility contract.
 
 The experiments distinguish:
 
@@ -37,9 +37,7 @@ The experiments distinguish:
 - **Interface:** how does a controller observe and invoke the machine?
 - **Task:** does the combination improve correctness, generalization, or cost?
 
-The next study compares a model without a machine, textual tools, internal native execution, and internal compiled tensor execution. Later experiments cover latent feedback, dataflow, graphs, and spatial machines, subject to the [scope gates](EXPERIMENTS.md#gates-for-expanding-scope).
-
-Implementation follows the [first implementation slice](EXPERIMENTS.md#first-implementation-slice). E02-E08 remain proposals.
+Results so far are initial runs with one or a few seeds. Larger machines, other models, and a shared compiler wait on the [scope gates](EXPERIMENTS.md#gates-for-expanding-scope).
 
 ## Contributing
 

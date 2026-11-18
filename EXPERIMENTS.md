@@ -1,8 +1,8 @@
 # Experiment program
 
-> **TL;DR:** Validate executors before comparing learned interfaces; E00, E01, and E02 have initial results.
+> **TL;DR:** Validate executors before comparing learned interfaces; E00-E08 all have initial results.
 
-Status, 2026-11-17: E00 ([report](results/E00/README.md)), E01 ([report](results/E01/README.md)), and E02 ([report](results/E02/README.md)) have first results; the other experiments are proposed. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
+Status, 2026-11-18: every experiment, E00-E08, has a first recorded run and report under [results/](results/); each experiment's **Results** line summarizes it. These are initial results with one or a few seeds, not completed studies. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
 
 ## Questions and priorities
 
@@ -95,7 +95,7 @@ Do not start with a general compiler, plugin registry, training framework, Rust 
 
 ### First implementation slice
 
-> **TL;DR:** All six steps are implemented and have recorded results, ending with the E02 learned-controller study.
+> **TL;DR:** All six steps are implemented and have recorded results, ending with the E02 learned-controller study; E03-E08 followed.
 
 1. Add the uv-managed package and lockfile, focused tests, an integer memory oracle, pinned pre-commit hooks, and fast CPU CI.
 2. Specify fixed capacity, word domain, reads/writes, invalid-address behavior, event ordering, and non-mutating faults.
@@ -251,6 +251,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 **Discriminator:** improvements must survive comparison with an efficient native loop and cannot come solely from providing hidden privileged state.
 
+**Results:** [results/E03](results/E03/README.md). On copy programs that need a read then a write, latent feedback (one trained adaptor vector per tick through a frozen SmolLM2-135M) beat token feedback, head-only feedback, and a native loop by 0.08 to 0.49 task accuracy. A steering control with the same trained positions but no feedback in them matched it up to 32 statements, and latent feedback led only at 64 statements (+0.05), so the gain is mostly trained steering at unmatched model work. Zero executor mismatches; mid-copy snapshots resumed identically.
+
 ### E04 - Dataflow, specialization, and conditional units
 
 > **TL;DR:** Is computing a whole pipeline at once better than one instruction at a time?
@@ -268,6 +270,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 **Measurements:** construction and compilation time, checkpoint bytes including padding, runtime state, dispatch cost, work units, throughput, latency, and the invocation count needed to amortize specialization.
 
 **Discriminator:** compare against optimized conventional arithmetic, not just a deliberately slow interpreter. QwenPU and Percepta specialization are precedents, not results from this repository.
+
+**Results:** [results/E04](results/E04/README.md). In float32 and float64, level-by-level tensor graphs, program-specialized weights, and capacity-limited expert dispatch matched the `dataflow/v1` oracle exactly on CPU, faults included. Batched, they were no faster than the same schedule in int64 tensors, and slower than Python for single inputs. The bfloat16 and float16 probes mismatched with zero residue.
 
 ### E05 - Graph, semiring, and logic execution
 
@@ -287,6 +291,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 **Discriminator:** learned approximate answers cannot be counted as exact entailment; dense tensor speedups must be compared at realistic sparse sizes.
 
+**Results:** [results/E05](results/E05/README.md). Dense Boolean and min-plus tensor rounds matched reachability, shortest-path, and Datalog oracles round for round on CPU in float32, float64, and float16, and the Boolean machines also in bfloat16. bfloat16 shortest paths failed once distances passed 256. On sparse graphs, Python BFS and Dijkstra were 20 to 100 times faster than dense tensor rounds; scalar-machine execution is untested.
+
 ### E06 - Spatial and structured dynamical machines
 
 > **TL;DR:** Compare local-rule and filter implementations with random-access emulation under their respective exact or approximate contracts.
@@ -304,6 +310,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 **Measurements:** cells or samples per second, generations, state bytes, communication, and boundary-update costs.
 
 **Discriminator:** test the layer's natural operation, not just its ability to imitate RAM through extra feedback.
+
+**Results:** [results/E06](results/E06/README.md). A 3×3 convolution plus a ReLU lookup matched three cellular rules cell for cell in float32, float64, bfloat16, and float16 over 720,000 CPU actions. Dense and diagonal-SSM filters met their declared tolerances in float64 and float32, while 17 of 18 bfloat16 variants exceeded theirs. Scalar-machine execution is untested.
 
 ### E07 - Optimization-defined state updates
 
@@ -323,6 +331,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 **Discriminator:** distinguish an exact memory primitive from an adaptive approximate learner.
 
+**Results:** [results/E07](results/E07/README.md). On CPU, sequential SGD with one-hot keys and learning rate 1 matched `memory/v1` exactly in float32 and float64. Each single change (learning rate, stale chunk gradients, momentum, decay, gradient normalization, an MLP) departed from RAM, while the tensor backend matched its own float64 reference at every step. bfloat16 failed that reference check, and its decay factor rounded to 1.
+
 ### E08 - Heuristic search with an exact verifier
 
 > **TL;DR:** Do neural guesses plus an exact checker find more valid answers for the same budget?
@@ -339,6 +349,8 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 **Discriminator:** separate better proposals from faster verification, and do not infer efficient global optimization from associative-memory convergence.
 
+**Results:** [results/E08](results/E08/README.md). A compiled CNF verifier matched its oracle on 60,000 candidates within its declared limits and accepted no invalid assignment; past bfloat16's limit, a folded lowering rejected 119 valid ones. At a fixed step budget, energy-based proposals solved 23 of 28 known-satisfiable random 3-SAT instances, against 0 for random proposals and 28 for WalkSAT. Only DPLL proved unsatisfiability.
+
 ## Research coverage
 
 > **TL;DR:** Every idea in RESEARCH.md points to the experiment that tests it, or says why not yet.
@@ -353,7 +365,7 @@ Layer families appear under the experiments that test their natural primitive, n
 | QwenFX: a compiled CPU driving its own LM | Context; the machine-to-model call stays tool-shaped, the interface E02 arms B-D and E03 compare |
 | chipformer: a compiled CHIP-8 transformer | E00 append-only history and Percepta-style indexed lookup; E01 exact ReGLU lookup circuits |
 | Weight-Space Programming: LLM-authored weight edits | Context: edits judged by task metrics, not specified transitions |
-| Parity tracked in GDN state with beta up to 2 | E01 parity with signed transitions; E03 latent computation |
+| Parity tracked in GDN state with beta up to 2 | E01 parity with signed transitions; E03 latent computation, not yet tested on parity |
 | Reduction-order device fingerprints | Numerical conformance: supported devices and deterministic options; E00 GPU variants |
 | Delta-rule memory and its optimization interpretation | E00 delta replacement; E07 sequential one-hot quadratic acceptance |
 | DeltaNet / Gated DeltaNet | E00 reference tensor backend; E01 |
@@ -371,12 +383,12 @@ Layer families appear under the experiments that test their natural primitive, n
 | Frozen MLP "key-value memory" | Context: not writable runtime RAM, so not an E00 variant |
 | Transition algebra | E01 |
 | Streaming transducers, stacks, and parsers | E01 has initial CPU results for ReLU transducers and a delta-rule stack; other backend comparisons remain proposed |
-| Dataflow, vector, and conditional functional units | E04 |
-| Graph, semiring, and finite-domain logic | E05 |
-| Cellular automata, systolic arrays, and signal processing | E06 cellular rules and filters; systolic arrays have no separate target yet |
-| Optimizers as machines | E07 |
-| Energy-based search with an exact verifier | E08 |
-| Latent execution feedback contract | E03 |
+| Dataflow, vector, and conditional functional units | E04, with initial CPU results |
+| Graph, semiring, and finite-domain logic | E05, with initial CPU results |
+| Cellular automata, systolic arrays, and signal processing | E06 cellular rules and filters, with initial CPU results; systolic arrays have no separate target yet |
+| Optimizers as machines | E07, with initial CPU results |
+| Energy-based search with an exact verifier | E08, with initial CPU results |
+| Latent execution feedback contract | E03, with initial GPU results; a steering control explains most of the latent arm's gain |
 | Compiler target and proof-oriented compilation | Deferred: [scope gates](#gates-for-expanding-scope) 4 (shared compiler) and 5 (exactness guarantee) |
 | Numerical and resource limits | Numerical conformance; E00 measurements; correct requests → E02 executor versus action accuracy |
 | First controller experiment | E02 |
@@ -388,9 +400,9 @@ Layer families appear under the experiments that test their natural primitive, n
 | 3. Compiled versus native implementation | E02 D versus C |
 | 4. Constraining learned writes to valid states | E02 validity-constraint ablation |
 | 5. Semantics-preserving dtypes, kernels, and devices | E00; numerical conformance |
-| 6. Joint checkpoint contents | E03 snapshot during multi-tick actions; run-record snapshot artifacts |
+| 6. Joint checkpoint contents | E03 snapshot during multi-tick actions; run-record snapshot artifacts; E07 shows canonical memory snapshots omit optimizer buffers |
 | 7. Transition algebra fit | E00, E01, E06 |
-| 8. Alternatives to scalar instruction execution | E01, E04, E05, E06 |
+| 8. Alternatives to scalar instruction execution | E01, E04, E05, E06; E04 compares with a scalar machine, E05 and E06 only with conventional algorithms so far |
 | 9. Compiler-generated numerical obligations | Deferred: [scope gate](#gates-for-expanding-scope) 5 (exactness guarantee) |
 | 10. Indexed lookup, specialization, or feedback versus placement | E00 indexed variant; E04 specialization; E03 feedback; E02 D versus C |
 

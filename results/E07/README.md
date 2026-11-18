@@ -141,9 +141,9 @@ Online regression (float64; float32 agrees to three significant figures): mean o
 
 ## Artifacts
 
-> **TL;DR:** The manifests are here; traces and snapshots are in the raw run directories.
+> **TL;DR:** The manifests are here; traces and snapshots are in the public Hub dataset.
 
-Run manifests (`run.json`, `metrics.json`) are in this directory. Each raw run directory adds `trace.jsonl` (first 100 actions per variant), `snapshots/`, and `ram_deviations.json`, which holds the first RAM deviation of each variant with its reproduce command.
+Run manifests (`run.json`, `metrics.json`) are in this directory. Each raw run directory adds `trace.jsonl` (first 100 actions per variant), `snapshots/`, and `ram_deviations.json`, which holds the first RAM deviation of each variant with its reproduce command. The full directories are in the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs) under `runs/`.
 
 ```bash
 git checkout 3dc3812 && uv sync --locked --extra torch-cpu
