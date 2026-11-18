@@ -132,3 +132,29 @@ flowchart LR
 > **TL;DR:** A linear filter with a float64 reference, measured under a tolerance rather than checked for exactness.
 
 Single-input, single-output linear dynamical system `y = C x + D u`, `x ← A x + B u`, the reference for E06's numerical branch. [lds.py](lds.py) evaluates it in IEEE double precision and builds the E06 systems: a lightly damped oscillator (pole radius 0.999), a second-order Butterworth low-pass, and a random stable 8-dimensional system. It is a declared numerical reference, not an exact oracle.
+
+## `reach/v1`, `minplus/v1`, `chain-datalog/v1`
+
+> **TL;DR:** Graph and logic problems run as fixed-point machines: one synchronous round per step until nothing changes.
+
+Three fixed-point machines for [E05](../../../EXPERIMENTS.md#e05---graph-semiring-and-logic-execution), specified in [graph.py](graph.py). Each machine holds one validated problem; its state is a relation or distance table that changes monotonically, one synchronous round per `Iterate` action:
+
+- `reach/v1`: reflexive transitive closure of a directed graph; a round extends every known path by one edge.
+- `minplus/v1`: all-pairs shortest paths with integer weights `0..max_weight`; `None` is the infinity sentinel, negative weights are rejected when the problem is built, and any stored distance above `max_distance` faults rather than saturating.
+- `chain-datalog/v1`: positive Datalog over binary relations, with chain rules `h(x0, xk) :- r1(x0, x1), ..., rk(x(k-1), xk)` and optional inverted atoms, evaluated naively.
+
+```mermaid
+flowchart TD
+    S["step(state, Iterate)"] --> H{halted?}
+    H -->|yes| FH["fault: halted"]
+    H -->|no| B{"rounds = max_rounds?"}
+    B -->|yes| FB["fault: budget_exhausted<br/>last state returned, not a fixed point"]
+    B -->|no| R["compute next state from previous state only"]
+    R --> D{"minplus: any finite entry<br/>> max_distance?"}
+    D -->|yes| FD["fault: distance_bound_exceeded"]
+    D -->|no| C{"next = previous?"}
+    C -->|yes| HL["halt: fixed point"]
+    C -->|no| CO["continue"]
+```
+
+Faults leave the state unchanged and every action costs one work unit. The default `max_rounds` always suffices for a valid problem: `n` for the graph machines and `n² · |IDB| + 1` for Datalog.

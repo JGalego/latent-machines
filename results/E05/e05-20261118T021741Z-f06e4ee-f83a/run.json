@@ -1,0 +1,625 @@
+{
+  "schema_version": 1,
+  "experiment": "E05",
+  "run_id": "e05-20261118T021741Z-f06e4ee-f83a",
+  "command": [
+    "python",
+    "-m",
+    "latent_machines.experiments.e05",
+    "--jobs",
+    "4"
+  ],
+  "started_at": "2026-11-18T02:17:41+00:00",
+  "source": {
+    "revision": "f06e4eeb989a1e603ff0821235439c3f643aa9bf",
+    "dirty": false,
+    "dirty_fingerprint": null,
+    "untracked": []
+  },
+  "config": {
+    "machines": "reach,minplus,datalog",
+    "workloads": "all",
+    "dtypes": "float32,float64,bfloat16,float16,python-int",
+    "horizon": 40,
+    "seed": 0,
+    "trace_limit": 200,
+    "jobs": 4,
+    "bench_sizes": "256,1024,4096",
+    "bench_degree": 4.0,
+    "no_benchmark": false,
+    "threads": 2,
+    "out": "runs"
+  },
+  "environment": {
+    "python": "3.13.13",
+    "implementation": "CPython",
+    "platform": "Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1365U",
+    "cpu_count": 12,
+    "cpu_quota": null,
+    "hf_job": null,
+    "launch": {},
+    "torch": "2.15.0+cpu",
+    "torch_threads_per_variant": 1,
+    "deterministic": false,
+    "device": "cpu",
+    "uv_lock_sha256": "ca3bf7296e19440f7703271d050f5b259db3a9a80eb7eb8d20f9359dbfd8dedb"
+  },
+  "seeds": {
+    "seed": 0,
+    "derivation": "random.Random(f'{seed}:{machine}:{workload}'); benchmark random.Random(f'{seed}:bench:{n}')"
+  },
+  "machines": {
+    "reach/v1": "reflexive transitive closure, one edge per round",
+    "minplus/v1": {
+      "max_weight": 63,
+      "max_distance": 2047,
+      "infinity": "None in canonical state, +inf in tensors"
+    },
+    "chain-datalog/v1": {
+      "program": [
+        [
+          "anc",
+          [
+            [
+              "par",
+              false
+            ]
+          ]
+        ],
+        [
+          "anc",
+          [
+            [
+              "anc",
+              false
+            ],
+            [
+              "par",
+              false
+            ]
+          ]
+        ],
+        [
+          "sg",
+          [
+            [
+              "par",
+              false
+            ],
+            [
+              "par",
+              true
+            ]
+          ]
+        ],
+        [
+          "sg",
+          [
+            [
+              "par",
+              false
+            ],
+            [
+              "sg",
+              false
+            ],
+            [
+              "par",
+              true
+            ]
+          ]
+        ]
+      ]
+    }
+  },
+  "backends": {
+    "dense-tensor": "backends.semiring: Boolean products clamped to 1; min-plus by broadcast and amin; eager PyTorch",
+    "conventional": "backends.graph_native: BFS, Dijkstra, semi-naive",
+    "dtypes": [
+      "float32",
+      "float64",
+      "bfloat16",
+      "float16",
+      "python-int"
+    ]
+  },
+  "variants": [
+    {
+      "machine": "reach",
+      "workload": "sparse",
+      "dtype": "float32",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float32/reach/sparse"
+    },
+    {
+      "machine": "reach",
+      "workload": "sparse",
+      "dtype": "float64",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float64/reach/sparse"
+    },
+    {
+      "machine": "reach",
+      "workload": "sparse",
+      "dtype": "bfloat16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/bfloat16/reach/sparse"
+    },
+    {
+      "machine": "reach",
+      "workload": "sparse",
+      "dtype": "float16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float16/reach/sparse"
+    },
+    {
+      "machine": "reach",
+      "workload": "sparse",
+      "dtype": "python-int",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "conventional/python-int/reach/sparse"
+    },
+    {
+      "machine": "reach",
+      "workload": "dense",
+      "dtype": "float32",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float32/reach/dense"
+    },
+    {
+      "machine": "reach",
+      "workload": "dense",
+      "dtype": "float64",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float64/reach/dense"
+    },
+    {
+      "machine": "reach",
+      "workload": "dense",
+      "dtype": "bfloat16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/bfloat16/reach/dense"
+    },
+    {
+      "machine": "reach",
+      "workload": "dense",
+      "dtype": "float16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float16/reach/dense"
+    },
+    {
+      "machine": "reach",
+      "workload": "dense",
+      "dtype": "python-int",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "conventional/python-int/reach/dense"
+    },
+    {
+      "machine": "reach",
+      "workload": "chain",
+      "dtype": "float32",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float32/reach/chain"
+    },
+    {
+      "machine": "reach",
+      "workload": "chain",
+      "dtype": "float64",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float64/reach/chain"
+    },
+    {
+      "machine": "reach",
+      "workload": "chain",
+      "dtype": "bfloat16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/bfloat16/reach/chain"
+    },
+    {
+      "machine": "reach",
+      "workload": "chain",
+      "dtype": "float16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float16/reach/chain"
+    },
+    {
+      "machine": "reach",
+      "workload": "chain",
+      "dtype": "python-int",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "conventional/python-int/reach/chain"
+    },
+    {
+      "machine": "reach",
+      "workload": "components",
+      "dtype": "float32",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float32/reach/components"
+    },
+    {
+      "machine": "reach",
+      "workload": "components",
+      "dtype": "float64",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float64/reach/components"
+    },
+    {
+      "machine": "reach",
+      "workload": "components",
+      "dtype": "bfloat16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/bfloat16/reach/components"
+    },
+    {
+      "machine": "reach",
+      "workload": "components",
+      "dtype": "float16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float16/reach/components"
+    },
+    {
+      "machine": "reach",
+      "workload": "components",
+      "dtype": "python-int",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "conventional/python-int/reach/components"
+    },
+    {
+      "machine": "minplus",
+      "workload": "unit",
+      "dtype": "float32",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float32/minplus/unit"
+    },
+    {
+      "machine": "minplus",
+      "workload": "unit",
+      "dtype": "float64",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float64/minplus/unit"
+    },
+    {
+      "machine": "minplus",
+      "workload": "unit",
+      "dtype": "bfloat16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/bfloat16/minplus/unit"
+    },
+    {
+      "machine": "minplus",
+      "workload": "unit",
+      "dtype": "float16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float16/minplus/unit"
+    },
+    {
+      "machine": "minplus",
+      "workload": "unit",
+      "dtype": "python-int",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "conventional/python-int/minplus/unit"
+    },
+    {
+      "machine": "minplus",
+      "workload": "weighted",
+      "dtype": "float32",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float32/minplus/weighted"
+    },
+    {
+      "machine": "minplus",
+      "workload": "weighted",
+      "dtype": "float64",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float64/minplus/weighted"
+    },
+    {
+      "machine": "minplus",
+      "workload": "weighted",
+      "dtype": "bfloat16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/bfloat16/minplus/weighted"
+    },
+    {
+      "machine": "minplus",
+      "workload": "weighted",
+      "dtype": "float16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float16/minplus/weighted"
+    },
+    {
+      "machine": "minplus",
+      "workload": "weighted",
+      "dtype": "python-int",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "conventional/python-int/minplus/weighted"
+    },
+    {
+      "machine": "minplus",
+      "workload": "long",
+      "dtype": "float32",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float32/minplus/long"
+    },
+    {
+      "machine": "minplus",
+      "workload": "long",
+      "dtype": "float64",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float64/minplus/long"
+    },
+    {
+      "machine": "minplus",
+      "workload": "long",
+      "dtype": "bfloat16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/bfloat16/minplus/long"
+    },
+    {
+      "machine": "minplus",
+      "workload": "long",
+      "dtype": "float16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float16/minplus/long"
+    },
+    {
+      "machine": "minplus",
+      "workload": "long",
+      "dtype": "python-int",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "conventional/python-int/minplus/long"
+    },
+    {
+      "machine": "minplus",
+      "workload": "bound",
+      "dtype": "float32",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float32/minplus/bound"
+    },
+    {
+      "machine": "minplus",
+      "workload": "bound",
+      "dtype": "float64",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float64/minplus/bound"
+    },
+    {
+      "machine": "minplus",
+      "workload": "bound",
+      "dtype": "bfloat16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/bfloat16/minplus/bound"
+    },
+    {
+      "machine": "minplus",
+      "workload": "bound",
+      "dtype": "float16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float16/minplus/bound"
+    },
+    {
+      "machine": "minplus",
+      "workload": "bound",
+      "dtype": "python-int",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "conventional/python-int/minplus/bound"
+    },
+    {
+      "machine": "datalog",
+      "workload": "forest",
+      "dtype": "float32",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float32/datalog/forest"
+    },
+    {
+      "machine": "datalog",
+      "workload": "forest",
+      "dtype": "float64",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float64/datalog/forest"
+    },
+    {
+      "machine": "datalog",
+      "workload": "forest",
+      "dtype": "bfloat16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/bfloat16/datalog/forest"
+    },
+    {
+      "machine": "datalog",
+      "workload": "forest",
+      "dtype": "float16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float16/datalog/forest"
+    },
+    {
+      "machine": "datalog",
+      "workload": "forest",
+      "dtype": "python-int",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "conventional/python-int/datalog/forest"
+    },
+    {
+      "machine": "datalog",
+      "workload": "lineage",
+      "dtype": "float32",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float32/datalog/lineage"
+    },
+    {
+      "machine": "datalog",
+      "workload": "lineage",
+      "dtype": "float64",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float64/datalog/lineage"
+    },
+    {
+      "machine": "datalog",
+      "workload": "lineage",
+      "dtype": "bfloat16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/bfloat16/datalog/lineage"
+    },
+    {
+      "machine": "datalog",
+      "workload": "lineage",
+      "dtype": "float16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float16/datalog/lineage"
+    },
+    {
+      "machine": "datalog",
+      "workload": "lineage",
+      "dtype": "python-int",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "conventional/python-int/datalog/lineage"
+    },
+    {
+      "machine": "datalog",
+      "workload": "cyclic",
+      "dtype": "float32",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float32/datalog/cyclic"
+    },
+    {
+      "machine": "datalog",
+      "workload": "cyclic",
+      "dtype": "float64",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float64/datalog/cyclic"
+    },
+    {
+      "machine": "datalog",
+      "workload": "cyclic",
+      "dtype": "bfloat16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/bfloat16/datalog/cyclic"
+    },
+    {
+      "machine": "datalog",
+      "workload": "cyclic",
+      "dtype": "float16",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "dense-tensor/float16/datalog/cyclic"
+    },
+    {
+      "machine": "datalog",
+      "workload": "cyclic",
+      "dtype": "python-int",
+      "horizon": 40,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "conventional/python-int/datalog/cyclic"
+    }
+  ]
+}
