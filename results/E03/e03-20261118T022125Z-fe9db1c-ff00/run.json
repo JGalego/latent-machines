@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "experiment": "E03",
+  "run_id": "e03-20261118T022125Z-fe9db1c-ff00",
+  "command": [
+    "python",
+    "-m",
+    "latent_machines.experiments.e03",
+    "--device",
+    "cuda"
+  ],
+  "started_at": "2026-11-18T02:21:25+00:00",
+  "source": {
+    "revision": "fe9db1c65c5b485256bf3c2f6d63c0bfc3e8badb",
+    "dirty": false,
+    "dirty_fingerprint": null,
+    "untracked": []
+  },
+  "config": {
+    "model": "HuggingFaceTB/SmolLM2-135M",
+    "revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2",
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "data_seed": 0,
+    "train": 2000,
+    "test": 300,
+    "long_test": 100,
+    "epochs": 30,
+    "hidden": 256,
+    "learning_rate": 0.001,
+    "batch_size": 256,
+    "latent_batch": 32,
+    "snapshot_programs": 20,
+    "tick_budget": 3,
+    "arms": [
+      "T",
+      "L",
+      "S",
+      "H",
+      "N"
+    ]
+  },
+  "environment": {
+    "python": "3.13.11",
+    "implementation": "CPython",
+    "platform": "Linux-6.12.115-140.210.amzn2023.x86_64-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "cpu": "AMD EPYC 7R13 Processor",
+    "cpu_count": 8,
+    "cpu_quota": 8.0,
+    "hf_job": {
+      "job_id": "6afd0b754643bac7ac630e55",
+      "accelerator": "gpu",
+      "cpu_cores": "8",
+      "memory": "30.0G"
+    },
+    "launch": {
+      "flavor": "l4x1",
+      "image": "ghcr.io/astral-sh/uv:python3.13-bookworm",
+      "timeout": "4h"
+    },
+    "torch": "2.15.0+cu132",
+    "torch_threads_per_variant": 1,
+    "deterministic": false,
+    "device": "cuda",
+    "uv_lock_sha256": "ca3bf7296e19440f7703271d050f5b259db3a9a80eb7eb8d20f9359dbfd8dedb",
+    "gpu": "NVIDIA L4",
+    "cuda": "13.2"
+  },
+  "seeds": {
+    "heads": [
+      0,
+      1,
+      2
+    ],
+    "data": 0
+  },
+  "model": {
+    "name": "HuggingFaceTB/SmolLM2-135M",
+    "revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2",
+    "parameters": 134515008,
+    "hidden_size": 576,
+    "frozen": true,
+    "features": "last-layer hidden state at the last position of a chunk or at a latent feedback vector"
+  },
+  "task": {
+    "machine": "memory/v1, capacity 8, 4-bit words",
+    "executor": "delta-rule tensor backend (E00) with a shadow oracle",
+    "statements": "set (1 tick), copy (read then write, 2 ticks), question (1 tick); weights 0.4, 0.3, 0.3",
+    "tick_budget": 3,
+    "splits": {
+      "train": {
+        "name": "train",
+        "count": 2000,
+        "min_statements": 2,
+        "max_statements": 8,
+        "sha256": "4f4b16bf4e21dd1339261820165681c676165c8a6f5e9bb49f99666e99ab43dc"
+      },
+      "test_in_distribution": {
+        "name": "test_in_distribution",
+        "count": 300,
+        "min_statements": 2,
+        "max_statements": 8,
+        "sha256": "9dff84262c5f3e0be4fbc3188a0ea16954e5fd6af80c0482bb3be350c734d38b"
+      },
+      "test_length_32": {
+        "name": "test_length_32",
+        "count": 100,
+        "min_statements": 32,
+        "max_statements": 32,
+        "sha256": "706b4a5a83e56251f440a960f18a068dfc808fc4c61364e67ae7d9d609da58f2"
+      },
+      "test_length_64": {
+        "name": "test_length_64",
+        "count": 100,
+        "min_statements": 64,
+        "max_statements": 64,
+        "sha256": "26a458aa2200e3b32fb33e2404b1a74c42df03caddfdcf6864d9df0cdd559d91"
+      }
+    }
+  },
+  "arms": {
+    "T": "token feedback",
+    "L": "latent feedback",
+    "S": "steering control",
+    "H": "head feedback",
+    "N": "native loop"
+  },
+  "feedback_reentry": {
+    "T": "request and reply text appended; next decision reads the last layer at the reply's last token",
+    "L": "one adaptor vector per tick at the next input position; it passes through every layer and stays in the key-value cache",
+    "S": "a constant adaptor vector per tick at the next input position (no feedback content); the embedded code goes to the heads as in H",
+    "H": "embedded code concatenated to the heads' input; the model and its cache never see it",
+    "N": "no controller feedback within a statement; the loop passes the read value to the write"
+  },
+  "trained": {
+    "T": {
+      "trainable_parameters": 308779,
+      "adaptor_parameters": 0,
+      "training_steps": 2700,
+      "decision_examples": 22984,
+      "answer_examples": 3084
+    },
+    "L": {
+      "trainable_parameters": 335275,
+      "adaptor_parameters": 26496,
+      "training_steps": 1890,
+      "decision_examples": 22984,
+      "answer_examples": 3084
+    },
+    "S": {
+      "trainable_parameters": 354731,
+      "adaptor_parameters": 26496,
+      "training_steps": 1890,
+      "decision_examples": 22984,
+      "answer_examples": 3084
+    },
+    "H": {
+      "trainable_parameters": 328235,
+      "adaptor_parameters": 0,
+      "training_steps": 2700,
+      "decision_examples": 22984,
+      "answer_examples": 3084
+    },
+    "N": {
+      "trainable_parameters": 320563,
+      "adaptor_parameters": 0,
+      "training_steps": 1200,
+      "decision_examples": 10005,
+      "answer_examples": 3084
+    }
+  }
+}
