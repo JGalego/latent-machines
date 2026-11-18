@@ -68,6 +68,34 @@ flowchart LR
 
 Clearing on pop keeps freed slots at zero, so the live tensors always equal a freshly encoded snapshot. Tests require this at every step.
 
+## Dataflow backends
+
+> **TL;DR:** The same integer DAG runs as Python code, as a scalar machine on delta-rule memory, and as one tensor step per level.
+
+[dataflow.py](dataflow.py) implements [`dataflow/v1`](../machines/README.md#dataflowv1) several ways for [E04](../../../EXPERIMENTS.md#e04---dataflow-specialization-and-conditional-units):
+
+| Backend | Lowering | What it tests |
+|---|---|---|
+| `python_int` | none: unbounded Python ints, then the first out-of-range node | conventional reference path |
+| `CompiledGraph(lowering="grouped")`, int64 | one batched op per op type per level | optimized conventional baseline |
+| `ScalarDelta` | one node per instruction; operands in the E00 delta-rule memory | scalar interpretation |
+| `CompiledGraph(lowering="gather")` | gather operands by index; every node computes linear, product, and max units; a mask selects one | direct compiled graph |
+| `CompiledGraph(lowering="weights")` | wiring and constants baked into dense matrices | program-specialized weights |
+| `CompiledGraph(lowering="dispatch")` | static routing to op experts with fixed capacity, extra rounds instead of drops | conditional units |
+
+```mermaid
+flowchart LR
+    V["values V<br/>(nodes × batch)"] --> G["gather or W·V<br/>left, right, linear"]
+    G --> U["units: a·b, a + relu(b − a), linear"]
+    U --> M["select per node"]
+    M --> K{"in range?<br/>first bad row per column"}
+    K -->|all good| V2["V with this level written"]
+    K -->|bad| F["fault node, work up to it"]
+    V2 -.->|next level| V
+```
+
+Integers stay exact in float32 while every value and partial sum is below 2^24, which holds for 16-bit words and the declared workloads. bfloat16 and float16 cannot hold every 16-bit word; E04 runs them as precision probes.
+
 ## Tensor CNF verifier
 
 > **TL;DR:** Clause-literal incidence matrices count true literals per clause; a clause with a zero count rejects the assignment.

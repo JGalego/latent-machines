@@ -62,6 +62,27 @@ flowchart LR
 
 Every fault leaves the stack unchanged, and every action costs one work unit.
 
+## `dataflow/v1`
+
+> **TL;DR:** A DAG of integer operations evaluated level by level; the first out-of-range node faults, and nothing wraps.
+
+Signed integer dataflow graphs, the reference for [E04](../../../EXPERIMENTS.md#e04---dataflow-specialization-and-conditional-units). Nodes are `input`, `const`, `add`, `sub`, `mul`, `max`, and n-ary `sum`; arguments name earlier nodes. The docstring in [dataflow.py](dataflow.py) is the authoritative specification.
+
+```mermaid
+flowchart TD
+    S["step(program, inputs, state)"] --> F{finished?}
+    F -->|yes| FF["fault: finished<br/>(no work)"]
+    F -->|no| L["evaluate the next level<br/>in node-index order"]
+    L --> R{"node value within<br/>width-bit signed range?"}
+    R -->|no| FO["fault: overflow, naming the node<br/>later nodes not evaluated"]
+    R -->|yes, more nodes| L
+    R -->|yes, level done| E{last level?}
+    E -->|no| C[continue]
+    E -->|yes| O["output: values of the output nodes"]
+```
+
+A tick is one level; levels are the safepoints where snapshots are taken. Work is one unit per node evaluated, the faulting node included. A `sum` is checked on its final value only.
+
 ## `cnf/v1`
 
 > **TL;DR:** A stateless checker accepts an assignment only when every clause has a true literal; malformed assignments fault.
