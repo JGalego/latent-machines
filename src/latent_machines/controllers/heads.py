@@ -4,6 +4,11 @@
 ``AnswerHead`` predicts a question's answer, optionally from a typed
 observation embedded alongside the features. These are the only trained
 parameters in E02.
+
+E03 adds ``TickHead``, a head with any number of categorical outputs that can
+also read an embedded feedback code, and ``FeedbackEmbedding``, which embeds a
+code as a sum of per-field vectors: small for the heads, or the language
+model's width for latent feedback.
 """
 
 import torch
@@ -46,6 +51,48 @@ class AnswerHead(nn.Module):
                 raise ValueError("this head needs an observation")
             features = torch.cat([features, self.embed(observation)], dim=-1)
         return self.net(features)
+
+
+class FeedbackEmbedding(nn.Module):
+    """Embeds integer codes ``(..., fields)`` as the sum of per-field vectors."""
+
+    def __init__(self, sizes: tuple[int, ...], dim: int, std: float = 1.0):
+        super().__init__()
+        self.tables = nn.ModuleList(nn.Embedding(n, dim) for n in sizes)
+        for table in self.tables:
+            nn.init.normal_(table.weight, std=std)
+
+    def forward(self, codes: torch.Tensor) -> torch.Tensor:
+        return torch.stack(
+            [table(codes[..., i]) for i, table in enumerate(self.tables)]
+        ).sum(0)
+
+
+class TickHead(nn.Module):
+    """Categorical outputs of ``sizes`` from features and an optional code."""
+
+    def __init__(
+        self,
+        features: int,
+        hidden: int,
+        sizes: tuple[int, ...],
+        codes: tuple[int, ...] | None = None,
+        code_dim: int = 32,
+    ):
+        super().__init__()
+        self.sizes = sizes
+        self.feedback = FeedbackEmbedding(codes, code_dim) if codes else None
+        extra = code_dim if codes else 0
+        self.net = mlp(features + extra, hidden, sum(sizes))
+
+    def forward(
+        self, features: torch.Tensor, codes: torch.Tensor | None = None
+    ) -> tuple[torch.Tensor, ...]:
+        if self.feedback is not None:
+            if codes is None:
+                raise ValueError("this head needs a feedback code")
+            features = torch.cat([features, self.feedback(codes)], dim=-1)
+        return tuple(self.net(features).split(self.sizes, dim=-1))
 
 
 def parameter_count(*modules: nn.Module | None) -> int:

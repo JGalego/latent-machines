@@ -10,6 +10,10 @@ token. No parameter of the model is trained.
 ``load("tiny-random")`` builds a 2-layer random Llama with a byte tokenizer
 for tests; it downloads nothing. With ``device="cuda"`` the model runs on the
 GPU and features are returned on the CPU, where the heads and executors run.
+
+For latent feedback (E03), ``Session.feed_vector`` feeds one input embedding
+instead of tokens; ``token_embeddings`` gives the model's own embeddings of a
+chunk, so token and vector inputs can be mixed in one sequence.
 """
 
 from collections.abc import Callable
@@ -84,6 +88,11 @@ class FrozenLM:
         ends = torch.tensor(ids_ends(ids), device=self.device)
         return hidden[ends].cpu()
 
+    def token_embeddings(self, ids: list[int]) -> torch.Tensor:
+        """The model's input embeddings for ``ids``, on the model's device."""
+        table = self.model.get_input_embeddings()
+        return table(torch.tensor(ids, device=self.device))
+
     def session(self) -> "Session":
         return Session(self)
 
@@ -101,7 +110,7 @@ class Session:
     """Feeds chunks one at a time, reusing the key-value cache."""
 
     def __init__(self, lm: FrozenLM) -> None:
-        self.lm, self.cache, self.tokens = lm, None, 0
+        self.lm, self.cache, self.tokens, self.vectors = lm, None, 0, 0
 
     @torch.no_grad()
     def feed(self, chunk: str) -> torch.Tensor:
@@ -113,4 +122,16 @@ class Session:
         )
         self.cache = output.past_key_values
         self.tokens += len(ids)
+        return output.last_hidden_state[0, -1].cpu()
+
+    @torch.no_grad()
+    def feed_vector(self, vector: torch.Tensor) -> torch.Tensor:
+        """Feed one input embedding as the next position; return its feature."""
+        output = self.lm.model(
+            inputs_embeds=vector.to(self.lm.device)[None, None],
+            past_key_values=self.cache,
+            use_cache=True,
+        )
+        self.cache = output.past_key_values
+        self.vectors += 1
         return output.last_hidden_state[0, -1].cpu()

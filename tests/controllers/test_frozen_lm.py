@@ -51,3 +51,31 @@ def test_head_shapes_and_counts() -> None:
     with pytest.raises(ValueError):
         answer(torch.zeros(5, 32))
     assert parameter_count(action, None) == sum(p.numel() for p in action.parameters())
+
+
+def test_feeding_token_embeddings_as_vectors_matches_tokens(lm: FrozenLM) -> None:
+    session = lm.session()
+    session.feed(CHUNKS[0])
+    by_tokens = session.feed(" c")
+    vectors = lm.session()
+    vectors.feed(CHUNKS[0])
+    (ids,) = lm.tokens([" c"])
+    for vector in lm.token_embeddings(ids):
+        by_vector = vectors.feed_vector(vector)
+    assert torch.allclose(by_tokens, by_vector, atol=1e-5)
+    assert (vectors.tokens, vectors.vectors) == (len(CHUNKS[0]), len(ids))
+
+
+def test_tick_head_reads_feedback_codes() -> None:
+    from latent_machines.controllers.heads import FeedbackEmbedding, TickHead
+
+    head = TickHead(32, 16, (3, 8), codes=(3, 9))
+    codes = torch.tensor([[0, 1], [2, 8]])
+    op, record = head(torch.zeros(2, 32), codes)
+    assert (op.shape, record.shape) == ((2, 3), (2, 8))
+    with pytest.raises(ValueError):
+        head(torch.zeros(2, 32))
+    embed = FeedbackEmbedding((3, 9), 4)
+    assert torch.equal(
+        embed(codes[0]), embed.tables[0].weight[0] + embed.tables[1].weight[1]
+    )

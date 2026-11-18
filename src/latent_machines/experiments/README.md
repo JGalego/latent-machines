@@ -57,3 +57,28 @@ Variants are named `backend/dtype/machine/workload`, for example `delta-stack/bf
 uv run --locked python -m latent_machines.experiments.e01                                    # 10^3 actions per variant
 uv run --locked python -m latent_machines.experiments.e01 --horizon 1000000 --jobs 8 --trace-limit 1000
 ```
+
+## E03: latent ticks and explicit events
+
+> **TL;DR:** Four ways to return a machine's reply to a frozen model's controller, compared on copies that need the reply.
+
+[e03.py](e03.py) runs record programs with copies ([task](../tasks/copies.py)): `Copy b to e.` is a read of `b`, then a write of the value read to `e`. Trained heads decide one tick at a time (`write`, `read`, or `end`; at most three machine actions per statement), and each tick's action and reply form a feedback code ([interface](../interfaces/ticks.py)). Arms differ only in where that code re-enters:
+
+```mermaid
+flowchart LR
+    S["statement text"] --> LM["frozen LM"]
+    LM -->|features| H["trained heads"]
+    H -->|tick action| X["delta-rule memory<br/>+ shadow oracle"]
+    X -->|"feedback code"| R{arm}
+    R -->|"T: request and reply as text"| LM
+    R -->|"L: one adaptor vector<br/>at the next position"| LM
+    R -->|"H: embedded at the heads"| H
+    N["N: macro per statement;<br/>native loop runs the ticks"] -.-> X
+```
+
+All arms execute on the delta-rule memory with a shadow oracle. For a sample of programs, each arm is snapshotted between the read and the write of a copy (machine state, controller history, pending work), restored through JSON, and must finish exactly as an uninterrupted run.
+
+```bash
+uv run --locked python -m latent_machines.experiments.e03 --model tiny-random   # smoke run
+uv run --locked python -m latent_machines.experiments.e03 --device cuda         # recorded configuration
+```
