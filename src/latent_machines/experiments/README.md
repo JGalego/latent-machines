@@ -73,8 +73,11 @@ flowchart LR
     R -->|"T: request and reply as text"| LM
     R -->|"L: one adaptor vector<br/>at the next position"| LM
     R -->|"H: embedded at the heads"| H
+    R -->|"S: code to the heads, plus a<br/>constant adaptor vector to the LM"| H
     N["N: macro per statement;<br/>native loop runs the ticks"] -.-> X
 ```
+
+Arm S is a control for L: the same trained vector slots, trained end to end through the frozen model, but carrying a constant instead of the feedback, which goes to the heads. If S matched L, L's gains would come from trained inputs steering the model rather than from feedback through it.
 
 All arms execute on the delta-rule memory with a shadow oracle. For a sample of programs, each arm is snapshotted between the read and the write of a copy (machine state, controller history, pending work), restored through JSON, and must finish exactly as an uninterrupted run.
 

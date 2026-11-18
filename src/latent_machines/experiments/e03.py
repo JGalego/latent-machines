@@ -12,6 +12,10 @@ action and reply (its feedback code) reach the next decision:
 - L, latent feedback: the code is embedded by a trained adaptor into one input
   vector at the model's next position. It re-enters every layer of the next
   tick and stays in the key-value cache for later statements.
+- S, steering control: L's trained vector slots at the same positions, trained
+  the same way, but every slot carries the same constant code; the feedback
+  goes to the heads as in H. It separates feedback through the model from
+  trained inputs that steer the model's later computation.
 - H, head feedback: the code is embedded and given to the trained heads
   only; the model never sees it. This extends E02's typed arm C to ticks.
 - N, native loop: the heads issue one macro per statement (``write``,
@@ -63,10 +67,14 @@ EXPERIMENT = "E03"
 MODULE = "latent_machines.experiments.e03"
 MODEL = "HuggingFaceTB/SmolLM2-135M"
 REVISION = "93efa2f097d58c2a74874c7e644dbc9b0cee75a2"
-ARMS = ("T", "L", "H", "N")
+ARMS = ("T", "L", "S", "H", "N")
+LATENT_ARMS = ("L", "S")  # trained end to end through the frozen model
+SESSION_ARMS = ("T", "L", "S")  # the model reads each tick incrementally
+HEAD_CODE_ARMS = ("S", "H")  # the heads read the feedback code
 ARM_NAMES = {
     "T": "token feedback",
     "L": "latent feedback",
+    "S": "steering control",
     "H": "head feedback",
     "N": "native loop",
 }
@@ -224,7 +232,9 @@ class LatentProgram:
     codes: torch.Tensor  # (slots, 4)
     decision_positions: torch.Tensor
     decision_targets: torch.Tensor
+    decision_codes: torch.Tensor  # what arm S's heads see at each decision
     answer_positions: torch.Tensor
+    answer_codes: torch.Tensor
     answers: torch.Tensor
 
 
@@ -233,6 +243,7 @@ def latent_program(lm: FrozenLM, program: task.Program, g: Gold) -> LatentProgra
     parts: list[torch.Tensor] = []
     length = 0
     code_pos, codes, d_pos, d_targets, a_pos, answers = [], [], [], [], [], []
+    d_codes, a_codes = [], []
 
     def add_tokens(chunk: str) -> int:
         nonlocal length
@@ -255,8 +266,10 @@ def latent_program(lm: FrozenLM, program: task.Program, g: Gold) -> LatentProgra
         at += [add_slot(code) for code in g.codes[i]]
         d_pos += at
         d_targets += ticks.targets(g.actions[i])
+        d_codes += [ticks.START.indices()] + [c.indices() for c in g.codes[i]]
         if statement.kind == "get":
             a_pos.append(at[-1])
+            a_codes.append(g.codes[i][-1].indices())
             answers.append(g.events[i][-1].value)
     return LatentProgram(
         torch.cat(parts),
@@ -264,7 +277,9 @@ def latent_program(lm: FrozenLM, program: task.Program, g: Gold) -> LatentProgra
         torch.tensor(codes, dtype=torch.long, device=lm.device),
         torch.tensor(d_pos, dtype=torch.long, device=lm.device),
         torch.tensor(d_targets, dtype=torch.long, device=lm.device),
+        torch.tensor(d_codes, dtype=torch.long, device=lm.device),
         torch.tensor(a_pos, dtype=torch.long, device=lm.device),
+        torch.tensor(a_codes, dtype=torch.long, device=lm.device).view(-1, 4),
         torch.tensor(answers, dtype=torch.long, device=lm.device),
     )
 
@@ -287,12 +302,13 @@ class Controller:
 
 def new_controller(arm: str, lm: FrozenLM, config: Config) -> Controller:
     d, hidden = lm.hidden_size, config.hidden
-    codes = ticks.CODE_SIZES if arm in ("H", "N") else None
+    codes = ticks.CODE_SIZES if arm in (*HEAD_CODE_ARMS, "N") else None
     sizes = MACRO_SIZES if arm == "N" else TICK_SIZES
-    decide = TickHead(d, hidden, sizes, ticks.CODE_SIZES if arm == "H" else None)
+    decide_codes = ticks.CODE_SIZES if arm in HEAD_CODE_ARMS else None
+    decide = TickHead(d, hidden, sizes, decide_codes)
     answer = TickHead(d, hidden, (VALUES,), codes)
     adaptor = None
-    if arm == "L":
+    if arm in LATENT_ARMS:
         std = lm.model.get_input_embeddings().weight.std().item()
         adaptor = FeedbackEmbedding(ticks.CODE_SIZES, d, std=std / 2).to(lm.device)
     return Controller(arm, decide, answer, adaptor)
@@ -362,6 +378,8 @@ def train_latent(
     params = [p for m in c.modules() for p in m.parameters()]
     optimizer = torch.optim.Adam(params, lr=config.learning_rate)
     started = time.perf_counter()
+    steer = c.arm == "S"
+    start = torch.tensor(ticks.START.indices(), device=lm.device)
     for _ in range(config.epochs):
         order = torch.randperm(len(data)).tolist()
         for b in range(0, len(order), config.latent_batch):
@@ -369,7 +387,8 @@ def train_latent(
             width = max(len(p.base) for p in batch)
             embeds, mask = [], []
             for p in batch:
-                filled = p.base.index_put((p.code_positions,), c.adaptor(p.codes))
+                slots = start.expand_as(p.codes) if steer else p.codes
+                filled = p.base.index_put((p.code_positions,), c.adaptor(slots))
                 pad = width - len(p.base)
                 embeds.append(F.pad(filled, (0, 0, 0, pad)))
                 mask.append(
@@ -382,13 +401,15 @@ def train_latent(
                 [hidden[k, p.decision_positions] for k, p in enumerate(batch)]
             )
             targets = torch.cat([p.decision_targets for p in batch])
-            loss = decision_loss(c.decide(rows), targets, "L")
+            codes = torch.cat([p.decision_codes for p in batch]) if steer else None
+            loss = decision_loss(c.decide(rows, codes), targets, c.arm)
             answer_rows = torch.cat(
                 [hidden[k, p.answer_positions] for k, p in enumerate(batch)]
             )
             if len(answer_rows):
                 answers = torch.cat([p.answers for p in batch])
-                (logits,) = c.answer(answer_rows)
+                codes = torch.cat([p.answer_codes for p in batch]) if steer else None
+                (logits,) = c.answer(answer_rows, codes)
                 loss = loss + F.cross_entropy(logits, answers)
             optimizer.zero_grad()
             loss.backward()
@@ -446,7 +467,7 @@ class TickController:
 
     def __init__(self, c: Controller, lm: FrozenLM, plain: torch.Tensor) -> None:
         self.c, self.lm, self.plain = c, lm, plain
-        self.session = lm.session() if c.arm in ("T", "L") else None
+        self.session = lm.session() if c.arm in SESSION_ARMS else None
         self.history: list[list[Any]] = []
         self.features = torch.zeros(lm.hidden_size)
         self.code = ticks.START
@@ -470,7 +491,16 @@ class TickController:
             self.history.append(["statement", index])
 
     def _codes(self) -> torch.Tensor | None:
-        return torch.tensor(self.code.indices()) if self.c.arm == "H" else None
+        if self.c.arm not in HEAD_CODE_ARMS:
+            return None
+        return torch.tensor(self.code.indices())
+
+    def _feed_slot(self, code: ticks.FeedbackCode) -> None:
+        """Arms L and S: one adaptor vector at the model's next position."""
+        assert self.session is not None and self.c.adaptor is not None
+        slot = code if self.c.arm == "L" else ticks.START
+        vector = self.c.adaptor(torch.tensor(slot.indices()))
+        self.features = self.session.feed_vector(vector)
 
     def decide(self) -> Action | None:
         self.decision_features.append(self.features)
@@ -482,10 +512,8 @@ class TickController:
         if self.c.arm == "T":
             self._text(text.text_request(action))
             self._text(text.text_reply(event))
-        elif self.c.arm == "L":
-            assert self.session is not None and self.c.adaptor is not None
-            vector = self.c.adaptor(torch.tensor(self.code.indices()))
-            self.features = self.session.feed_vector(vector)
+        elif self.c.arm in LATENT_ARMS:
+            self._feed_slot(self.code)
             self.history.append(["code", list(self.code.indices())])
         else:
             self.history.append(["code", list(self.code.indices())])
@@ -510,10 +538,8 @@ class TickController:
                 self.history.append(["statement", item])
             else:
                 self.code = ticks.FeedbackCode(*item)
-                if self.c.arm == "L":
-                    assert self.session is not None and self.c.adaptor is not None
-                    vector = self.c.adaptor(torch.tensor(item))
-                    self.features = self.session.feed_vector(vector)
+                if self.c.arm in LATENT_ARMS:
+                    self._feed_slot(self.code)
                 self.history.append(["code", item])
 
 
@@ -729,7 +755,7 @@ def evaluate(
             for ids in lm.tokens([task.PREAMBLE, *(s.text for s in program.statements)])
         )
         plain_positions += plain_tokens
-        positions += out.positions if c.arm in ("T", "L") else plain_tokens
+        positions += out.positions if c.arm in SESSION_ARMS else plain_tokens
         if trace is not None and p_index < TRACE_PROGRAMS:
             trace.append(
                 {
@@ -912,14 +938,14 @@ def main(argv: list[str] | None = None) -> int:
         cached = {
             arm: cached_examples(arm, lm, train_programs, train_golds)
             for arm in arms
-            if arm != "L"
+            if arm not in LATENT_ARMS
         }
         latent = (
             [
                 latent_program(lm, p, g)
                 for p, g in zip(train_programs, train_golds, strict=True)
             ]
-            if "L" in arms
+            if set(arms) & set(LATENT_ARMS)
             else []
         )
         plain = {
@@ -931,7 +957,7 @@ def main(argv: list[str] | None = None) -> int:
             for arm in arms:
                 torch.manual_seed(seed)
                 c = new_controller(arm, lm, config)
-                if arm == "L":
+                if arm in LATENT_ARMS:
                     train_latent(c, lm, latent, config)
                 else:
                     train_cached(c, cached[arm], config)
@@ -943,12 +969,12 @@ def main(argv: list[str] | None = None) -> int:
                     "training_steps": c.steps,
                     "decision_examples": (
                         sum(len(p.decision_targets) for p in latent)
-                        if arm == "L"
+                        if arm in LATENT_ARMS
                         else len(cached[arm].decision_targets)
                     ),
                     "answer_examples": (
                         sum(len(p.answers) for p in latent)
-                        if arm == "L"
+                        if arm in LATENT_ARMS
                         else len(cached[arm].answers)
                     ),
                 }
@@ -1031,6 +1057,8 @@ def main(argv: list[str] | None = None) -> int:
                 "last layer at the reply's last token",
                 "L": "one adaptor vector per tick at the next input position; it "
                 "passes through every layer and stays in the key-value cache",
+                "S": "a constant adaptor vector per tick at the next input position "
+                "(no feedback content); the embedded code goes to the heads as in H",
                 "H": "embedded code concatenated to the heads' input; the model "
                 "and its cache never see it",
                 "N": "no controller feedback within a statement; the loop passes "
@@ -1070,6 +1098,8 @@ def main(argv: list[str] | None = None) -> int:
             "not_measured": [
                 "unfrozen or fine-tuned models; only heads and the adaptor train",
                 "latent feedback without the action fields (observation only)",
+                "arm S's adaptor receives only the constant code, so only one sum "
+                "of its table rows is used; its parameter count includes the rest",
                 "per-tick latency on matched hardware: T and L run the model on "
                 "the GPU while H and N reuse features computed once",
                 "faults from invalid actions: the heads can only emit valid "
