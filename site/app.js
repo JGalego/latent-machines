@@ -15,9 +15,11 @@ const SPLITS = {
   test_held_out_pairs: "held-out pairs",
 };
 
-function badge(label) {
-  const cls = label === "conforms with residue" ? "residue" : label;
-  return `<span class="badge ${esc(cls)}">${esc(label)}</span>`;
+const BADGE_CLASSES = { "conforms with residue": "residue", "within tolerance": "within", "exceeds tolerance": "exceeds" };
+
+function badge(label, inScope = true) {
+  const cls = inScope ? BADGE_CLASSES[label] || label : "probe";
+  return `<span class="badge ${esc(cls)}">${esc(label)}${inScope ? "" : "†"}</span>`;
 }
 
 function segmented(options, selected, onChange, label) {
@@ -58,7 +60,7 @@ function conformanceExplorer(root, runs) {
           const index = run.variants.findIndex((v) => rowKey(v) === key && v.dtype === dtype);
           if (index < 0) return "<td></td>";
           const v = run.variants[index];
-          return `<td><button type="button" class="cell-button" data-index="${index}" title="${esc(v.variant)}">${badge(v.classification)}</button></td>`;
+          return `<td><button type="button" class="cell-button" data-index="${index}" title="${esc(v.variant)}">${badge(v.classification, v.in_scope !== false)}</button></td>`;
         });
         return `<tr><th scope="row">${esc(key)}</th>${cells.join("")}</tr>`;
       })
@@ -68,13 +70,14 @@ function conformanceExplorer(root, runs) {
       button.onclick = () => {
         const v = run.variants[Number(button.dataset.index)];
         detail.className = "detail";
-        detail.innerHTML = `<strong>${esc(v.variant)}</strong> ${badge(v.classification)}
+        detail.innerHTML = `<strong>${esc(v.variant)}</strong> ${badge(v.classification, v.in_scope !== false)}
           <dl>
-            <dt>Actions checked</dt><dd>${fmtInt(v.actions_checked)}</dd>
+            <dt>Checked</dt><dd>${fmtInt(v.actions_checked)} ${esc(v.unit || "actions")}</dd>
+            ${v.in_scope === false ? "<dt>Scope</dt><dd>declared outside the acceptance before the run</dd>" : ""}
             <dt>Max residue</dt><dd>${esc(v.max_residue)}</dd>
             <dt>Snapshot</dt><dd>${esc(v.snapshot_resume)}</dd>
             <dt>End-to-end time</dt><dd>${esc(v.end_to_end_seconds)} s</dd>
-            <dt>Input checksum</dt><dd><code>${esc(String(v.action_sha256 || "").slice(0, 16))}…</code></dd>
+            ${v.action_sha256 ? `<dt>Input checksum</dt><dd><code>${esc(v.action_sha256.slice(0, 16))}…</code></dd>` : ""}
             <dt>Run</dt><dd><a href="${esc(run.manifest)}">${esc(run.run_id)}</a></dd>
           </dl>`;
       };
@@ -149,7 +152,8 @@ function setupResults() {
       const run = runs.find((r) => r.run_id === root.dataset.run);
       if (run && run.summary.length) learnedExplorer(root, run);
     } else {
-      const conformance = runs.filter((r) => r.kind === "conformance");
+      const branch = root.dataset.branch || null;
+      const conformance = runs.filter((r) => r.kind === "conformance" && (r.branch || null) === branch);
       if (conformance.length) conformanceExplorer(root, conformance);
     }
   }

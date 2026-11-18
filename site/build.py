@@ -37,6 +37,12 @@ TITLES = {
     "E00": "memory conformance",
     "E01": "exact streaming machines",
     "E02": "learned interface comparison",
+    "E03": "latent ticks and explicit events",
+    "E04": "dataflow, specialization, and conditional units",
+    "E05": "graph, semiring, and logic execution",
+    "E06": "spatial and structured dynamical machines",
+    "E07": "optimization-defined state updates",
+    "E08": "heuristic search with an exact verifier",
 }
 SPLITS = {
     "test_in_distribution": "2-8 statements",
@@ -104,9 +110,40 @@ def load_results(root: Path) -> dict[str, list[dict]]:
 # ---------- rendering ----------
 
 
-def badge(label: str) -> str:
-    cls = "residue" if label == "conforms with residue" else label
-    return f'<span class="badge {esc(cls)}">{esc(label)}</span>'
+BADGE_CLASSES = {
+    "conforms with residue": "residue",
+    "within tolerance": "within",
+    "exceeds tolerance": "exceeds",
+}
+
+
+def badge(label: str, in_scope: bool = True) -> str:
+    cls = BADGE_CLASSES.get(label, label) if in_scope else "probe"
+    mark = "" if in_scope else "†"
+    return f'<span class="badge {esc(cls)}">{esc(label)}{mark}</span>'
+
+
+def in_scope(variant: dict) -> bool:
+    """False for variants a run declared outside its acceptance in advance:
+    precision probes (E04) and inputs past a declared numerical limit (E08)."""
+    return not variant.get("precision_probe") and variant.get(
+        "within_declared_limits", True
+    )
+
+
+def approximate(variant: dict) -> bool:
+    """True for variants checked against a declared tolerance, not exactly."""
+    return variant.get("contract") == "approximate" or variant.get(
+        "classification"
+    ) in ("within tolerance", "exceeds tolerance")
+
+
+def branches(runs: list[dict]) -> list[tuple[str | None, list[dict]]]:
+    """Runs grouped by ``config.branch`` (E06 keeps exact and numerical apart)."""
+    groups: dict[str | None, list[dict]] = {}
+    for r in runs:
+        groups.setdefault(r["config"].get("branch"), []).append(r)
+    return sorted(groups.items(), key=lambda item: item[0] or "")
 
 
 def row_key(variant: dict) -> str:
@@ -132,22 +169,48 @@ def intro(exp_id: str, runs: list[dict], detail: str) -> str:
 
 
 def render_conformance(exp_id: str, runs: list[dict]) -> str:
+    return "\n".join(
+        render_branch(exp_id, branch, group) for branch, group in branches(runs)
+    )
+
+
+def snapshot_cell(variants: list[dict]) -> str:
+    checked = [v for v in variants if v["snapshot_resume"] != "not applicable"]
+    agree = sum(v["snapshot_resume"] == "agrees" for v in checked)
+    return f"{agree}/{len(checked)}" if checked else "–"
+
+
+def render_branch(exp_id: str, branch: str | None, runs: list[dict]) -> str:
     runs = sorted(
         runs, key=lambda r: (r["config"].get("horizon", 0), r["config"].get("seed", 0))
     )
+    name = f"{exp_id.lower()}-{branch}" if branch else exp_id.lower()
+    label = f"{exp_id} {branch} branch" if branch else exp_id
+    tolerance = all(approximate(v) for r in runs for v in r["metrics"]["variants"])
     total = sum(r["metrics"]["totals"]["actions_checked"] for r in runs)
+    probes = False
     rows = []
     for r in runs:
-        t, variants = r["metrics"]["totals"], r["metrics"]["variants"]
-        agree = sum(v["snapshot_resume"] == "agrees" for v in variants)
+        variants = r["metrics"]["variants"]
+        scoped = [v for v in variants if in_scope(v)]
+        outside = sum(v.get("mismatches", 0) for v in variants if not in_scope(v))
+        probes = probes or len(scoped) < len(variants)
+        if tolerance:
+            within = sum(v["classification"] == "within tolerance" for v in variants)
+            checks = f'<td class="num">{within}/{len(variants)}</td>'
+        else:
+            mismatches = f"{sum(v.get('mismatches', 0) for v in scoped):,}"
+            if outside:
+                mismatches += f' <span class="range">(+{outside:,}†)</span>'
+            residue = max((v.get("max_residue", 0) for v in scoped), default=0)
+            checks = f'<td class="num">{mismatches}</td><td class="num">{residue}</td>'
         rows.append(
             "<tr>"
             f"<td>{superscript_power(r['config'].get('horizon', 0))}</td>"
             f'<td class="num">{esc(r["config"].get("seed", ""))}</td>'
-            f'<td class="num">{t["actions_checked"]:,}</td>'
-            f'<td class="num">{t["mismatches"]}</td>'
-            f'<td class="num">{t["max_residue"]}</td>'
-            f'<td class="num">{agree}/{t["variants"]}</td>'
+            f'<td class="num">{r["metrics"]["totals"]["actions_checked"]:,}</td>'
+            f"{checks}"
+            f'<td class="num">{snapshot_cell(variants)}</td>'
             f"<td>{badge(r['metrics']['status'])}</td>"
             f"<td>{esc(r['cpu'] or '')}</td>"
             f'<td><a href="{esc(r["manifest"])}">{esc(r["run_id"].split("-")[-1])}</a></td>'
@@ -163,26 +226,70 @@ def render_conformance(exp_id: str, runs: list[dict]) -> str:
         for dtype in dtypes:
             match = [v for v in variants if row_key(v) == key and v["dtype"] == dtype]
             tds.append(
-                f"<td>{badge(match[0]['classification'])}</td>"
+                f"<td>{badge(match[0]['classification'], in_scope(match[0]))}</td>"
                 if match
                 else "<td></td>"
             )
         cells.append(f'<tr><th scope="row">{esc(key)}</th>{"".join(tds)}</tr>')
-    detail = f"{total:,} actions were checked in {len(runs)} runs."
+    unit = variants[0].get("unit")
+    detail = f"{total:,} {esc(unit) + 's' if unit else 'actions'} were checked in {len(runs)} run{'s' if len(runs) != 1 else ''}."
+    if branch:
+        detail = f"{branch.capitalize()} branch: {detail}"
     head = "".join(f"<th>{esc(d)}</th>" for d in dtypes)
+    if tolerance:
+        columns = "<th>Within tolerance</th>"
+        legend = "Each variant is checked against a reference under a tolerance declared before the run, not for exact equality."
+    else:
+        columns = "<th>Mismatches</th><th>Max residue</th>"
+        legend = "Mismatches count nonconforming steps; residue is Equation&nbsp;{{eq:residue}}."
+    dagger = (
+        " † marks variants declared outside the acceptance before the run (precision probes or inputs past a declared numerical limit); their mismatches are reported but not counted against the run."
+        if probes
+        else ""
+    )
+    explorer_branch = f' data-branch="{esc(branch)}"' if branch else ""
     return f"""{intro(exp_id, runs, detail)}
-    <p class="caption"><strong>{{{{table:{exp_id.lower()}-runs}}}}:</strong> {esc(exp_id)} runs. Mismatches count nonconforming steps; residue is Equation&nbsp;{{{{eq:residue}}}}; a snapshot agrees if the restored state equals the live state.</p>
+    <p class="caption"><strong>{{{{table:{name}-runs}}}}:</strong> {esc(label)} runs. {legend} A snapshot agrees if the restored state equals the live state; variants without a snapshot step are not counted.{dagger}</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>Actions per configuration</th><th>Seed</th><th>Actions checked</th><th>Mismatches</th><th>Max residue</th><th>Snapshots agree</th><th>Status</th><th>CPU</th><th>Record</th></tr></thead>
+      <thead><tr><th>Checks per configuration</th><th>Seed</th><th>Checked</th>{columns}<th>Snapshots agree</th><th>Status</th><th>CPU</th><th>Record</th></tr></thead>
       <tbody>{"".join(rows)}</tbody>
     </table></div>
-    <p class="caption"><strong>{{{{table:{exp_id.lower()}-configs}}}}:</strong> Classification of each {esc(exp_id)} configuration. The table shows the run with {superscript_power(largest["config"].get("horizon", 0))} actions per configuration; with scripts enabled, choose another run and select a cell for its details.</p>
-    <div class="explorer" data-experiment="{esc(exp_id)}">
+    <p class="caption"><strong>{{{{table:{name}-configs}}}}:</strong> Classification of each {esc(label)} configuration. The table shows the run with {superscript_power(largest["config"].get("horizon", 0))} checks per configuration; with scripts enabled, choose another run and select a cell for its details.{dagger}</p>
+    <div class="explorer" data-experiment="{esc(exp_id)}"{explorer_branch}>
       <div class="table-wrap"><table class="grid-matrix">
         <thead><tr><th></th>{head}</tr></thead>
         <tbody>{"".join(cells)}</tbody>
       </table></div>
-    </div>"""
+    </div>{render_search(exp_id, largest)}"""
+
+
+def render_search(exp_id: str, run: dict) -> str:
+    """E08's search arms: outcomes per arm and instance class."""
+    search = run["metrics"].get("search")
+    if not search:
+        return ""
+    classes = list(dict.fromkeys(s["class"] for s in search))
+    arms = list(dict.fromkeys(s["arm"] for s in search))
+    rows = []
+    for arm in arms:
+        tds = []
+        for cls in classes:
+            s = next((x for x in search if x["arm"] == arm and x["class"] == cls), None)
+            if s is None:
+                tds.append("<td></td>")
+                continue
+            text = f"{s['solved']}/{s['instances']}"
+            if s.get("proved_unsat"):
+                text += f" · {s['proved_unsat']} unsat"
+            tds.append(f'<td class="num">{text}</td>')
+        rows.append(f'<tr><th scope="row">{esc(arm)}</th>{"".join(tds)}</tr>')
+    head = "".join(f"<th>{esc(c)}</th>" for c in classes)
+    return f"""
+    <p class="caption"><strong>{{{{table:{exp_id.lower()}-search}}}}:</strong> {esc(exp_id)} search arms at a fixed step budget: instances with a verified solution, and instances proved unsatisfiable. Only the complete solver can prove unsatisfiability; every other failure is unknown, not unsatisfiable.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Arm</th>{head}</tr></thead>
+      <tbody>{"".join(rows)}</tbody>
+    </table></div>"""
 
 
 def accuracy_cell(stat: dict | None) -> str:
@@ -270,13 +377,21 @@ def render_results(experiments: dict[str, list[dict]]) -> str:
 
 
 def conformance_stats(experiments: dict[str, list[dict]]) -> dict:
+    """Counts over exact-contract variants inside their declared acceptance."""
     runs = [r for rs in experiments.values() for r in rs if r["kind"] == "conformance"]
-    variants = [v for r in runs for v in r["metrics"]["variants"]]
+    scoped = {
+        r["run_id"]: [
+            v for v in r["metrics"]["variants"] if in_scope(v) and not approximate(v)
+        ]
+        for r in runs
+    }
+    runs = [r for r in runs if scoped[r["run_id"]]]
+    variants = [v for r in runs for v in scoped[r["run_id"]]]
     return {
         "runs": len(runs),
         "configurations": len(variants),
         "exact": sum(v["classification"] == "exact" for v in variants),
-        "actions": sum(r["metrics"]["totals"]["actions_checked"] for r in runs),
+        "actions": sum(v["actions_checked"] for v in variants),
         "max_horizon": max((r["config"].get("horizon", 0) for r in runs), default=0),
     }
 
@@ -300,13 +415,16 @@ def abstract_result(stats: dict) -> str:
 def conformance_summary(stats: dict) -> str:
     if stats["exact"] == stats["configurations"]:
         return (
-            f"All {stats['configurations']} configurations in the {stats['runs']} recorded "
-            "conformance runs are classified as exact: no step failed to conform, the residue "
-            "was zero throughout, and every snapshot restored the live state exactly."
+            f"All {stats['configurations']} configurations checked for exact equality in the "
+            f"{stats['runs']} recorded conformance runs are classified as exact: no step failed "
+            "to conform, the residue was zero throughout, and every snapshot restored the live "
+            "state exactly."
         )
     return (
-        f"{stats['exact']} of {stats['configurations']} configurations in the {stats['runs']} "
-        "recorded conformance runs are classified as exact; the tables identify the others."
+        f"{stats['exact']} of the {stats['configurations']} configurations checked for exact "
+        f"equality in the {stats['runs']} recorded conformance runs are classified as exact; "
+        "the tables identify the others. These counts leave out variants declared outside "
+        "the acceptance before a run and variants checked against a tolerance."
     )
 
 
@@ -323,7 +441,9 @@ def experiment_status(experiments: dict[str, list[dict]]) -> str:
         sentences.append(f"{join_ids(done)} {verb} recorded results")
     if rest:
         sentences.append(f"{rest[0]} is next")
-    if len(rest) > 1:
+    if len(rest) == 2:
+        sentences.append(f"{rest[1]} is planned")
+    elif len(rest) > 2:
         sentences.append(f"{rest[1]}–{rest[-1]} are planned")
     return "; ".join(sentences) + "."
 
@@ -393,6 +513,7 @@ def results_data(experiments: dict[str, list[dict]]) -> str:
                 "revision": r["revision"],
                 "horizon": r["config"].get("horizon"),
                 "seed": r["config"].get("seed"),
+                "branch": r["config"].get("branch"),
                 "manifest": r["manifest"],
                 "variants": [
                     {
@@ -400,9 +521,10 @@ def results_data(experiments: dict[str, list[dict]]) -> str:
                         for key in (
                             "variant", "dtype", "workload", "machine", "classification",
                             "snapshot_resume", "actions_checked", "max_residue",
-                            "end_to_end_seconds", "action_sha256",
+                            "end_to_end_seconds", "action_sha256", "unit",
                         )
                     }
+                    | {"in_scope": in_scope(v)}
                     for v in r["metrics"].get("variants", [])
                 ]
                 if r["kind"] == "conformance"

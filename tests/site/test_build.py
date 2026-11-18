@@ -121,7 +121,10 @@ def test_status_text_reports_failures(tmp_path: Path) -> None:
     )
     page = build.render_page(root)
     assert "1 of 2 tested configurations did not match" in page
-    summary = "1 of 2 configurations in the 2 recorded conformance runs are classified"
+    summary = (
+        "1 of the 2 configurations checked for exact equality in the 2 recorded "
+        "conformance runs are classified"
+    )
     assert summary in page
 
 
@@ -162,3 +165,44 @@ def test_math_delimiters_outside_main_are_left_alone(tmp_path: Path) -> None:
     page = build.render_page(make_root(tmp_path, template, {}))
     assert page.count('class="equation"') == 1
     assert "{left: '$$', right: '$$'}" in page
+
+
+def test_probes_and_tolerance_variants_stay_out_of_the_exact_counts(
+    tmp_path: Path,
+) -> None:
+    root = make_root(
+        tmp_path, "{{eqtag:residue}} {{abstract_result}} | {{results}}", {}
+    )
+    probe = conformance("mismatch")
+    probe["variants"][0] |= {"precision_probe": True, "mismatches": 7}
+    probe["variants"].append(conformance()["variants"][0] | {"dtype": "float64"})
+    add_run(root, "E04", "e04-a-abc1234-0001", probe, {"horizon": 1000})
+    approx = conformance("exceeds tolerance")
+    approx["variants"][0]["contract"] = "approximate"
+    add_run(
+        root,
+        "E06",
+        "e06-a-abc1234-0002",
+        approx,
+        {"horizon": 10, "branch": "numerical"},
+    )
+    page = build.render_page(root)
+    assert "matched their oracles with zero residue on every one of the 1,000" in page
+    assert "(+7†)" in page
+    assert 'class="badge probe">mismatch†' in page
+    assert "Numerical branch" in page and "Within tolerance" in page
+    assert 'data-branch="numerical"' in page
+
+
+def test_search_arms_render_as_a_table(tmp_path: Path) -> None:
+    root = make_root(tmp_path, "{{eqtag:residue}} {{results}}", {})
+    metrics = conformance()
+    base = {"class": "small", "instances": 4, "solved": 2}
+    metrics["search"] = [
+        base | {"arm": "dpll", "proved_unsat": 2},
+        base | {"arm": "walksat", "proved_unsat": 0},
+    ]
+    add_run(root, "E08", "e08-a-abc1234-0001", metrics, {"horizon": 10})
+    page = build.render_page(root)
+    assert "2/4 · 2 unsat" in page
+    assert "search arms at a fixed step budget" in page

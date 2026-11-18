@@ -102,9 +102,10 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .table-wrap { overflow-x: auto; }
 
 .badge { display: inline-block; border-radius: 4px; padding: 0 6px; font-size: 0.8rem; font-weight: 600; }
-.badge.exact, .badge.passed { color: var(--good); background: var(--good-bg); }
+.badge.exact, .badge.passed, .badge.completed, .badge.within { color: var(--good); background: var(--good-bg); }
+.badge.probe { color: var(--muted); background: transparent; border: 1px dashed currentColor; }
 .badge.residue { color: var(--warn); background: var(--warn-bg); }
-.badge.mismatch, .badge.failed, .badge.error { color: var(--bad); background: var(--bad-bg); }
+.badge.mismatch, .badge.failed, .badge.error, .badge.exceeds { color: var(--bad); background: var(--bad-bg); }
 
 .grid-matrix td { text-align: center; }
 h3 { font-family: var(--serif); font-size: 1.25rem; margin: 32px 0 4px; }
