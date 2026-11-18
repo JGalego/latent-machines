@@ -342,7 +342,9 @@ def render_learned(exp_id: str, runs: list[dict]) -> str:
         summary = m["summary"]
         seen = list(dict.fromkeys(s["split"] for s in summary))
         splits = [s for s in SPLITS if s in seen] + [s for s in seen if s not in SPLITS]
-        arms = sorted({s["arm"] for s in summary})
+        present = {s["arm"] for s in summary}
+        order = [a for a in r["config"].get("arms", []) if a in present]
+        arms = order + sorted(present - set(order))
         seeds = max((s["seeds"] for s in summary), default=0)
         mismatches = m.get("executor_mismatches")
         detail = (
@@ -351,7 +353,21 @@ def render_learned(exp_id: str, runs: list[dict]) -> str:
             f"and {mismatches} executor mismatches."
         )
         rows = []
-        for metric, label in (("task_accuracy", "Task"), ("action_accuracy", "Action")):
+        metrics = [("task_accuracy", "Task"), ("action_accuracy", "Action")]
+        if any("copy_fidelity" in s for s in summary):
+            metrics.append(("copy_fidelity", "Copy"))
+        notes = []
+        if "A" in arms:
+            notes.append(
+                "Action accuracy is undefined for arm A, which takes no actions."
+            )
+        if len(metrics) > 2:
+            notes.append(
+                "Copy fidelity is the fraction of copies whose read and write "
+                "targeted the right records."
+            )
+        note = "".join(f" {n}" for n in notes)
+        for metric, label in metrics:
             for arm in arms:
                 cells = []
                 for split in splits:
@@ -370,7 +386,7 @@ def render_learned(exp_id: str, runs: list[dict]) -> str:
         head = "".join(f"<th>{esc(SPLITS.get(s, s))}</th>" for s in splits)
         name = f"{exp_id.lower()}-{r['run_id'].split('-')[-1]}"
         parts.append(f"""{intro(exp_id, [r], detail)}
-    <p class="caption"><strong>{{{{table:{name}}}}}:</strong> {esc(exp_id)} accuracy by arm and test split: mean over training seeds, with the range in brackets. Action accuracy is undefined for arm A, which takes no actions.</p>
+    <p class="caption"><strong>{{{{table:{name}}}}}:</strong> {esc(exp_id)} accuracy by arm and test split: mean over training seeds, with the range in brackets.{note}</p>
     <div class="explorer" data-experiment="{esc(exp_id)}" data-run="{esc(r["run_id"])}">
       <div class="table-wrap"><table>
         <thead><tr><th></th>{head}</tr></thead>
@@ -564,6 +580,7 @@ def results_data(experiments: dict[str, list[dict]]) -> str:
                 if r["kind"] == "conformance"
                 else [],
                 "summary": r["metrics"].get("summary", []) if r["kind"] == "learned" else [],
+                "arms": r["config"].get("arms", []),
             }
             for r in runs
         ]

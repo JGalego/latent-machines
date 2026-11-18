@@ -98,8 +98,11 @@ function conformanceExplorer(root, runs) {
 }
 
 // Bars of mean accuracy per arm, with whiskers spanning the range over seeds.
-function accuracyChart(summary, split, metric) {
-  const rows = summary.filter((s) => s.split === split && s[metric]).sort((a, b) => a.arm.localeCompare(b.arm));
+function accuracyChart(summary, split, metric, order = []) {
+  const rank = (arm) => (order.includes(arm) ? order.indexOf(arm) : order.length);
+  const rows = summary
+    .filter((s) => s.split === split && s[metric])
+    .sort((a, b) => rank(a.arm) - rank(b.arm) || a.arm.localeCompare(b.arm));
   if (!rows.length) return '<p class="muted">No values for this metric and split.</p>';
   const width = 520, height = 220, left = 40, bottom = 28, top = 12;
   const plotH = height - bottom - top;
@@ -137,12 +140,14 @@ function learnedExplorer(root, run) {
   let metric = "task_accuracy";
   const chart = document.createElement("div");
   chart.className = "chart-host";
-  const draw = () => (chart.innerHTML = accuracyChart(run.summary, split, metric));
+  const draw = () => (chart.innerHTML = accuracyChart(run.summary, split, metric, run.arms || []));
+  const metrics = [["task_accuracy", "Task accuracy"], ["action_accuracy", "Action accuracy"]];
+  if (run.summary.some((s) => s.copy_fidelity)) metrics.push(["copy_fidelity", "Copy fidelity"]);
   const controls = document.createElement("div");
   controls.className = "controls";
   controls.append(
     segmented(splits.map((s) => [s, SPLITS[s] || s]), split, (s) => ((split = s), draw()), "Test split"),
-    segmented([["task_accuracy", "Task accuracy"], ["action_accuracy", "Action accuracy"]], metric, (m) => ((metric = m), draw()), "Metric")
+    segmented(metrics, metric, (m) => ((metric = m), draw()), "Metric")
   );
   root.prepend(controls, chart);
   draw();
