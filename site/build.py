@@ -147,8 +147,11 @@ def branches(runs: list[dict]) -> list[tuple[str | None, list[dict]]]:
 
 
 def row_key(variant: dict) -> str:
-    machine = variant.get("machine")
-    return f"{machine} · {variant['workload']}" if machine else variant["workload"]
+    """The variant's name without its number format, which is the column."""
+    parts = variant["variant"].split("/")
+    if variant.get("dtype") in parts:
+        parts.remove(variant["dtype"])
+    return "/".join(parts)
 
 
 def intro(exp_id: str, runs: list[dict], detail: str) -> str:
@@ -260,7 +263,38 @@ def render_branch(exp_id: str, branch: str | None, runs: list[dict]) -> str:
         <thead><tr><th></th>{head}</tr></thead>
         <tbody>{"".join(cells)}</tbody>
       </table></div>
-    </div>{render_search(exp_id, largest)}"""
+    </div>{render_ram(name, label, largest)}{render_search(exp_id, largest)}"""
+
+
+RAM_BADGES = {"deviates": "mismatch", "not applicable": "probe"}
+
+
+def render_ram(name: str, label: str, run: dict) -> str:
+    """E07: whether each optimizer-defined memory still behaves as memory/v1."""
+    variants = [v for v in run["metrics"]["variants"] if "ram_conformance" in v]
+    if not variants:
+        return ""
+    dtypes = list(dict.fromkeys(v["dtype"] for v in variants))
+    keys = list(dict.fromkeys(row_key(v) for v in variants))
+    rows = []
+    for key in keys:
+        tds = []
+        for dtype in dtypes:
+            match = [v for v in variants if row_key(v) == key and v["dtype"] == dtype]
+            if not match:
+                tds.append("<td></td>")
+                continue
+            ram = match[0]["ram_conformance"]
+            cls = RAM_BADGES.get(ram, BADGE_CLASSES.get(ram, ram))
+            tds.append(f'<td><span class="badge {esc(cls)}">{esc(ram)}</span></td>')
+        rows.append(f'<tr><th scope="row">{esc(key)}</th>{"".join(tds)}</tr>')
+    head = "".join(f"<th>{esc(d)}</th>" for d in dtypes)
+    return f"""
+    <p class="caption"><strong>{{{{table:{name}-ram}}}}:</strong> The same {esc(label)} configurations compared with the integer memory oracle. A deviation from RAM is a finding about the update rule, not a failure of the implementation, which is judged against its own reference above.</p>
+    <div class="table-wrap"><table class="grid-matrix">
+      <thead><tr><th></th>{head}</tr></thead>
+      <tbody>{"".join(rows)}</tbody>
+    </table></div>"""
 
 
 def render_search(exp_id: str, run: dict) -> str:

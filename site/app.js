@@ -42,7 +42,13 @@ function segmented(options, selected, onChange, label) {
   return group;
 }
 
-const rowKey = (v) => (v.machine ? `${v.machine} · ${v.workload}` : v.workload);
+// The variant's name without its number format, which is the column.
+const rowKey = (v) => {
+  const parts = v.variant.split("/");
+  const i = parts.indexOf(v.dtype);
+  if (i >= 0) parts.splice(i, 1);
+  return parts.join("/");
+};
 
 function conformanceExplorer(root, runs) {
   const sorted = [...runs].sort((a, b) => a.horizon - b.horizon || a.seed - b.seed);
