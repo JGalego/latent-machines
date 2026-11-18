@@ -158,3 +158,24 @@ flowchart TD
 ```
 
 Faults leave the state unchanged and every action costs one work unit. The default `max_rounds` always suffices for a valid problem: `n` for the graph machines and `n² · |IDB| + 1` for Datalog.
+
+## `optimizer-memory/v1`
+
+> **TL;DR:** A memory written by optimizer steps: one gradient step per action, with the optimizer's settings as the specification.
+
+An associative map `f(k)` updated by one optimizer step per action on `½‖f(k) − y‖²`, the reference for [E07](../../../EXPERIMENTS.md#e07---optimization-defined-state-updates). [optimizer_memory.py](optimizer_memory.py) is the authoritative specification and a plain-Python float64 reference. It fixes what the optimizer does; whether that behaves like `memory/v1` is what E07 measures.
+
+```mermaid
+flowchart LR
+    A["memory/v1 action"] --> V{valid?}
+    V -->|no| F["fault; nothing changes"]
+    V -->|Write a v| G["g = −∇ at θ<br/>(at chunk start θ₀ if chunk > 1)"]
+    V -->|Read, Idle, Halt| Z["g = 0"]
+    G --> N["g ← g / max(‖g‖, ε) if normalize"]
+    Z --> N
+    N --> M["m ← momentum · m + g"]
+    M --> U["θ ← (1 − decay) θ + lr · m"]
+    U -->|Read a| O["output f(e_a), threshold 0.5"]
+```
+
+The model is linear, `f(k) = W k`, or a one-hidden-layer ReLU MLP. With a linear model, one-hot keys, `lr = 1`, and every other feature off, a write is delta replacement. Reads, idles, and halts are optimizer steps without a sample, so decay and momentum still act on them.

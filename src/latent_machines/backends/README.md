@@ -157,3 +157,20 @@ flowchart LR
 ```
 
 No format-specific range check is made: integers beyond a format's exact range (256 in bfloat16, 2048 in float16) round, and the decoded state then disagrees with the oracle.
+
+## Optimizer-defined memory
+
+> **TL;DR:** A PyTorch implementation of optimizer-written memory, checked step by step against a float64 reference.
+
+[optimizer_memory.py](optimizer_memory.py) implements [`optimizer-memory/v1`](../machines/README.md#optimizer-memoryv1) in eager PyTorch. The linear model uses the closed form `(y − W k) kᵀ`; the MLP uses autograd, so it shares no gradient code with the hand-written reference. State is the parameters plus the optimizer's buffers: momentum and, for stale chunk gradients, the chunk-start copy.
+
+```mermaid
+flowchart LR
+    S["state: θ, m, θ₀, steps"] --> D["direction:<br/>closed form or autograd"]
+    D --> U["normalize, momentum,<br/>decay, lr"]
+    U --> S2["next state"]
+    S2 -->|readout, conformance only| R["f(e_a) for every slot"]
+    S2 -->|snapshot| J["JSON: θ, m, θ₀, steps"]
+```
+
+`snapshot` and `restore` carry the full optimizer state; `from_words` rebuilds the state a `memory/v1` snapshot can describe, which drops the buffers. `readout` decodes every slot for conformance and must not reach a controller.

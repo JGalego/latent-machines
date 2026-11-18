@@ -155,6 +155,33 @@ uv run --locked python -m latent_machines.experiments.e06                       
 uv run --locked python -m latent_machines.experiments.e06 --branch numerical    # 10^4 samples per variant
 ```
 
+## E07: optimizer-defined memory
+
+> **TL;DR:** Check optimizer-written memory against its own reference every step, and report where it stops behaving like RAM.
+
+[e07.py](e07.py) runs each setting of [`optimizer-memory/v1`](../machines/README.md#optimizer-memoryv1) three ways over E00's workloads and an online regression task:
+
+```mermaid
+flowchart LR
+    W["workload"] --> B["tensor backend"]
+    W --> R["float64 reference"]
+    W --> O["memory/v1 oracle"]
+    B --> L{"one reference step from the<br/>backend's state agrees?"}
+    R --> T["trajectory agreement<br/>(reported)"]
+    B --> T
+    B -->|decoded readout| C{"same words and events<br/>as memory/v1?"}
+    O --> C
+    L -->|pass condition| P[status]
+    C -->|"finding; required only for sgd"| P
+```
+
+Settings change one feature at a time from plain SGD: learning rate 0.9 or 0.5, stale chunk-start gradients, momentum, decay, gradient normalization, and an MLP. A variant is one setting, workload, and dtype. Its `classification` is the local own-reference result; `trajectory` and `ram_conformance` record the other two comparisons, and `canonical_snapshot_resume` says whether restarting from the decoded `memory/v1` words alone reproduces the decoded behavior.
+
+```bash
+uv run --locked python -m latent_machines.experiments.e07                       # 10^3 actions, float32 and float64
+uv run --locked python -m latent_machines.experiments.e07 --dtypes bfloat16
+```
+
 ## E08: search with an exact verifier
 
 > **TL;DR:** Check the compiled verifier against the oracle, then compare search procedures at the same step budget with every claimed solution re-verified.
