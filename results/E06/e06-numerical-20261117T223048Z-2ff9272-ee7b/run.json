@@ -1,0 +1,845 @@
+{
+  "schema_version": 1,
+  "experiment": "E06",
+  "run_id": "e06-numerical-20261117T223048Z-2ff9272-ee7b",
+  "command": [
+    "python",
+    "-m",
+    "latent_machines.experiments.e06",
+    "--branch",
+    "numerical",
+    "--jobs",
+    "2"
+  ],
+  "started_at": "2026-11-17T22:30:48+00:00",
+  "source": {
+    "revision": "2ff927246ae233bcff0af350c65a3a872b0805f1",
+    "dirty": false,
+    "dirty_fingerprint": null,
+    "untracked": []
+  },
+  "config": {
+    "branch": "numerical",
+    "rules": [
+      "B3/S23",
+      "B36/S23",
+      "B2/S"
+    ],
+    "workloads": [
+      "soup15-torus",
+      "soup50-zero",
+      "gliders-torus",
+      "edge-zero"
+    ],
+    "size": 32,
+    "systems": [
+      "oscillator",
+      "butterworth",
+      "random-stable-8"
+    ],
+    "signals": [
+      "noise",
+      "step"
+    ],
+    "chunk": 64,
+    "backends": [
+      "direct",
+      "ssm-sequential",
+      "ssm-chunked"
+    ],
+    "dtypes": [
+      "float64",
+      "float32",
+      "bfloat16"
+    ],
+    "horizon": 10000,
+    "snapshot_at": null,
+    "seed": 0,
+    "trace_limit": 200,
+    "jobs": 2,
+    "out": "runs",
+    "tolerances": {
+      "float64": 1e-09,
+      "float32": 0.0001,
+      "bfloat16": 0.01
+    },
+    "error_metric": "max |y - y_ref| / rms(y_ref) over the horizon",
+    "failure_policy": "run the full horizon; count samples over tolerance; record the first one as the failure; classify the variant as exceeding"
+  },
+  "environment": {
+    "python": "3.13.13",
+    "implementation": "CPython",
+    "platform": "Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1365U",
+    "cpu_count": 12,
+    "cpu_quota": null,
+    "hf_job": null,
+    "launch": {},
+    "torch": "2.15.0+cpu",
+    "torch_threads_per_variant": 1,
+    "deterministic": false,
+    "device": "cpu",
+    "uv_lock_sha256": "ca3bf7296e19440f7703271d050f5b259db3a9a80eb7eb8d20f9359dbfd8dedb"
+  },
+  "systems": {
+    "oscillator": {
+      "dimension": 2,
+      "a": [
+        [
+          0.9970287016998433,
+          -0.06272772900978406
+        ],
+        [
+          0.06272772900978406,
+          0.9970287016998433
+        ]
+      ],
+      "b": [
+        1.0,
+        0.0
+      ],
+      "c": [
+        1.0,
+        0.0
+      ],
+      "d": 0.0,
+      "spectral_radius": 0.9990000070861438
+    },
+    "butterworth": {
+      "dimension": 2,
+      "a": [
+        [
+          1.5610180758007182,
+          -0.6413515380575632
+        ],
+        [
+          1.0,
+          0.0
+        ]
+      ],
+      "b": [
+        1.0,
+        0.0
+      ],
+      "c": [
+        0.0715172277970699,
+        0.007202868170232059
+      ],
+      "d": 0.020083365564211236,
+      "spectral_radius": 0.8008442907117358
+    },
+    "random-stable-8": {
+      "dimension": 8,
+      "a": [
+        [
+          0.6337224796136224,
+          0.15796866065131507,
+          0.11582852494060428,
+          0.4026937869272655,
+          0.04390184842741731,
+          -0.2819247384385746,
+          0.47053587481253334,
+          -0.1612644346201256
+        ],
+        [
+          0.24223075583341558,
+          0.31597199873407356,
+          -0.29589700951361836,
+          0.07961282869757291,
+          -0.4620659177114059,
+          -0.15909136153530026,
+          -0.5508493793106892,
+          -0.3362225907487164
+        ],
+        [
+          -0.22214557643586877,
+          0.10093411853937737,
+          0.8212210827763256,
+          0.044216534167199915,
+          -0.07718828116580477,
+          -0.005017499182592917,
+          -0.12875797007115997,
+          -0.434861762234475
+        ],
+        [
+          -0.4472517443308385,
+          0.16988320739057644,
+          -0.3426175674860195,
+          0.5290444049479556,
+          0.07180589447947436,
+          0.31650682271292496,
+          0.22760423850997963,
+          -0.3769551961967555
+        ],
+        [
+          -0.041527574951400206,
+          0.7624400995929465,
+          -0.010347557522810025,
+          -0.1926908418482713,
+          0.5232254954041842,
+          -0.09282307815959108,
+          -0.1046213951336495,
+          0.11136174851955849
+        ],
+        [
+          0.14224529953163575,
+          0.23053333977683416,
+          0.23191902644259738,
+          0.39497804401167047,
+          -0.24125308718565266,
+          0.5397419447525655,
+          -0.1563913890852076,
+          0.5203093950384048
+        ],
+        [
+          -0.12878063211113536,
+          0.3285651339925611,
+          -0.011894141029574258,
+          -0.4065215382335447,
+          -0.5781365221794833,
+          0.059210027920611426,
+          0.5450566273386379,
+          0.038435173967188846
+        ],
+        [
+          -0.42749333776082765,
+          0.038038835001021835,
+          0.02765802097665654,
+          0.34155529844453647,
+          -0.1823408468447019,
+          -0.6476428849764656,
+          -0.023246571495489515,
+          0.4000606858469743
+        ]
+      ],
+      "b": [
+        -0.014057069200915257,
+        -1.6870075160397484,
+        2.2085259384450175,
+        1.0857246725387033,
+        -0.11064085368668679,
+        -1.6600850505018718,
+        1.3915204381601984,
+        -0.14761249671754711
+      ],
+      "c": [
+        0.418710503437342,
+        -0.3621364596779624,
+        0.43600765132582164,
+        0.73936887143927,
+        0.16003843279177732,
+        -0.14396016822215219,
+        -0.3612870639650309,
+        -0.617754157423641
+      ],
+      "d": 0.0,
+      "spectral_radius": 0.9797081782790562
+    }
+  },
+  "backends": {
+    "direct": "backends.ssm.DirectLDS: dense x <- A x + B u in the dtype",
+    "ssm-sequential": "backends.ssm.DiagonalSSM: modes from float64 eig, cast; one sample per step, complex as real pairs",
+    "ssm-chunked": "backends.ssm.DiagonalSSM: chunked lower-triangular kernel, powers computed in float64 then cast"
+  },
+  "seeds": {
+    "seed": 0,
+    "derivation": "random.Random(f'{seed}:noise')"
+  },
+  "variants": [
+    {
+      "system": "oscillator",
+      "signal": "noise",
+      "backend": "direct",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float64/oscillator/noise"
+    },
+    {
+      "system": "oscillator",
+      "signal": "step",
+      "backend": "direct",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float64/oscillator/step"
+    },
+    {
+      "system": "butterworth",
+      "signal": "noise",
+      "backend": "direct",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float64/butterworth/noise"
+    },
+    {
+      "system": "butterworth",
+      "signal": "step",
+      "backend": "direct",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float64/butterworth/step"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "noise",
+      "backend": "direct",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float64/random-stable-8/noise"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "step",
+      "backend": "direct",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float64/random-stable-8/step"
+    },
+    {
+      "system": "oscillator",
+      "signal": "noise",
+      "backend": "direct",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float32/oscillator/noise"
+    },
+    {
+      "system": "oscillator",
+      "signal": "step",
+      "backend": "direct",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float32/oscillator/step"
+    },
+    {
+      "system": "butterworth",
+      "signal": "noise",
+      "backend": "direct",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float32/butterworth/noise"
+    },
+    {
+      "system": "butterworth",
+      "signal": "step",
+      "backend": "direct",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float32/butterworth/step"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "noise",
+      "backend": "direct",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float32/random-stable-8/noise"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "step",
+      "backend": "direct",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/float32/random-stable-8/step"
+    },
+    {
+      "system": "oscillator",
+      "signal": "noise",
+      "backend": "direct",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/bfloat16/oscillator/noise"
+    },
+    {
+      "system": "oscillator",
+      "signal": "step",
+      "backend": "direct",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/bfloat16/oscillator/step"
+    },
+    {
+      "system": "butterworth",
+      "signal": "noise",
+      "backend": "direct",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/bfloat16/butterworth/noise"
+    },
+    {
+      "system": "butterworth",
+      "signal": "step",
+      "backend": "direct",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/bfloat16/butterworth/step"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "noise",
+      "backend": "direct",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/bfloat16/random-stable-8/noise"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "step",
+      "backend": "direct",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "direct/bfloat16/random-stable-8/step"
+    },
+    {
+      "system": "oscillator",
+      "signal": "noise",
+      "backend": "ssm-sequential",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float64/oscillator/noise"
+    },
+    {
+      "system": "oscillator",
+      "signal": "step",
+      "backend": "ssm-sequential",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float64/oscillator/step"
+    },
+    {
+      "system": "butterworth",
+      "signal": "noise",
+      "backend": "ssm-sequential",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float64/butterworth/noise"
+    },
+    {
+      "system": "butterworth",
+      "signal": "step",
+      "backend": "ssm-sequential",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float64/butterworth/step"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "noise",
+      "backend": "ssm-sequential",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float64/random-stable-8/noise"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "step",
+      "backend": "ssm-sequential",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float64/random-stable-8/step"
+    },
+    {
+      "system": "oscillator",
+      "signal": "noise",
+      "backend": "ssm-sequential",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float32/oscillator/noise"
+    },
+    {
+      "system": "oscillator",
+      "signal": "step",
+      "backend": "ssm-sequential",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float32/oscillator/step"
+    },
+    {
+      "system": "butterworth",
+      "signal": "noise",
+      "backend": "ssm-sequential",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float32/butterworth/noise"
+    },
+    {
+      "system": "butterworth",
+      "signal": "step",
+      "backend": "ssm-sequential",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float32/butterworth/step"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "noise",
+      "backend": "ssm-sequential",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float32/random-stable-8/noise"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "step",
+      "backend": "ssm-sequential",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/float32/random-stable-8/step"
+    },
+    {
+      "system": "oscillator",
+      "signal": "noise",
+      "backend": "ssm-sequential",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/bfloat16/oscillator/noise"
+    },
+    {
+      "system": "oscillator",
+      "signal": "step",
+      "backend": "ssm-sequential",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/bfloat16/oscillator/step"
+    },
+    {
+      "system": "butterworth",
+      "signal": "noise",
+      "backend": "ssm-sequential",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/bfloat16/butterworth/noise"
+    },
+    {
+      "system": "butterworth",
+      "signal": "step",
+      "backend": "ssm-sequential",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/bfloat16/butterworth/step"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "noise",
+      "backend": "ssm-sequential",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/bfloat16/random-stable-8/noise"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "step",
+      "backend": "ssm-sequential",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-sequential/bfloat16/random-stable-8/step"
+    },
+    {
+      "system": "oscillator",
+      "signal": "noise",
+      "backend": "ssm-chunked",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float64/oscillator/noise"
+    },
+    {
+      "system": "oscillator",
+      "signal": "step",
+      "backend": "ssm-chunked",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float64/oscillator/step"
+    },
+    {
+      "system": "butterworth",
+      "signal": "noise",
+      "backend": "ssm-chunked",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float64/butterworth/noise"
+    },
+    {
+      "system": "butterworth",
+      "signal": "step",
+      "backend": "ssm-chunked",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float64/butterworth/step"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "noise",
+      "backend": "ssm-chunked",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float64/random-stable-8/noise"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "step",
+      "backend": "ssm-chunked",
+      "dtype": "float64",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float64/random-stable-8/step"
+    },
+    {
+      "system": "oscillator",
+      "signal": "noise",
+      "backend": "ssm-chunked",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float32/oscillator/noise"
+    },
+    {
+      "system": "oscillator",
+      "signal": "step",
+      "backend": "ssm-chunked",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float32/oscillator/step"
+    },
+    {
+      "system": "butterworth",
+      "signal": "noise",
+      "backend": "ssm-chunked",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float32/butterworth/noise"
+    },
+    {
+      "system": "butterworth",
+      "signal": "step",
+      "backend": "ssm-chunked",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float32/butterworth/step"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "noise",
+      "backend": "ssm-chunked",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float32/random-stable-8/noise"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "step",
+      "backend": "ssm-chunked",
+      "dtype": "float32",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/float32/random-stable-8/step"
+    },
+    {
+      "system": "oscillator",
+      "signal": "noise",
+      "backend": "ssm-chunked",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/bfloat16/oscillator/noise"
+    },
+    {
+      "system": "oscillator",
+      "signal": "step",
+      "backend": "ssm-chunked",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/bfloat16/oscillator/step"
+    },
+    {
+      "system": "butterworth",
+      "signal": "noise",
+      "backend": "ssm-chunked",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/bfloat16/butterworth/noise"
+    },
+    {
+      "system": "butterworth",
+      "signal": "step",
+      "backend": "ssm-chunked",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/bfloat16/butterworth/step"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "noise",
+      "backend": "ssm-chunked",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/bfloat16/random-stable-8/noise"
+    },
+    {
+      "system": "random-stable-8",
+      "signal": "step",
+      "backend": "ssm-chunked",
+      "dtype": "bfloat16",
+      "horizon": 10000,
+      "chunk": 64,
+      "seed": 0,
+      "trace_limit": 200,
+      "name": "ssm-chunked/bfloat16/random-stable-8/step"
+    }
+  ]
+}
