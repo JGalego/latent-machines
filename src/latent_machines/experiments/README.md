@@ -82,7 +82,7 @@ flowchart LR
 The budget is counted in steps: a variable assignment for DPLL, a flip for WalkSAT, a verified candidate for proposers. Only DPLL can report `unsat`; the others report `unknown` when the budget runs out. The two energy arms see the same proposals, so their accept decisions must be identical and their difference is verification cost alone.
 
 ```bash
-uv run --locked python -m latent_machines.experiments.e08          # default run, about 10 minutes on 2 threads
+uv run --locked python -m latent_machines.experiments.e08          # default run, about 3 minutes on 2 threads
 uv run --locked python -m latent_machines.experiments.e08 --instances 0 --horizon 10000   # verifier conformance only
 ```
 
