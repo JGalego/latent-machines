@@ -120,7 +120,7 @@ With the tensor verifier, proposal generation, not verification, dominates the e
 > **TL;DR:** Small random 3-SAT, one seed, untuned baselines, and a Python oracle as the timing reference.
 
 - **Instances:** 40 random 3-SAT instances of 20-100 variables from one seed; no structured or industrial instances, and no larger sizes.
-- **Baselines:** DPLL without clause learning and WalkSAT with fixed noise; no CDCL solver. The energy proposer's two settings were chosen on separate development instances; the baselines were not tuned.
+- **Baselines:** DPLL without clause learning and WalkSAT with fixed noise; no CDCL solver. The energy proposer's four settings were chosen on separate development instances; the baselines were not tuned.
 - **Verification timing:** against a plain Python oracle, on CPU, with no batching across instances and no GPU.
 - **Soundness of unsat claims:** confirmed by enumeration only for 20-variable instances.
 - **Verifier conformance:** finite workloads; the folded lowering's failure was found only beyond its declared limit, but no test searched for the smallest failing width.

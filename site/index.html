@@ -19,9 +19,9 @@
     <img class="logo" src="assets/logo.gif" alt="Pixel-art brain with a terminal inside" width="112" height="112">
   </picture>
   <h1>Latent Machines</h1>
-  <p class="subtitle">Neural Models as Programmable Machines</p>
+  <p class="subtitle">Can a language model keep a reliable notebook?</p>
   <p class="byline"><a href="https://github.com/JGalego">João Galego</a></p>
-  <p class="byline">Preprint. Work in progress; results are added as runs are recorded.</p>
+  <p class="byline">A work in progress. Every result links to the run that produced it.</p>
   <nav class="buttons" aria-label="Project links">
     <a class="button" href="https://github.com/JGalego/latent-machines">Code</a>
     <a class="button" href="https://huggingface.co/datasets/jgalego/latent-machines-runs">Run records</a>
@@ -32,24 +32,24 @@
 
 <main>
   <section id="story" class="story">
-    <h2>Can a model use a machine without writing tool calls?</h2>
-    <p>A language model that needs exact state, such as memory it can overwrite, usually calls a tool. It writes a request as text and reads the reply as text. This project asks whether the model can drive a machine through an internal interface instead, and whether that machine can be built from neural-network arithmetic, so that a program runs in the model's own kind of layers.</p>
-    <p>These are two questions, tested separately. First: does a machine run exactly in layer arithmetic? We check by comparing it with an integer oracle after every action. Second: does a model control it better through an internal interface? We compare controllers on matched tasks. Most results so far answer the first question. The second matters more and has three experiments.</p>
+    <h2>A small machine can keep the notes. Can a model learn to use it?</h2>
+    <p>Ask a language model to update a value, then ask for it again. A text tool can do the bookkeeping, but the model has to write a request and read a reply. Here, a small machine keeps the ledger while the model sends typed read and write actions. We also build that machine from neural-network arithmetic, so its memory can run in the same kind of layers as the model.</p>
+    <p>There are two tests. First, does the neural version behave exactly like a simple integer reference? We compare them after every action. Second, does the model do better with this internal interface than with a text tool? The machine tests are encouraging; the controller tests are more mixed, and more interesting.</p>
 
-    <h3>Where the machine stops being the problem</h3>
-    <p>The machine executes exactly, yet every controller gets less accurate on programs longer than the ones it trained on. The controller's actions fail, not the memory. In {{e:E09}}, the same heads read one statement at a time while the machine held everything else. They made no errors up to 256 statements, where full-context controllers fell to about 0.13. So long context was the cause. The task has only 128 distinct statements, so we also tested 8 statements the controller never trained on. It got 7 right, and a random untrained model got 2.</p>
+    <h3>The ledger stayed steady. The reader did not.</h3>
+    <p>The machine kept an exact record, but controllers became less accurate as programs grew. In {{e:E09}}, one controller read a single statement at a time while the machine held the rest of the state, like a reader following a long recipe one line at a time. It made no errors through 256 statements; controllers reading the whole program fell to about 0.13 accuracy. That points to long context as the bottleneck in this task. The task has only 128 distinct statements, so we also held out eight: the controller handled seven, while an untrained random model handled two.</p>
     {{length_charts}}
 
-    <h3>A control overturned the headline</h3>
-    <p>In {{e:E03}}, feeding each machine step back into the model as a trained vector gave the best accuracy on long programs. A control with the same kind of vector and no feedback in it did nearly as well. Most of the gain came from the trained input positions, not from the feedback.</p>
+    <h3>A control changed the story</h3>
+    <p>In {{e:E03}}, feeding each machine step back into the model as a trained vector first looked like the winning idea. Then we tried a control: keep the trained input positions, but remove the feedback. It did nearly as well. Most of the gain came from giving the model those learned entry points, not from routing the machine's answer back through every layer.</p>
     {{feedback_grid}}
 
-    <h3>What each hypothesis has so far</h3>
-    <p>Several experiments check that a construction matches its specification. Those can fail only through a bug. The ledger keeps them apart from comparisons whose outcome was open.</p>
+    <h3>What the evidence says so far</h3>
+    <p>Some experiments check whether a machine matches its specification; others compare competing ways to use it. The ledger keeps these checks separate, so a successful build is not mistaken for a successful controller.</p>
     {{ledger}}
 
-    <h3>What comes next</h3>
-    <p>The machines so far sit outside the model, reached through heads. {{e:E09}} had its predictions fixed before the run. Two held, one only vacuously, and one failed because the ceiling for the no-memory controller was set too low. The follow-up on unseen statements met one of its three predictions and left one inconclusive. Next is a task where statements depend on each other. After that, the plan puts the memory inside a model layer (E10: machine layer) and tests whether a controller can learn to use it from the answer loss alone (E11: learning from outcomes). The paper follows.</p>
+    <h3>What we are trying next</h3>
+    <p>The machine still sits outside the model, and the controller reaches it through small learned heads. In {{e:E09}}, we wrote down predictions before the run: two held, one was inconclusive because the controller made no errors, and one failed because we set the no-memory controller's ceiling too low. A follow-up on unseen statements met one prediction and left another inconclusive. Next we will test statements that depend on each other, then move the machine into a model layer and see whether the model can learn to use it from answer errors alone.</p>
   </section>
 
   <section id="abstract" class="abstract" aria-labelledby="abstract-title">
