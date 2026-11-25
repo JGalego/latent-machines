@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 260" role="img"><title>E00: memory</title><desc>Writes replace one slot's column of the state matrix, other slots stay unchanged, and a read returns the stored column.</desc><style>
+.e00-t{font-family:var(--sans);font-size:12px;font-weight:600;fill:var(--muted)}
+.e00-cell{fill:var(--cell-zero)}
+.e00-one{fill:var(--cell-one)}
+.e00-blue .e00-one{fill:var(--s0)}
+.e00-orange .e00-one{fill:var(--s1)}
+.e00-green .e00-one{fill:var(--s2)}
+.e00-lane{stroke:var(--rule);stroke-width:1.5;stroke-dasharray:3 5}
+.e00-box{fill:none;stroke:var(--rule);stroke-width:1.5;stroke-dasharray:4 3}
+.e00-addr{fill:var(--rule)}
+.e00-addr-on{fill:var(--accent);opacity:0}
+.e00-band{fill:var(--accent);fill-opacity:.1;stroke:var(--accent);stroke-width:1.5;opacity:0}
+.e00-chip{stroke:var(--bg);stroke-width:1.5;opacity:0}
+.e00-f0{fill:var(--s0)} .e00-f1{fill:var(--s1)} .e00-f2{fill:var(--s2)}
+g.e00-f0,g.e00-f1,g.e00-f2{fill:none}
+.e00-old{opacity:0} .e00-blue{opacity:0} .e00-green,.e00-orange{opacity:1}
+.e00-erase{opacity:1}
+.e00-w3{opacity:1}
+.e00-rd{opacity:1;transform:translate(141px,-60px)}
+.e00-bd3,.e00-ad3{opacity:1}
+@media (prefers-reduced-motion:no-preference){
+.e00-w1{animation:e00-k-w1 10s ease-in-out infinite}
+.e00-w2{animation:e00-k-w2 10s ease-in-out infinite}
+.e00-w3{animation:e00-k-w3 10s ease-in-out infinite}
+.e00-rd{animation:e00-k-rd 10s ease-in-out infinite}
+.e00-old{animation:e00-k-old 10s ease-in-out infinite}
+.e00-blue{animation:e00-k-blue 10s ease-in-out infinite}
+.e00-green{animation:e00-k-green 10s ease-in-out infinite}
+.e00-orange{animation:e00-k-orange 10s ease-in-out infinite}
+.e00-bd1{animation:e00-k-bd1 10s ease-in-out infinite}
+.e00-ad1{animation:e00-k-ad1 10s ease-in-out infinite}
+.e00-bd3{animation:e00-k-bd3 10s ease-in-out infinite}
+.e00-ad3{animation:e00-k-ad3 10s ease-in-out infinite}
+.e00-erase{animation:e00-k-erase 10s ease-in-out infinite}
+@keyframes e00-k-w1{0.000%{opacity:0;transform:translate(0px,0px)}2.000%{opacity:0;transform:translate(0px,0px)}4.000%{opacity:1;transform:translate(0px,0px)}12.000%{opacity:1;transform:translate(203px,0px)}21.000%{opacity:1;transform:translate(203px,0px)}26.000%{opacity:1;transform:translate(203px,105px)}28.500%{opacity:0;transform:translate(203px,105px)}30.000%{opacity:0;transform:translate(203px,105px)}30.500%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e00-k-w2{0.000%{opacity:0;transform:translate(0px,0px)}30.000%{opacity:0;transform:translate(0px,0px)}32.000%{opacity:1;transform:translate(0px,0px)}39.000%{opacity:1;transform:translate(319px,0px)}41.000%{opacity:1;transform:translate(319px,0px)}46.000%{opacity:1;transform:translate(319px,105px)}48.500%{opacity:0;transform:translate(319px,105px)}49.000%{opacity:0;transform:translate(319px,105px)}49.500%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e00-k-w3{0.000%{opacity:0;transform:translate(0px,0px)}50.000%{opacity:0;transform:translate(0px,0px)}52.000%{opacity:1;transform:translate(0px,0px)}60.000%{opacity:1;transform:translate(203px,0px)}69.000%{opacity:1;transform:translate(203px,0px)}74.000%{opacity:1;transform:translate(203px,105px)}76.500%{opacity:0;transform:translate(203px,105px)}77.000%{opacity:0;transform:translate(203px,105px)}77.500%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e00-k-rd{0.000%{opacity:0;transform:translate(0px,0px)}79.000%{opacity:0;transform:translate(0px,0px)}80.500%{opacity:1;transform:translate(0px,0px)}86.000%{opacity:1;transform:translate(0px,-60px)}93.000%{opacity:1;transform:translate(141px,-60px)}94.000%{opacity:1;transform:translate(141px,-60px)}98.000%{opacity:0;transform:translate(141px,-60px)}98.500%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e00-k-old{0.000%{opacity:1.000}16.000%{opacity:1.000}20.000%{opacity:0.000}95.000%{opacity:0.000}99.000%{opacity:1.000}100.000%{opacity:1.000}}
+@keyframes e00-k-blue{0.000%{opacity:0.000}25.000%{opacity:0.000}28.000%{opacity:1.000}63.000%{opacity:1.000}66.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e00-k-green{0.000%{opacity:0.000}73.000%{opacity:0.000}76.000%{opacity:1.000}95.000%{opacity:1.000}98.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e00-k-orange{0.000%{opacity:0.000}45.000%{opacity:0.000}48.000%{opacity:1.000}95.000%{opacity:1.000}98.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e00-k-bd1{0.000%{opacity:0.000}11.000%{opacity:0.000}13.000%{opacity:1.000}29.000%{opacity:1.000}31.000%{opacity:0.000}59.000%{opacity:0.000}61.000%{opacity:1.000}77.000%{opacity:1.000}79.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e00-k-ad1{0.000%{opacity:0.000}11.000%{opacity:0.000}13.000%{opacity:1.000}29.000%{opacity:1.000}31.000%{opacity:0.000}59.000%{opacity:0.000}61.000%{opacity:1.000}77.000%{opacity:1.000}79.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e00-k-bd3{0.000%{opacity:0.000}38.000%{opacity:0.000}40.000%{opacity:1.000}51.000%{opacity:1.000}53.000%{opacity:0.000}78.000%{opacity:0.000}80.000%{opacity:1.000}84.000%{opacity:1.000}86.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e00-k-ad3{0.000%{opacity:0.000}38.000%{opacity:0.000}40.000%{opacity:1.000}51.000%{opacity:1.000}53.000%{opacity:0.000}78.000%{opacity:0.000}80.000%{opacity:1.000}84.000%{opacity:1.000}86.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e00-k-erase{0.000%{opacity:0.000}15.000%{opacity:0.000}16.000%{opacity:1.000}19.000%{opacity:1.000}20.000%{opacity:0.000}62.000%{opacity:0.000}63.000%{opacity:1.000}67.000%{opacity:1.000}68.000%{opacity:0.000}100.000%{opacity:0.000}}
+}
+</style><line class="e00-lane" x1="108" y1="44" x2="512" y2="44"/><rect class="e00-box" x="58" y="32" width="44" height="24" rx="6"/><rect class="e00-box" x="518" y="32" width="44" height="24" rx="6"/><rect class="e00-band e00-bd1" x="252" y="86" width="62" height="126" rx="9"/><rect class="e00-band e00-bd3" x="368" y="86" width="62" height="126" rx="9"/><rect class="e00-cell" x="200" y="92" width="50" height="24" rx="6"/><rect class="e00-cell" x="200" y="122" width="50" height="24" rx="6"/><rect class="e00-cell" x="200" y="152" width="50" height="24" rx="6"/><rect class="e00-cell" x="200" y="182" width="50" height="24" rx="6"/><rect class="e00-cell" x="258" y="92" width="50" height="24" rx="6"/><rect class="e00-cell" x="258" y="122" width="50" height="24" rx="6"/><rect class="e00-cell" x="258" y="152" width="50" height="24" rx="6"/><rect class="e00-cell" x="258" y="182" width="50" height="24" rx="6"/><rect class="e00-cell" x="316" y="92" width="50" height="24" rx="6"/><rect class="e00-cell" x="316" y="122" width="50" height="24" rx="6"/><rect class="e00-cell" x="316" y="152" width="50" height="24" rx="6"/><rect class="e00-cell" x="316" y="182" width="50" height="24" rx="6"/><rect class="e00-cell" x="374" y="92" width="50" height="24" rx="6"/><rect class="e00-cell" x="374" y="122" width="50" height="24" rx="6"/><rect class="e00-cell" x="374" y="152" width="50" height="24" rx="6"/><rect class="e00-cell" x="374" y="182" width="50" height="24" rx="6"/><g><rect class="e00-one " x="200" y="92" width="50" height="24" rx="6"/><rect class="e00-one " x="200" y="152" width="50" height="24" rx="6"/><rect class="e00-one " x="200" y="182" width="50" height="24" rx="6"/><rect class="e00-one " x="316" y="122" width="50" height="24" rx="6"/><rect class="e00-one " x="316" y="152" width="50" height="24" rx="6"/></g><g class="e00-old"><rect class="e00-one " x="258" y="92" width="50" height="24" rx="6"/><rect class="e00-one " x="258" y="122" width="50" height="24" rx="6"/><rect class="e00-one " x="258" y="182" width="50" height="24" rx="6"/></g><g class="e00-blue e00-f0"><rect class="e00-one " x="258" y="92" width="50" height="24" rx="6"/><rect class="e00-one " x="258" y="152" width="50" height="24" rx="6"/></g><g class="e00-green e00-f2"><rect class="e00-one " x="258" y="122" width="50" height="24" rx="6"/><rect class="e00-one " x="258" y="152" width="50" height="24" rx="6"/><rect class="e00-one " x="258" y="182" width="50" height="24" rx="6"/></g><g class="e00-orange e00-f1"><rect class="e00-one " x="374" y="92" width="50" height="24" rx="6"/><rect class="e00-one " x="374" y="122" width="50" height="24" rx="6"/><rect class="e00-one " x="374" y="182" width="50" height="24" rx="6"/></g><rect class="e00-addr" x="200" y="222" width="50" height="6" rx="3"/><rect class="e00-addr" x="258" y="222" width="50" height="6" rx="3"/><rect class="e00-addr" x="316" y="222" width="50" height="6" rx="3"/><rect class="e00-addr" x="374" y="222" width="50" height="6" rx="3"/><rect class="e00-addr-on e00-ad1" x="258" y="222" width="50" height="6" rx="3"/><rect class="e00-addr-on e00-ad3" x="374" y="222" width="50" height="6" rx="3"/><rect class="e00-chip e00-f0 e00-w1" x="62" y="36" width="36" height="16" rx="5"/><rect class="e00-chip e00-f1 e00-w2" x="62" y="36" width="36" height="16" rx="5"/><rect class="e00-chip e00-f2 e00-w3" x="62" y="36" width="36" height="16" rx="5"/><rect class="e00-chip e00-f1 e00-rd" x="381" y="96" width="36" height="16" rx="5"/><text class="e00-t" x="80" y="76" text-anchor="middle">value</text><text class="e00-t" x="540" y="76" text-anchor="middle">output</text><text class="e00-t" x="190" y="231" text-anchor="end">address</text><text class="e00-t e00-erase" x="283" y="78" text-anchor="middle">erase</text></svg>

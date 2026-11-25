@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" role="img" aria-labelledby="e03-title e03-desc">
+<title id="e03-title">E03: latent feedback</title>
+<desc id="e03-desc">A machine step's result returns as text (T), a model-input vector (L), or a code to the heads (H); N stays native.</desc>
+<style>
+.e03-row.e03-T { --c: var(--s1); }
+.e03-row.e03-L { --c: var(--s0); }
+.e03-row.e03-S { --c: var(--s3); }
+.e03-row.e03-H { --c: var(--s2); }
+.e03-row.e03-N { --c: var(--s4); }
+.e03-tag { fill: var(--c); font-family: var(--sans); font-size: 12px; font-weight: 700; }
+.e03-col { fill: var(--muted); font-family: var(--sans); font-size: 11px; font-weight: 600; text-anchor: middle; }
+.e03-box { fill: var(--surface); stroke: var(--rule); stroke-width: 1.5; }
+.e03-slab { fill: var(--cell-zero); stroke: var(--rule); stroke-width: 1; }
+.e03-slab-on { animation: e03-slab 8s linear infinite; animation-delay: var(--d); }
+.e03-slot { fill: var(--c); fill-opacity: 0.55; stroke: var(--c); stroke-width: 1.3; }
+.e03-slot-pop { fill-opacity: 0; stroke-opacity: 0; animation: e03-pop 8s ease-out infinite; animation-delay: var(--d); transform-box: fill-box; transform-origin: center; }
+.e03-cell { fill: var(--cell-zero); stroke: var(--rule); stroke-width: 1; }
+.e03-cell-on { fill: var(--cell-one); }
+.e03-wire-s { fill: none; stroke: var(--muted); stroke-width: 1.5; opacity: 0.6; }
+.e03-head-s { fill: var(--muted); opacity: 0.6; }
+.e03-wire { fill: none; stroke: var(--c); stroke-width: 1.5; stroke-dasharray: 4 3; opacity: 0.7; }
+.e03-head { fill: var(--c); }
+.e03-glow { fill: var(--c); opacity: 0; animation: e03-glow 8s ease-out infinite; animation-delay: var(--d); }
+.e03-glow-m { fill: var(--accent); }
+.e03-pulse { fill: none; stroke: var(--c); stroke-width: 4; stroke-linecap: butt; stroke-dasharray: 8 130; stroke-dashoffset: 8; animation: e03-run 8s linear infinite; animation-delay: var(--d); }
+.e03-pulse-f { stroke: var(--text); }
+
+@keyframes e03-run {
+  0% { stroke-dashoffset: 8; }
+  18%, 100% { stroke-dashoffset: -100; }
+}
+@keyframes e03-glow {
+  0% { opacity: 0; }
+  4% { opacity: 0.4; }
+  20%, 100% { opacity: 0; }
+}
+@keyframes e03-slab {
+  0% { fill: var(--cell-zero); }
+  5% { fill: var(--c); }
+  18%, 100% { fill: var(--cell-zero); }
+}
+@keyframes e03-pop {
+  0% { transform: scale(1); fill-opacity: 0; stroke-opacity: 0; }
+  5% { transform: scale(1.7); fill-opacity: 0.9; stroke-opacity: 1; }
+  18%, 100% { transform: scale(1); fill-opacity: 0; stroke-opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .e03-slab-on, .e03-slot-pop, .e03-glow, .e03-pulse { animation: none; }
+  .e03-slot-pop { display: none; }
+  .e03-wire { stroke-dasharray: none; opacity: 0.9; }
+}
+</style>
+<text class="e03-col" x="210" y="18">Model</text><text class="e03-col" x="406" y="18">Heads</text><text class="e03-col" x="565" y="18">Machine</text>
+<g class="e03-row e03-T" transform="translate(0 52)">
+<text class="e03-tag" x="14" y="4">T text</text>
+<rect class="e03-box" x="100" y="-13" width="220" height="26" rx="7"/>
+<rect class="e03-slab e03-slab-on" x="154" y="-8" width="8" height="16" rx="2" style="--d:3.90s"/>
+<rect class="e03-slab e03-slab-on" x="182" y="-8" width="8" height="16" rx="2" style="--d:4.06s"/>
+<rect class="e03-slab e03-slab-on" x="210" y="-8" width="8" height="16" rx="2" style="--d:4.22s"/>
+<rect class="e03-slab e03-slab-on" x="238" y="-8" width="8" height="16" rx="2" style="--d:4.38s"/>
+<rect class="e03-slab e03-slab-on" x="266" y="-8" width="8" height="16" rx="2" style="--d:4.54s"/>
+<rect class="e03-slab e03-slab-on" x="294" y="-8" width="8" height="16" rx="2" style="--d:4.70s"/>
+<rect class="e03-slot" x="108" y="-4" width="8" height="8" rx="2"/>
+<rect class="e03-slot" x="119" y="-4" width="8" height="8" rx="2"/>
+<rect class="e03-slot" x="130" y="-4" width="8" height="8" rx="2"/>
+<rect class="e03-box" x="372" y="-13" width="68" height="26" rx="7"/>
+<path class="e03-wire-s" d="M320 0 H366"/><path class="e03-head-s" d="M372 0 l-7 -3.5 v7 z"/>
+<path class="e03-wire-s" d="M440 0 H514"/><path class="e03-head-s" d="M520 0 l-7 -3.5 v7 z"/>
+<rect class="e03-box" x="520" y="-13" width="90" height="26" rx="7"/>
+<rect class="e03-cell" x="539" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell e03-cell-on" x="553" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell" x="567" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell" x="581" y="-5" width="10" height="10" rx="2"/>
+<path class="e03-wire" d="M565 13 V22 H119 V9"/><path class="e03-head" d="M119 5 l-3.5 7 h7 z"/>
+<rect class="e03-glow e03-glow-m" x="520" y="-13" width="90" height="26" rx="7" style="--d:1.8s"/>
+<rect class="e03-glow" x="372" y="-13" width="68" height="26" rx="7" style="--d:5.15s"/>
+<path class="e03-pulse e03-pulse-f" d="M300 0 H520" pathLength="100" style="--d:0.4s"/>
+<path class="e03-pulse" d="M565 13 V22 H119 V9" pathLength="100" style="--d:2.3s"/>
+<path class="e03-pulse" d="M119 0 H372" pathLength="100" style="--d:3.7s"/>
+<rect class="e03-slot e03-slot-pop" x="108" y="-4" width="8" height="8" rx="2" style="--d:3.7s"/>
+<rect class="e03-slot e03-slot-pop" x="119" y="-4" width="8" height="8" rx="2" style="--d:3.7s"/>
+<rect class="e03-slot e03-slot-pop" x="130" y="-4" width="8" height="8" rx="2" style="--d:3.7s"/>
+</g>
+<g class="e03-row e03-L" transform="translate(0 104)">
+<text class="e03-tag" x="14" y="4">L vector</text>
+<rect class="e03-box" x="100" y="-13" width="220" height="26" rx="7"/>
+<rect class="e03-slab e03-slab-on" x="154" y="-8" width="8" height="16" rx="2" style="--d:3.90s"/>
+<rect class="e03-slab e03-slab-on" x="182" y="-8" width="8" height="16" rx="2" style="--d:4.06s"/>
+<rect class="e03-slab e03-slab-on" x="210" y="-8" width="8" height="16" rx="2" style="--d:4.22s"/>
+<rect class="e03-slab e03-slab-on" x="238" y="-8" width="8" height="16" rx="2" style="--d:4.38s"/>
+<rect class="e03-slab e03-slab-on" x="266" y="-8" width="8" height="16" rx="2" style="--d:4.54s"/>
+<rect class="e03-slab e03-slab-on" x="294" y="-8" width="8" height="16" rx="2" style="--d:4.70s"/>
+<rect class="e03-slot" x="119" y="-4" width="8" height="8" rx="2"/>
+<rect class="e03-box" x="372" y="-13" width="68" height="26" rx="7"/>
+<path class="e03-wire-s" d="M320 0 H366"/><path class="e03-head-s" d="M372 0 l-7 -3.5 v7 z"/>
+<path class="e03-wire-s" d="M440 0 H514"/><path class="e03-head-s" d="M520 0 l-7 -3.5 v7 z"/>
+<rect class="e03-box" x="520" y="-13" width="90" height="26" rx="7"/>
+<rect class="e03-cell" x="539" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell e03-cell-on" x="553" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell" x="567" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell" x="581" y="-5" width="10" height="10" rx="2"/>
+<path class="e03-wire" d="M565 13 V22 H119 V9"/><path class="e03-head" d="M119 5 l-3.5 7 h7 z"/>
+<rect class="e03-glow e03-glow-m" x="520" y="-13" width="90" height="26" rx="7" style="--d:1.8s"/>
+<rect class="e03-glow" x="372" y="-13" width="68" height="26" rx="7" style="--d:5.15s"/>
+<path class="e03-pulse e03-pulse-f" d="M300 0 H520" pathLength="100" style="--d:0.4s"/>
+<path class="e03-pulse" d="M565 13 V22 H119 V9" pathLength="100" style="--d:2.3s"/>
+<path class="e03-pulse" d="M119 0 H372" pathLength="100" style="--d:3.7s"/>
+<rect class="e03-slot e03-slot-pop" x="119" y="-4" width="8" height="8" rx="2" style="--d:3.7s"/>
+</g>
+<g class="e03-row e03-S" transform="translate(0 156)">
+<text class="e03-tag" x="14" y="4">S steer</text>
+<rect class="e03-box" x="100" y="-13" width="220" height="26" rx="7"/>
+<rect class="e03-slab e03-slab-on" x="154" y="-8" width="8" height="16" rx="2" style="--d:3.90s"/>
+<rect class="e03-slab e03-slab-on" x="182" y="-8" width="8" height="16" rx="2" style="--d:4.06s"/>
+<rect class="e03-slab e03-slab-on" x="210" y="-8" width="8" height="16" rx="2" style="--d:4.22s"/>
+<rect class="e03-slab e03-slab-on" x="238" y="-8" width="8" height="16" rx="2" style="--d:4.38s"/>
+<rect class="e03-slab e03-slab-on" x="266" y="-8" width="8" height="16" rx="2" style="--d:4.54s"/>
+<rect class="e03-slab e03-slab-on" x="294" y="-8" width="8" height="16" rx="2" style="--d:4.70s"/>
+<rect class="e03-slot" x="119" y="-4" width="8" height="8" rx="2"/>
+<rect class="e03-box" x="372" y="-13" width="68" height="26" rx="7"/>
+<path class="e03-wire-s" d="M320 0 H366"/><path class="e03-head-s" d="M372 0 l-7 -3.5 v7 z"/>
+<path class="e03-wire-s" d="M440 0 H514"/><path class="e03-head-s" d="M520 0 l-7 -3.5 v7 z"/>
+<rect class="e03-box" x="520" y="-13" width="90" height="26" rx="7"/>
+<rect class="e03-cell" x="539" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell e03-cell-on" x="553" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell" x="567" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell" x="581" y="-5" width="10" height="10" rx="2"/>
+<path class="e03-wire" d="M565 13 V22 H406 V15"/><path class="e03-head" d="M406 13 l-3.5 7 h7 z"/>
+<rect class="e03-glow e03-glow-m" x="520" y="-13" width="90" height="26" rx="7" style="--d:1.8s"/>
+<rect class="e03-glow" x="372" y="-13" width="68" height="26" rx="7" style="--d:3.7s"/>
+<rect class="e03-glow" x="372" y="-13" width="68" height="26" rx="7" style="--d:5.15s"/>
+<path class="e03-pulse e03-pulse-f" d="M300 0 H520" pathLength="100" style="--d:0.4s"/>
+<path class="e03-pulse" d="M565 13 V22 H406 V15" pathLength="100" style="--d:2.3s"/>
+<path class="e03-pulse" d="M119 0 H372" pathLength="100" style="--d:3.7s"/>
+<rect class="e03-slot e03-slot-pop" x="119" y="-4" width="8" height="8" rx="2" style="--d:3.7s"/>
+</g>
+<g class="e03-row e03-H" transform="translate(0 208)">
+<text class="e03-tag" x="14" y="4">H heads</text>
+<rect class="e03-box" x="100" y="-13" width="220" height="26" rx="7"/>
+<rect class="e03-slab" x="154" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-slab" x="182" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-slab" x="210" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-slab" x="238" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-slab" x="266" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-slab" x="294" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-box" x="372" y="-13" width="68" height="26" rx="7"/>
+<path class="e03-wire-s" d="M320 0 H366"/><path class="e03-head-s" d="M372 0 l-7 -3.5 v7 z"/>
+<path class="e03-wire-s" d="M440 0 H514"/><path class="e03-head-s" d="M520 0 l-7 -3.5 v7 z"/>
+<rect class="e03-box" x="520" y="-13" width="90" height="26" rx="7"/>
+<rect class="e03-cell" x="539" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell e03-cell-on" x="553" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell" x="567" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell" x="581" y="-5" width="10" height="10" rx="2"/>
+<path class="e03-wire" d="M565 13 V22 H406 V15"/><path class="e03-head" d="M406 13 l-3.5 7 h7 z"/>
+<rect class="e03-glow e03-glow-m" x="520" y="-13" width="90" height="26" rx="7" style="--d:1.8s"/>
+<rect class="e03-glow" x="372" y="-13" width="68" height="26" rx="7" style="--d:3.7s"/>
+<path class="e03-pulse e03-pulse-f" d="M300 0 H520" pathLength="100" style="--d:0.4s"/>
+<path class="e03-pulse" d="M565 13 V22 H406 V15" pathLength="100" style="--d:2.3s"/>
+</g>
+<g class="e03-row e03-N" transform="translate(0 260)">
+<text class="e03-tag" x="14" y="4">N native</text>
+<rect class="e03-box" x="100" y="-13" width="220" height="26" rx="7"/>
+<rect class="e03-slab" x="154" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-slab" x="182" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-slab" x="210" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-slab" x="238" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-slab" x="266" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-slab" x="294" y="-8" width="8" height="16" rx="2"/>
+<rect class="e03-box" x="372" y="-13" width="68" height="26" rx="7"/>
+<path class="e03-wire-s" d="M320 0 H366"/><path class="e03-head-s" d="M372 0 l-7 -3.5 v7 z"/>
+<path class="e03-wire-s" d="M440 0 H514"/><path class="e03-head-s" d="M520 0 l-7 -3.5 v7 z"/>
+<rect class="e03-box" x="520" y="-13" width="90" height="26" rx="7"/>
+<rect class="e03-cell" x="539" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell e03-cell-on" x="553" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell" x="567" y="-5" width="10" height="10" rx="2"/>
+<rect class="e03-cell" x="581" y="-5" width="10" height="10" rx="2"/>
+<path class="e03-wire" d="M595 13 V22 H545 V15"/><path class="e03-head" d="M545 13 l-3.5 7 h7 z"/>
+<rect class="e03-glow e03-glow-m" x="520" y="-13" width="90" height="26" rx="7" style="--d:1.8s"/>
+<rect class="e03-glow" x="520" y="-13" width="90" height="26" rx="7" style="--d:3.7s"/>
+<path class="e03-pulse e03-pulse-f" d="M300 0 H520" pathLength="100" style="--d:0.4s"/>
+<path class="e03-pulse" d="M595 13 V22 H545 V15" pathLength="100" style="--d:2.3s"/>
+</g>
+</svg>

@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 260" role="img"><title>E01: streaming machines</title><desc>A lookup layer maps state and input symbol to the next state; a bounded stack pushes and pops at a pointer.</desc><style>
+.e01-t{font-family:var(--sans);font-size:12px;font-weight:600;fill:var(--muted)}
+.e01-wire{fill:none;stroke:var(--rule);stroke-width:1.5}
+.e01-arrow{fill:var(--rule)}
+.e01-div{stroke:var(--rule);stroke-width:1}
+.e01-tape{stroke:var(--rule);stroke-width:1.5}
+.e01-s0{fill:var(--cell-zero)} .e01-s1{fill:var(--cell-one);stroke:var(--cell-one)}
+.e01-ptr{fill:none;stroke:var(--accent);stroke-width:2}
+.e01-line{stroke:var(--rule);stroke-width:1.5}
+.e01-lcol{stroke:var(--accent);stroke-width:2.5;opacity:0}
+.e01-lrow{stroke-width:2.5;opacity:0}
+.e01-frame{fill:none;stroke:var(--rule);stroke-width:1.5;stroke-dasharray:4 3}
+.e01-unit,.e01-slot{fill:var(--cell-zero);stroke:var(--rule);stroke-width:1.5}
+.e01-ulit,.e01-clit,.e01-dot{opacity:0}
+.e01-circ{fill:var(--surface);stroke:var(--rule);stroke-width:1.5}
+.e01-node{stroke:var(--rule);stroke-width:1.5}
+.e01-n0{fill:var(--cell-zero)} .e01-n1{fill:var(--cell-one);stroke:var(--cell-one)}
+.e01-ring{fill:none;stroke:var(--accent);stroke-width:2.5;opacity:0}
+.e01-dot{stroke:var(--bg);stroke-width:1.5}
+.e01-item{stroke:var(--bg);stroke-width:1.5;opacity:0}
+.e01-pt{fill:var(--accent)}
+.e01-ptxt{fill:var(--accent)}
+.e01-pg{transform:translate(0,-64px)}
+.e01-iG,.e01-iO{opacity:1}
+.e01-lc1,.e01-lr0,.e01-nr1,.e01-u01,.e01-L0,.e01-R1{opacity:1}
+.e01-tc0,.e01-tc1,.e01-tc2,.e01-tc3{opacity:1}
+.e01-ptr{transform:translate(108px,0)}
+@media (prefers-reduced-motion:no-preference){
+.e01-lc0{animation:e01-k-lc0 10s ease-in-out infinite}
+.e01-nr0{animation:e01-k-nr0 10s ease-in-out infinite}
+.e01-lc1{animation:e01-k-lc1 10s ease-in-out infinite}
+.e01-nr1{animation:e01-k-nr1 10s ease-in-out infinite}
+.e01-lr0{animation:e01-k-lr0 10s ease-in-out infinite}
+.e01-L0{animation:e01-k-L0 10s ease-in-out infinite}
+.e01-R0{animation:e01-k-R0 10s ease-in-out infinite}
+.e01-lr1{animation:e01-k-lr1 10s ease-in-out infinite}
+.e01-L1{animation:e01-k-L1 10s ease-in-out infinite}
+.e01-R1{animation:e01-k-R1 10s ease-in-out infinite}
+.e01-u00{animation:e01-k-u00 10s ease-in-out infinite}
+.e01-u01{animation:e01-k-u01 10s ease-in-out infinite}
+.e01-u11{animation:e01-k-u11 10s ease-in-out infinite}
+.e01-da0{animation:e01-k-da0 10s ease-in-out infinite}
+.e01-db0{animation:e01-k-db0 10s ease-in-out infinite}
+.e01-da1{animation:e01-k-da1 10s ease-in-out infinite}
+.e01-db1{animation:e01-k-db1 10s ease-in-out infinite}
+.e01-da2{animation:e01-k-da2 10s ease-in-out infinite}
+.e01-db2{animation:e01-k-db2 10s ease-in-out infinite}
+.e01-da3{animation:e01-k-da3 10s ease-in-out infinite}
+.e01-db3{animation:e01-k-db3 10s ease-in-out infinite}
+.e01-tc0{animation:e01-k-tc0 10s ease-in-out infinite}
+.e01-tc1{animation:e01-k-tc1 10s ease-in-out infinite}
+.e01-tc2{animation:e01-k-tc2 10s ease-in-out infinite}
+.e01-tc3{animation:e01-k-tc3 10s ease-in-out infinite}
+.e01-ptr{animation:e01-k-ptr 10s ease-in-out infinite}
+.e01-iG{animation:e01-k-iG 10s ease-in-out infinite}
+.e01-iP{animation:e01-k-iP 10s ease-in-out infinite}
+.e01-iO{animation:e01-k-iO 10s ease-in-out infinite}
+.e01-pg{animation:e01-k-pg 10s ease-in-out infinite}
+.e01-push{animation:e01-k-push 10s ease-in-out infinite}
+.e01-pop{animation:e01-k-pop 10s ease-in-out infinite}
+@keyframes e01-k-lc0{0.000%{opacity:0.000}53.000%{opacity:0.000}55.000%{opacity:1.000}63.000%{opacity:1.000}65.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-nr0{0.000%{opacity:0.000}53.000%{opacity:0.000}55.000%{opacity:1.000}63.000%{opacity:1.000}65.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-lc1{0.000%{opacity:0.000}7.000%{opacity:0.000}9.000%{opacity:1.000}17.000%{opacity:1.000}19.000%{opacity:0.000}30.000%{opacity:0.000}32.000%{opacity:1.000}40.000%{opacity:1.000}42.000%{opacity:0.000}76.000%{opacity:0.000}78.000%{opacity:1.000}86.000%{opacity:1.000}88.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-nr1{0.000%{opacity:0.000}7.000%{opacity:0.000}9.000%{opacity:1.000}17.000%{opacity:1.000}19.000%{opacity:0.000}30.000%{opacity:0.000}32.000%{opacity:1.000}40.000%{opacity:1.000}42.000%{opacity:0.000}76.000%{opacity:0.000}78.000%{opacity:1.000}86.000%{opacity:1.000}88.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-lr0{0.000%{opacity:0.000}7.000%{opacity:0.000}9.000%{opacity:1.000}17.000%{opacity:1.000}19.000%{opacity:0.000}53.000%{opacity:0.000}55.000%{opacity:1.000}63.000%{opacity:1.000}65.000%{opacity:0.000}76.000%{opacity:0.000}78.000%{opacity:1.000}86.000%{opacity:1.000}88.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-L0{0.000%{opacity:1.000}24.000%{opacity:1.000}26.500%{opacity:0.000}47.000%{opacity:0.000}49.500%{opacity:1.000}70.000%{opacity:1.000}72.500%{opacity:1.000}93.000%{opacity:1.000}95.500%{opacity:0.000}98.000%{opacity:0.000}100.000%{opacity:0.800}}
+@keyframes e01-k-R0{0.000%{opacity:0.000}41.000%{opacity:0.000}43.000%{opacity:1.000}49.000%{opacity:1.000}51.000%{opacity:0.000}64.000%{opacity:0.000}66.000%{opacity:1.000}72.000%{opacity:1.000}74.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-lr1{0.000%{opacity:0.000}30.000%{opacity:0.000}32.000%{opacity:1.000}40.000%{opacity:1.000}42.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-L1{0.000%{opacity:0.000}24.000%{opacity:0.000}26.500%{opacity:1.000}47.000%{opacity:1.000}49.500%{opacity:0.000}93.000%{opacity:0.000}95.500%{opacity:1.000}96.000%{opacity:1.000}98.500%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-R1{0.000%{opacity:0.000}18.000%{opacity:0.000}20.000%{opacity:1.000}26.000%{opacity:1.000}28.000%{opacity:0.000}87.000%{opacity:0.000}89.000%{opacity:1.000}95.000%{opacity:1.000}97.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-u00{0.000%{opacity:0.000}57.000%{opacity:0.000}59.000%{opacity:1.000}67.000%{opacity:1.000}69.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-u01{0.000%{opacity:0.000}11.000%{opacity:0.000}13.000%{opacity:1.000}21.000%{opacity:1.000}23.000%{opacity:0.000}80.000%{opacity:0.000}82.000%{opacity:1.000}90.000%{opacity:1.000}92.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-u11{0.000%{opacity:0.000}34.000%{opacity:0.000}36.000%{opacity:1.000}44.000%{opacity:1.000}46.000%{opacity:0.000}100.000%{opacity:0.000}}
+@keyframes e01-k-da0{0.000%{opacity:0;transform:translate(0px,0px)}12.000%{opacity:0;transform:translate(0px,0px)}13.000%{opacity:1;transform:translate(0px,0px)}18.000%{opacity:1;transform:translate(68px,56px)}19.000%{opacity:0;transform:translate(68px,56px)}19.500%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e01-k-db0{0.000%{opacity:0;transform:translate(0px,0px)}19.500%{opacity:0;transform:translate(0px,0px)}20.000%{opacity:1;transform:translate(0px,0px)}20.736%{opacity:1;transform:translate(0px,38px)}24.764%{opacity:1;transform:translate(-208px,38px)}25.500%{opacity:1;transform:translate(-208px,0px)}26.500%{opacity:0;transform:translate(-208px,0px)}27.000%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e01-k-da1{0.000%{opacity:0;transform:translate(0px,0px)}35.000%{opacity:0;transform:translate(0px,0px)}36.000%{opacity:1;transform:translate(0px,0px)}41.000%{opacity:1;transform:translate(68px,-56px)}42.000%{opacity:0;transform:translate(68px,-56px)}42.500%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e01-k-db1{0.000%{opacity:0;transform:translate(0px,0px)}42.500%{opacity:0;transform:translate(0px,0px)}43.000%{opacity:1;transform:translate(0px,0px)}44.068%{opacity:1;transform:translate(0px,-66px)}47.432%{opacity:1;transform:translate(-208px,-66px)}48.500%{opacity:1;transform:translate(-208px,0px)}49.500%{opacity:0;transform:translate(-208px,0px)}50.000%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e01-k-da2{0.000%{opacity:0;transform:translate(0px,0px)}58.000%{opacity:0;transform:translate(0px,0px)}59.000%{opacity:1;transform:translate(0px,0px)}64.000%{opacity:1;transform:translate(136px,0px)}65.000%{opacity:0;transform:translate(136px,0px)}65.500%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e01-k-db2{0.000%{opacity:0;transform:translate(0px,0px)}65.500%{opacity:0;transform:translate(0px,0px)}66.000%{opacity:1;transform:translate(0px,0px)}67.068%{opacity:1;transform:translate(0px,-66px)}70.432%{opacity:1;transform:translate(-208px,-66px)}71.500%{opacity:1;transform:translate(-208px,0px)}72.500%{opacity:0;transform:translate(-208px,0px)}73.000%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e01-k-da3{0.000%{opacity:0;transform:translate(0px,0px)}81.000%{opacity:0;transform:translate(0px,0px)}82.000%{opacity:1;transform:translate(0px,0px)}87.000%{opacity:1;transform:translate(68px,56px)}88.000%{opacity:0;transform:translate(68px,56px)}88.500%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e01-k-db3{0.000%{opacity:0;transform:translate(0px,0px)}88.500%{opacity:0;transform:translate(0px,0px)}89.000%{opacity:1;transform:translate(0px,0px)}89.736%{opacity:1;transform:translate(0px,38px)}93.764%{opacity:1;transform:translate(-208px,38px)}94.500%{opacity:1;transform:translate(-208px,0px)}95.500%{opacity:0;transform:translate(-208px,0px)}96.000%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e01-k-tc0{0.000%{opacity:1}22.000%{opacity:1}26.000%{opacity:.4}96.000%{opacity:.4}99.000%{opacity:1}100.000%{opacity:1}}
+@keyframes e01-k-tc1{0.000%{opacity:1}45.000%{opacity:1}49.000%{opacity:.4}96.000%{opacity:.4}99.000%{opacity:1}100.000%{opacity:1}}
+@keyframes e01-k-tc2{0.000%{opacity:1}68.000%{opacity:1}72.000%{opacity:.4}96.000%{opacity:.4}99.000%{opacity:1}100.000%{opacity:1}}
+@keyframes e01-k-tc3{0.000%{opacity:1}91.000%{opacity:1}95.000%{opacity:.4}96.000%{opacity:.4}99.000%{opacity:1}100.000%{opacity:1}}
+@keyframes e01-k-ptr{0.000%{opacity:0;transform:translate(0px,0px)}1.000%{opacity:0;transform:translate(0px,0px)}3.000%{opacity:1;transform:translate(0px,0px)}24.000%{opacity:1;transform:translate(0px,0px)}29.000%{opacity:1;transform:translate(36px,0px)}47.000%{opacity:1;transform:translate(36px,0px)}52.000%{opacity:1;transform:translate(72px,0px)}70.000%{opacity:1;transform:translate(72px,0px)}75.000%{opacity:1;transform:translate(108px,0px)}96.000%{opacity:1;transform:translate(108px,0px)}98.500%{opacity:0;transform:translate(108px,0px)}99.000%{opacity:0;transform:translate(0px,0px)}100.000%{opacity:0;transform:translate(0px,0px)}}
+@keyframes e01-k-iG{0.000%{opacity:0;transform:translate(90px,0px)}6.900%{opacity:0;transform:translate(90px,0px)}7.000%{opacity:0;transform:translate(90px,0px)}9.000%{opacity:1;transform:translate(60px,0px)}15.000%{opacity:1;transform:translate(0px,0px)}96.000%{opacity:1;transform:translate(0px,0px)}99.000%{opacity:0;transform:translate(0px,0px)}99.500%{opacity:0;transform:translate(90px,0px)}100.000%{opacity:0;transform:translate(90px,0px)}}
+@keyframes e01-k-iP{0.000%{opacity:0;transform:translate(90px,0px)}29.900%{opacity:0;transform:translate(90px,0px)}30.000%{opacity:0;transform:translate(90px,0px)}32.000%{opacity:1;transform:translate(60px,0px)}38.000%{opacity:1;transform:translate(0px,0px)}58.000%{opacity:1;transform:translate(0px,0px)}60.000%{opacity:1;transform:translate(20px,0px)}65.000%{opacity:0;transform:translate(90px,0px)}100.000%{opacity:0;transform:translate(90px,0px)}}
+@keyframes e01-k-iO{0.000%{opacity:0;transform:translate(90px,0px)}75.900%{opacity:0;transform:translate(90px,0px)}76.000%{opacity:0;transform:translate(90px,0px)}78.000%{opacity:1;transform:translate(60px,0px)}84.000%{opacity:1;transform:translate(0px,0px)}96.000%{opacity:1;transform:translate(0px,0px)}99.000%{opacity:0;transform:translate(0px,0px)}99.500%{opacity:0;transform:translate(90px,0px)}100.000%{opacity:0;transform:translate(90px,0px)}}
+@keyframes e01-k-pg{0.000%{transform:translate(0px,0px)}16.000%{transform:translate(0px,0px)}21.000%{transform:translate(0px,-32px)}39.000%{transform:translate(0px,-32px)}44.000%{transform:translate(0px,-64px)}53.000%{transform:translate(0px,-64px)}58.000%{transform:translate(0px,-32px)}85.000%{transform:translate(0px,-32px)}90.000%{transform:translate(0px,-64px)}96.000%{transform:translate(0px,-64px)}100.000%{transform:translate(0px,0px)}}
+@keyframes e01-k-push{0.000%{opacity:0.300}6.000%{opacity:0.300}8.000%{opacity:1.000}21.000%{opacity:1.000}23.000%{opacity:0.300}29.000%{opacity:0.300}31.000%{opacity:1.000}44.000%{opacity:1.000}46.000%{opacity:0.300}75.000%{opacity:0.300}77.000%{opacity:1.000}90.000%{opacity:1.000}92.000%{opacity:0.300}100.000%{opacity:0.300}}
+@keyframes e01-k-pop{0.000%{opacity:0.300}52.000%{opacity:0.300}54.000%{opacity:1.000}66.000%{opacity:1.000}68.000%{opacity:0.300}100.000%{opacity:0.300}}
+}
+</style><path class="e01-wire" d="M252,119 V68 H44 V119"/><path class="e01-wire" d="M252,205 V228 H44 V205"/><polygon class="e01-arrow" points="40,112 48,112 44,119"/><polygon class="e01-arrow" points="40,212 48,212 44,205"/><rect class="e01-tape e01-s1 e01-tc0" x="82" y="20" width="28" height="22" rx="6"/><rect class="e01-tape e01-s1 e01-tc1" x="118" y="20" width="28" height="22" rx="6"/><rect class="e01-tape e01-s0 e01-tc2" x="154" y="20" width="28" height="22" rx="6"/><rect class="e01-tape e01-s1 e01-tc3" x="190" y="20" width="28" height="22" rx="6"/><rect class="e01-ptr" x="79" y="17" width="34" height="28" rx="8"/><line class="e01-line" x1="116" y1="100" x2="116" y2="190"/><line class="e01-line" x1="59" y1="134" x2="184" y2="134"/><line class="e01-line" x1="184" y1="100" x2="184" y2="190"/><line class="e01-line" x1="59" y1="190" x2="184" y2="190"/><line class="e01-lcol e01-lc0" x1="116" y1="100" x2="116" y2="190"/><line class="e01-lrow e01-lr0" x1="59" y1="134" x2="184" y2="134" style="stroke:var(--s0)"/><line class="e01-lcol e01-lc1" x1="184" y1="100" x2="184" y2="190"/><line class="e01-lrow e01-lr1" x1="59" y1="190" x2="184" y2="190" style="stroke:var(--s1)"/><rect class="e01-frame" x="96" y="112" width="108" height="100" rx="12"/><rect class="e01-unit" x="104" y="122" width="24" height="24" rx="6"/><rect class="e01-unit" x="172" y="122" width="24" height="24" rx="6"/><rect class="e01-unit" x="104" y="178" width="24" height="24" rx="6"/><rect class="e01-unit" x="172" y="178" width="24" height="24" rx="6"/><rect class="e01-ulit e01-u00" x="104" y="122" width="24" height="24" rx="6" style="fill:var(--s0)"/><rect class="e01-ulit e01-u01" x="172" y="122" width="24" height="24" rx="6" style="fill:var(--s1)"/><rect class="e01-ulit e01-u10" x="104" y="178" width="24" height="24" rx="6" style="fill:var(--s1)"/><rect class="e01-ulit e01-u11" x="172" y="178" width="24" height="24" rx="6" style="fill:var(--s0)"/><circle class="e01-node e01-n0" cx="116" cy="92" r="8"/><circle class="e01-ring e01-nr0" cx="116" cy="92" r="12"/><circle class="e01-node e01-n1" cx="184" cy="92" r="8"/><circle class="e01-ring e01-nr1" cx="184" cy="92" r="12"/><circle class="e01-circ" cx="44" cy="134" r="15"/><circle class="e01-circ" cx="252" cy="134" r="15"/><circle class="e01-circ" cx="44" cy="190" r="15"/><circle class="e01-circ" cx="252" cy="190" r="15"/><circle class="e01-clit e01-L0" cx="44" cy="134" r="15" style="fill:var(--s0)"/><circle class="e01-clit e01-R0" cx="252" cy="134" r="15" style="fill:var(--s0)"/><circle class="e01-clit e01-L1" cx="44" cy="190" r="15" style="fill:var(--s1)"/><circle class="e01-clit e01-R1" cx="252" cy="190" r="15" style="fill:var(--s1)"/><circle class="e01-dot e01-da0" cx="184" cy="134" r="5.5" style="fill:var(--s1)"/><circle class="e01-dot e01-db0" cx="252" cy="190" r="5.5" style="fill:var(--s1)"/><circle class="e01-dot e01-da1" cx="184" cy="190" r="5.5" style="fill:var(--s0)"/><circle class="e01-dot e01-db1" cx="252" cy="134" r="5.5" style="fill:var(--s0)"/><circle class="e01-dot e01-da2" cx="116" cy="134" r="5.5" style="fill:var(--s0)"/><circle class="e01-dot e01-db2" cx="252" cy="134" r="5.5" style="fill:var(--s0)"/><circle class="e01-dot e01-da3" cx="184" cy="134" r="5.5" style="fill:var(--s1)"/><circle class="e01-dot e01-db3" cx="252" cy="190" r="5.5" style="fill:var(--s1)"/><text class="e01-t" x="68" y="35" text-anchor="end">input</text><text class="e01-t" x="44" y="166" text-anchor="middle">state</text><text class="e01-t" x="150" y="166" text-anchor="middle">lookup</text><line class="e01-div" x1="320" y1="24" x2="320" y2="236"/><rect class="e01-frame" x="420" y="74" width="100" height="144" rx="12"/><rect class="e01-slot" x="430" y="182" width="80" height="28" rx="6"/><rect class="e01-slot" x="430" y="150" width="80" height="28" rx="6"/><rect class="e01-slot" x="430" y="118" width="80" height="28" rx="6"/><rect class="e01-slot" x="430" y="86" width="80" height="28" rx="6"/><rect class="e01-item e01-iG" x="434" y="186" width="72" height="20" rx="5" style="fill:var(--s2)"/><rect class="e01-item e01-iP" x="434" y="154" width="72" height="20" rx="5" style="fill:var(--s3)"/><rect class="e01-item e01-iO" x="434" y="154" width="72" height="20" rx="5" style="fill:var(--s1)"/><g class="e01-pg"><polygon class="e01-pt" points="398,189 412,196 398,203"/><text class="e01-t e01-ptxt" x="391" y="200" text-anchor="end">pointer</text></g><text class="e01-t e01-push" x="444" y="60" text-anchor="middle">push</text><text class="e01-t e01-pop" x="500" y="60" text-anchor="middle">pop</text><text class="e01-t" x="470" y="240" text-anchor="middle">stack</text></svg>

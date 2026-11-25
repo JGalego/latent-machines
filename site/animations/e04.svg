@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 260" role="img">
+<title>E04: dataflow</title>
+<desc>A scalar machine evaluates seven expression nodes one per step, while a tensor program evaluates each whole level in a single step.</desc>
+<style>
+.e04-title { font-family: var(--sans); font-size: 12px; font-weight: 600; fill: var(--text); }
+.e04-note { font-family: var(--sans); font-size: 11px; fill: var(--muted); }
+.e04-pa { --c: var(--s0); }
+.e04-pb { --c: var(--s1); }
+.e04-node, .e04-cell, .e04-pip { fill: var(--c); stroke: var(--c); stroke-width: 1.5; }
+.e04-edge { stroke: var(--c); stroke-width: 2; }
+.e04-band { fill: var(--c); opacity: 0; }
+.e04-divider { stroke: var(--rule); stroke-width: 1; }
+.e04-cursor { fill: none; stroke: var(--accent); stroke-width: 2; transform: translate(166px, 162px); }
+@keyframes e04-s0 { 0%, 8.0% { fill: var(--surface); stroke: var(--muted); } 11.0%, 92.0% { fill: var(--c); stroke: var(--c); } 97.0%, 100% { fill: var(--surface); stroke: var(--muted); } }
+.e04-s0 { animation: e04-s0 10.0s ease-in-out infinite; }
+@keyframes e04-s1 { 0%, 19.5% { fill: var(--surface); stroke: var(--muted); } 22.5%, 92.0% { fill: var(--c); stroke: var(--c); } 97.0%, 100% { fill: var(--surface); stroke: var(--muted); } }
+.e04-s1 { animation: e04-s1 10.0s ease-in-out infinite; }
+@keyframes e04-s2 { 0%, 31.0% { fill: var(--surface); stroke: var(--muted); } 34.0%, 92.0% { fill: var(--c); stroke: var(--c); } 97.0%, 100% { fill: var(--surface); stroke: var(--muted); } }
+.e04-s2 { animation: e04-s2 10.0s ease-in-out infinite; }
+@keyframes e04-s3 { 0%, 42.5% { fill: var(--surface); stroke: var(--muted); } 45.5%, 92.0% { fill: var(--c); stroke: var(--c); } 97.0%, 100% { fill: var(--surface); stroke: var(--muted); } }
+.e04-s3 { animation: e04-s3 10.0s ease-in-out infinite; }
+@keyframes e04-s4 { 0%, 54.0% { fill: var(--surface); stroke: var(--muted); } 57.0%, 92.0% { fill: var(--c); stroke: var(--c); } 97.0%, 100% { fill: var(--surface); stroke: var(--muted); } }
+.e04-s4 { animation: e04-s4 10.0s ease-in-out infinite; }
+@keyframes e04-s5 { 0%, 65.5% { fill: var(--surface); stroke: var(--muted); } 68.5%, 92.0% { fill: var(--c); stroke: var(--c); } 97.0%, 100% { fill: var(--surface); stroke: var(--muted); } }
+.e04-s5 { animation: e04-s5 10.0s ease-in-out infinite; }
+@keyframes e04-s6 { 0%, 77.0% { fill: var(--surface); stroke: var(--muted); } 80.0%, 92.0% { fill: var(--c); stroke: var(--c); } 97.0%, 100% { fill: var(--surface); stroke: var(--muted); } }
+.e04-s6 { animation: e04-s6 10.0s ease-in-out infinite; }
+@keyframes e04-t0 { 0%, 8.0% { fill: var(--surface); stroke: var(--muted); } 11.0%, 92.0% { fill: var(--c); stroke: var(--c); } 97.0%, 100% { fill: var(--surface); stroke: var(--muted); } }
+.e04-t0 { animation: e04-t0 10.0s ease-in-out infinite; }
+@keyframes e04-b0 { 0%, 6.0% { opacity: 0; } 8.0%, 13.0% { opacity: 0.2; } 18.0%, 100% { opacity: 0; } }
+.e04-b0 { animation: e04-b0 10.0s ease-in-out infinite; }
+@keyframes e04-t1 { 0%, 19.5% { fill: var(--surface); stroke: var(--muted); } 22.5%, 92.0% { fill: var(--c); stroke: var(--c); } 97.0%, 100% { fill: var(--surface); stroke: var(--muted); } }
+.e04-t1 { animation: e04-t1 10.0s ease-in-out infinite; }
+@keyframes e04-b1 { 0%, 17.5% { opacity: 0; } 19.5%, 24.5% { opacity: 0.2; } 29.5%, 100% { opacity: 0; } }
+.e04-b1 { animation: e04-b1 10.0s ease-in-out infinite; }
+@keyframes e04-t2 { 0%, 31.0% { fill: var(--surface); stroke: var(--muted); } 34.0%, 92.0% { fill: var(--c); stroke: var(--c); } 97.0%, 100% { fill: var(--surface); stroke: var(--muted); } }
+.e04-t2 { animation: e04-t2 10.0s ease-in-out infinite; }
+@keyframes e04-b2 { 0%, 29.0% { opacity: 0; } 31.0%, 36.0% { opacity: 0.2; } 41.0%, 100% { opacity: 0; } }
+.e04-b2 { animation: e04-b2 10.0s ease-in-out infinite; }
+@keyframes e04-se2 { 0%, 29.0% { stroke: var(--rule); stroke-width: 1.5; } 31.5%, 92.0% { stroke: var(--c); stroke-width: 2; } 97.0%, 100% { stroke: var(--rule); stroke-width: 1.5; } }
+.e04-se2 { animation: e04-se2 10.0s ease-in-out infinite; }
+@keyframes e04-se5 { 0%, 63.5% { stroke: var(--rule); stroke-width: 1.5; } 66.0%, 92.0% { stroke: var(--c); stroke-width: 2; } 97.0%, 100% { stroke: var(--rule); stroke-width: 1.5; } }
+.e04-se5 { animation: e04-se5 10.0s ease-in-out infinite; }
+@keyframes e04-se6 { 0%, 75.0% { stroke: var(--rule); stroke-width: 1.5; } 77.5%, 92.0% { stroke: var(--c); stroke-width: 2; } 97.0%, 100% { stroke: var(--rule); stroke-width: 1.5; } }
+.e04-se6 { animation: e04-se6 10.0s ease-in-out infinite; }
+@keyframes e04-te1 { 0%, 17.5% { stroke: var(--rule); stroke-width: 1.5; } 20.0%, 92.0% { stroke: var(--c); stroke-width: 2; } 97.0%, 100% { stroke: var(--rule); stroke-width: 1.5; } }
+.e04-te1 { animation: e04-te1 10.0s ease-in-out infinite; }
+@keyframes e04-te2 { 0%, 29.0% { stroke: var(--rule); stroke-width: 1.5; } 31.5%, 92.0% { stroke: var(--c); stroke-width: 2; } 97.0%, 100% { stroke: var(--rule); stroke-width: 1.5; } }
+.e04-te2 { animation: e04-te2 10.0s ease-in-out infinite; }
+@keyframes e04-cursor { 0%, 6.0% { transform: translate(58px, 62px); opacity: 1; } 12.0% { transform: translate(58px, 62px); } 17.5% { transform: translate(130px, 62px); } 23.5% { transform: translate(130px, 62px); } 29.0% { transform: translate(94px, 112px); } 35.0% { transform: translate(94px, 112px); } 40.5% { transform: translate(202px, 62px); } 46.5% { transform: translate(202px, 62px); } 52.0% { transform: translate(274px, 62px); } 58.0% { transform: translate(274px, 62px); } 63.5% { transform: translate(238px, 112px); } 69.5% { transform: translate(238px, 112px); } 75.0% { transform: translate(166px, 162px); } 92.0% { transform: translate(166px, 162px); opacity: 1; } 96.5% { transform: translate(166px, 162px); opacity: 0; } 97.0% { transform: translate(58px, 62px); opacity: 0; } 100% { transform: translate(58px, 62px); opacity: 1; } }
+.e04-cursor { animation: e04-cursor 10.0s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<line class="e04-divider" x1="320" y1="16" x2="320" y2="244"/>
+<g class="e04-pa" >
+<line class="e04-edge e04-se2" x1="58" y1="74" x2="94" y2="100"/>
+<line class="e04-edge e04-se2" x1="130" y1="74" x2="94" y2="100"/>
+<line class="e04-edge e04-se5" x1="202" y1="74" x2="238" y2="100"/>
+<line class="e04-edge e04-se5" x1="274" y1="74" x2="238" y2="100"/>
+<line class="e04-edge e04-se6" x1="94" y1="124" x2="166" y2="150"/>
+<line class="e04-edge e04-se6" x1="238" y1="124" x2="166" y2="150"/>
+<circle class="e04-node e04-s0" cx="58" cy="62" r="12"/>
+<circle class="e04-node e04-s1" cx="130" cy="62" r="12"/>
+<circle class="e04-node e04-s3" cx="202" cy="62" r="12"/>
+<circle class="e04-node e04-s4" cx="274" cy="62" r="12"/>
+<rect class="e04-node e04-s2" x="77" y="100" width="34" height="24" rx="8"/>
+<rect class="e04-node e04-s5" x="221" y="100" width="34" height="24" rx="8"/>
+<rect class="e04-node e04-s6" x="149" y="150" width="34" height="24" rx="8"/>
+<rect class="e04-cell e04-s0" x="62" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-s1" x="92" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-s2" x="122" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-s3" x="152" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-s4" x="182" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-s5" x="212" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-s6" x="242" y="202" width="26" height="16" rx="4"/>
+<text class="e04-note" x="165" y="242" text-anchor="middle">memory</text>
+<text class="e04-title" x="28" y="24">Scalar machine</text>
+<text class="e04-note" x="166" y="24">steps</text>
+<circle class="e04-pip e04-s0" cx="212" cy="20" r="4.5"/>
+<circle class="e04-pip e04-s1" cx="225" cy="20" r="4.5"/>
+<circle class="e04-pip e04-s2" cx="238" cy="20" r="4.5"/>
+<circle class="e04-pip e04-s3" cx="251" cy="20" r="4.5"/>
+<circle class="e04-pip e04-s4" cx="264" cy="20" r="4.5"/>
+<circle class="e04-pip e04-s5" cx="277" cy="20" r="4.5"/>
+<circle class="e04-pip e04-s6" cx="290" cy="20" r="4.5"/>
+</g>
+<g class="e04-pb" >
+<rect class="e04-band e04-b0" x="330" y="43" width="290" height="38" rx="10"/>
+<rect class="e04-band e04-b1" x="330" y="93" width="290" height="38" rx="10"/>
+<rect class="e04-band e04-b2" x="330" y="143" width="290" height="38" rx="10"/>
+<line class="e04-edge e04-te1" x1="368" y1="74" x2="404" y2="100"/>
+<line class="e04-edge e04-te1" x1="440" y1="74" x2="404" y2="100"/>
+<line class="e04-edge e04-te1" x1="512" y1="74" x2="548" y2="100"/>
+<line class="e04-edge e04-te1" x1="584" y1="74" x2="548" y2="100"/>
+<line class="e04-edge e04-te2" x1="404" y1="124" x2="476" y2="150"/>
+<line class="e04-edge e04-te2" x1="548" y1="124" x2="476" y2="150"/>
+<circle class="e04-node e04-t0" cx="368" cy="62" r="12"/>
+<circle class="e04-node e04-t0" cx="440" cy="62" r="12"/>
+<circle class="e04-node e04-t0" cx="512" cy="62" r="12"/>
+<circle class="e04-node e04-t0" cx="584" cy="62" r="12"/>
+<rect class="e04-node e04-t1" x="387" y="100" width="34" height="24" rx="8"/>
+<rect class="e04-node e04-t1" x="531" y="100" width="34" height="24" rx="8"/>
+<rect class="e04-node e04-t2" x="459" y="150" width="34" height="24" rx="8"/>
+<rect class="e04-cell e04-t0" x="364" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-t0" x="394" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-t0" x="424" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-t0" x="454" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-t1" x="492" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-t1" x="522" y="202" width="26" height="16" rx="4"/>
+<rect class="e04-cell e04-t2" x="560" y="202" width="26" height="16" rx="4"/>
+<text class="e04-note" x="475" y="242" text-anchor="middle">state</text>
+<text class="e04-title" x="338" y="24">Tensor program</text>
+<text class="e04-note" x="476" y="24">steps</text>
+<circle class="e04-pip e04-t0" cx="522" cy="20" r="4.5"/>
+<circle class="e04-pip e04-t1" cx="535" cy="20" r="4.5"/>
+<circle class="e04-pip e04-t2" cx="548" cy="20" r="4.5"/>
+</g>
+<circle class="e04-cursor" cx="0" cy="0" r="19"/>
+</svg>

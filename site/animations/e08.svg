@@ -1,0 +1,312 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 260" role="img" aria-labelledby="e08-title e08-desc">
+<title id="e08-title">E08: search with a verifier</title>
+<desc id="e08-desc">A search flips one bit at a time and lowers an energy bar until zero, then an exact verifier accepts the assignment.</desc>
+<style>
+.e08-label { font: 600 12px var(--sans); fill: var(--muted); }
+.e08-small { font: 600 11px var(--sans); }
+.e08-propose { font-size: 11px; }
+.e08-box { fill: var(--surface); stroke: var(--rule); stroke-width: 1.5; }
+.e08-cell { fill: var(--cell-zero); stroke: var(--rule); stroke-width: 1; }
+.e08-one { fill: var(--cell-one); }
+.e08-ring { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0; }
+.e08-track { fill: var(--surface); stroke: var(--rule); stroke-width: 1; }
+.e08-fill { fill: var(--s1); transform-box: fill-box; transform-origin: 0 50%; transform: scaleX(0); }
+.e08-seg { stroke: var(--bg); stroke-width: 2; }
+.e08-arrow { stroke: var(--rule); stroke-width: 2; fill: none; }
+.e08-arrowhead { fill: var(--rule); }
+.e08-dot { fill: var(--accent); opacity: 0; }
+.e08-x { stroke: var(--s1); stroke-width: 4; stroke-linecap: round; fill: none; opacity: 0; }
+.e08-bad { fill: var(--s1); opacity: 0; }
+.e08-check { stroke: var(--s2); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.e08-stampring { stroke: var(--s2); stroke-width: 2.5; fill: none; }
+.e08-stamp { transform-box: fill-box; transform-origin: center; }
+.e08-good { fill: var(--s2); }
+.e08-okbox { fill: none; stroke: var(--s2); stroke-width: 2; }
+.e08-okrow { fill: none; stroke: var(--s2); stroke-width: 2; stroke-dasharray: 5 4; }
+.e08-cycle { animation: e08-cycle 8.0s linear infinite; }
+.e08-fill { animation: e08-energy 8.0s ease-in-out infinite; }
+.e08-x, .e08-bad { animation: e08-reject 8.0s ease-in-out infinite; }
+.e08-accept { animation: e08-accept 8.0s ease-in-out infinite; }
+.e08-stamp { animation: e08-stamp 8.0s ease-in-out infinite; }
+.e08-b1 { animation: e08-bit1 8.0s ease-in-out infinite; }
+.e08-r1 { animation: e08-ring1 8.0s ease-in-out infinite; }
+.e08-b2 { animation: e08-bit2 8.0s ease-in-out infinite; }
+.e08-r3 { animation: e08-ring3 8.0s ease-in-out infinite; }
+.e08-b4 { animation: e08-bit4 8.0s ease-in-out infinite; }
+.e08-r0 { animation: e08-ring0 8.0s ease-in-out infinite; }
+.e08-b5 { animation: e08-bit5 8.0s ease-in-out infinite; }
+.e08-r5 { animation: e08-ring5 8.0s ease-in-out infinite; }
+.e08-b6 { animation: e08-bit6 8.0s ease-in-out infinite; }
+.e08-r2 { animation: e08-ring2 8.0s ease-in-out infinite; }
+.e08-b8 { animation: e08-bit8 8.0s ease-in-out infinite; }
+.e08-r4 { animation: e08-ring4 8.0s ease-in-out infinite; }
+.e08-d0 { animation: e08-dot0 8.0s ease-in-out infinite; }
+.e08-d1 { animation: e08-dot1 8.0s ease-in-out infinite; }
+.e08-d2 { animation: e08-dot2 8.0s ease-in-out infinite; }
+.e08-d3 { animation: e08-dot3 8.0s ease-in-out infinite; }
+.e08-d4 { animation: e08-dot4 8.0s ease-in-out infinite; }
+.e08-d5 { animation: e08-dot5 8.0s ease-in-out infinite; }
+@keyframes e08-bit1 {
+  0% { opacity:0 }
+  20% { opacity:0 }
+  23.75% { opacity:1 }
+  95% { opacity:1 }
+  96.25% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-ring1 {
+  0% { opacity:0 }
+  16.875% { opacity:0 }
+  20% { opacity:1 }
+  27.5% { opacity:1 }
+  31.25% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-bit2 {
+  0% { opacity:0 }
+  40% { opacity:0 }
+  43.75% { opacity:1 }
+  95% { opacity:1 }
+  96.25% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-ring3 {
+  0% { opacity:0 }
+  36.875% { opacity:0 }
+  40% { opacity:1 }
+  47.5% { opacity:1 }
+  51.25% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-bit4 {
+  0% { opacity:1 }
+  10% { opacity:1 }
+  13.75% { opacity:0 }
+  95% { opacity:0 }
+  96.25% { opacity:1 }
+  100% { opacity:1 }
+}
+@keyframes e08-ring0 {
+  0% { opacity:0 }
+  6.875% { opacity:0 }
+  10% { opacity:1 }
+  17.5% { opacity:1 }
+  21.25% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-bit5 {
+  0% { opacity:0 }
+  60% { opacity:0 }
+  63.75% { opacity:1 }
+  95% { opacity:1 }
+  96.25% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-ring5 {
+  0% { opacity:0 }
+  56.875% { opacity:0 }
+  60% { opacity:1 }
+  67.5% { opacity:1 }
+  71.25% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-bit6 {
+  0% { opacity:1 }
+  30% { opacity:1 }
+  33.75% { opacity:0 }
+  95% { opacity:0 }
+  96.25% { opacity:1 }
+  100% { opacity:1 }
+}
+@keyframes e08-ring2 {
+  0% { opacity:0 }
+  26.875% { opacity:0 }
+  30% { opacity:1 }
+  37.5% { opacity:1 }
+  41.25% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-bit8 {
+  0% { opacity:0 }
+  50% { opacity:0 }
+  53.75% { opacity:1 }
+  95% { opacity:1 }
+  96.25% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-ring4 {
+  0% { opacity:0 }
+  46.875% { opacity:0 }
+  50% { opacity:1 }
+  57.5% { opacity:1 }
+  61.25% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-energy {
+  0% { transform:scaleX(1.0000) }
+  11.875% { transform:scaleX(1.0000) }
+  16.25% { transform:scaleX(0.8333) }
+  21.875% { transform:scaleX(0.8333) }
+  26.25% { transform:scaleX(0.6667) }
+  31.875% { transform:scaleX(0.6667) }
+  36.25% { transform:scaleX(0.8333) }
+  41.875% { transform:scaleX(0.8333) }
+  46.25% { transform:scaleX(0.5000) }
+  51.875% { transform:scaleX(0.5000) }
+  56.25% { transform:scaleX(0.1667) }
+  61.875% { transform:scaleX(0.1667) }
+  66.25% { transform:scaleX(0.0000) }
+  95% { transform:scaleX(0) }
+  96.25% { transform:scaleX(1.0000) }
+  100% { transform:scaleX(1.0000) }
+}
+@keyframes e08-dot0 {
+  0% { opacity:0;transform:translateX(0) }
+  14.375% { opacity:0;transform:translateX(0) }
+  15.625% { opacity:1;transform:translateX(0) }
+  20.625% { opacity:1;transform:translateX(50px) }
+  21.875% { opacity:0;transform:translateX(56px) }
+  100% { opacity:0;transform:translateX(56px) }
+}
+@keyframes e08-dot1 {
+  0% { opacity:0;transform:translateX(0) }
+  24.375% { opacity:0;transform:translateX(0) }
+  25.625% { opacity:1;transform:translateX(0) }
+  30.625% { opacity:1;transform:translateX(50px) }
+  31.875% { opacity:0;transform:translateX(56px) }
+  100% { opacity:0;transform:translateX(56px) }
+}
+@keyframes e08-dot2 {
+  0% { opacity:0;transform:translateX(0) }
+  34.375% { opacity:0;transform:translateX(0) }
+  35.625% { opacity:1;transform:translateX(0) }
+  40.625% { opacity:1;transform:translateX(50px) }
+  41.875% { opacity:0;transform:translateX(56px) }
+  100% { opacity:0;transform:translateX(56px) }
+}
+@keyframes e08-dot3 {
+  0% { opacity:0;transform:translateX(0) }
+  44.375% { opacity:0;transform:translateX(0) }
+  45.625% { opacity:1;transform:translateX(0) }
+  50.625% { opacity:1;transform:translateX(50px) }
+  51.875% { opacity:0;transform:translateX(56px) }
+  100% { opacity:0;transform:translateX(56px) }
+}
+@keyframes e08-dot4 {
+  0% { opacity:0;transform:translateX(0) }
+  54.375% { opacity:0;transform:translateX(0) }
+  55.625% { opacity:1;transform:translateX(0) }
+  60.625% { opacity:1;transform:translateX(50px) }
+  61.875% { opacity:0;transform:translateX(56px) }
+  100% { opacity:0;transform:translateX(56px) }
+}
+@keyframes e08-dot5 {
+  0% { opacity:0;transform:translateX(0) }
+  64.375% { opacity:0;transform:translateX(0) }
+  65.625% { opacity:1;transform:translateX(0) }
+  70.625% { opacity:1;transform:translateX(50px) }
+  71.875% { opacity:0;transform:translateX(56px) }
+  100% { opacity:0;transform:translateX(56px) }
+}
+@keyframes e08-reject {
+  0% { opacity:0 }
+  21.875% { opacity:0 }
+  23.375% { opacity:1 }
+  29.375% { opacity:1 }
+  30.875% { opacity:0 }
+  31.875% { opacity:0 }
+  33.375% { opacity:1 }
+  39.375% { opacity:1 }
+  40.875% { opacity:0 }
+  41.875% { opacity:0 }
+  43.375% { opacity:1 }
+  49.375% { opacity:1 }
+  50.875% { opacity:0 }
+  51.875% { opacity:0 }
+  53.375% { opacity:1 }
+  59.375% { opacity:1 }
+  60.875% { opacity:0 }
+  61.875% { opacity:0 }
+  63.375% { opacity:1 }
+  69.375% { opacity:1 }
+  70.875% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-accept {
+  0% { opacity:0 }
+  71.875% { opacity:0 }
+  73.75% { opacity:1 }
+  95% { opacity:1 }
+  96.25% { opacity:0 }
+  100% { opacity:0 }
+}
+@keyframes e08-stamp {
+  0% { opacity:0;transform:scale(.5) }
+  71.875% { opacity:0;transform:scale(.5) }
+  73.75% { opacity:1;transform:scale(1.25) }
+  76.875% { opacity:1;transform:scale(1) }
+  95% { opacity:1;transform:scale(1) }
+  96.25% { opacity:0;transform:scale(.5) }
+  100% { opacity:0;transform:scale(.5) }
+}
+@keyframes e08-cycle {
+  0% { opacity:0 }
+  3.75% { opacity:1 }
+  90% { opacity:1 }
+  94.375% { opacity:0 }
+  100% { opacity:0 }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .e08-cycle, .e08-fill, .e08-x, .e08-bad, .e08-accept, .e08-stamp, .e08-dot, .e08-ring, .e08-one { animation: none !important; }
+}
+</style>
+<text class="e08-label" x="30" y="74">search</text>
+<text class="e08-label" x="490" y="74">verifier</text>
+<text class="e08-label" x="30" y="170">energy</text>
+<text class="e08-label e08-propose" x="456" y="96" text-anchor="middle">propose</text>
+<line class="e08-arrow" x1="434" y1="104" x2="480" y2="104"/>
+<path class="e08-arrowhead" d="M490 104 L480 98.5 L480 109.5 Z"/>
+<rect class="e08-box" x="490" y="80" width="120" height="116" rx="12"/>
+<rect class="e08-track" x="30" y="180" width="392" height="16" rx="8"/>
+<g class="e08-cycle">
+<rect class="e08-cell" x="30" y="88" width="32" height="32" rx="6"/>
+<rect class="e08-cell" x="70" y="88" width="32" height="32" rx="6"/>
+<rect class="e08-cell" x="110" y="88" width="32" height="32" rx="6"/>
+<rect class="e08-cell" x="150" y="88" width="32" height="32" rx="6"/>
+<rect class="e08-cell" x="190" y="88" width="32" height="32" rx="6"/>
+<rect class="e08-cell" x="230" y="88" width="32" height="32" rx="6"/>
+<rect class="e08-cell" x="270" y="88" width="32" height="32" rx="6"/>
+<rect class="e08-cell" x="310" y="88" width="32" height="32" rx="6"/>
+<rect class="e08-cell" x="350" y="88" width="32" height="32" rx="6"/>
+<rect class="e08-cell" x="390" y="88" width="32" height="32" rx="6"/>
+<rect class="e08-one" x="30" y="88" width="32" height="32" rx="6" style="opacity:1"/>
+<rect class="e08-one e08-b1" x="70" y="88" width="32" height="32" rx="6" style="opacity:1"/>
+<rect class="e08-one e08-b2" x="110" y="88" width="32" height="32" rx="6" style="opacity:1"/>
+<rect class="e08-one" x="150" y="88" width="32" height="32" rx="6" style="opacity:1"/>
+<rect class="e08-one e08-b4" x="190" y="88" width="32" height="32" rx="6" style="opacity:0"/>
+<rect class="e08-one e08-b5" x="230" y="88" width="32" height="32" rx="6" style="opacity:1"/>
+<rect class="e08-one e08-b6" x="270" y="88" width="32" height="32" rx="6" style="opacity:0"/>
+<rect class="e08-one" x="310" y="88" width="32" height="32" rx="6" style="opacity:0"/>
+<rect class="e08-one e08-b8" x="350" y="88" width="32" height="32" rx="6" style="opacity:1"/>
+<rect class="e08-one" x="390" y="88" width="32" height="32" rx="6" style="opacity:1"/>
+<rect class="e08-okrow e08-accept" x="22" y="80" width="408" height="48" rx="10" style="opacity:1"/>
+<rect class="e08-ring e08-r0" x="186" y="84" width="40" height="40" rx="9"/>
+<rect class="e08-ring e08-r1" x="66" y="84" width="40" height="40" rx="9"/>
+<rect class="e08-ring e08-r2" x="266" y="84" width="40" height="40" rx="9"/>
+<rect class="e08-ring e08-r3" x="106" y="84" width="40" height="40" rx="9"/>
+<rect class="e08-ring e08-r4" x="346" y="84" width="40" height="40" rx="9"/>
+<rect class="e08-ring e08-r5" x="226" y="84" width="40" height="40" rx="9"/>
+<rect class="e08-fill" x="30" y="180" width="392" height="16" rx="8"/>
+<circle class="e08-dot e08-d0" cx="434" cy="104" r="5"/><circle class="e08-dot e08-d1" cx="434" cy="104" r="5"/><circle class="e08-dot e08-d2" cx="434" cy="104" r="5"/><circle class="e08-dot e08-d3" cx="434" cy="104" r="5"/><circle class="e08-dot e08-d4" cx="434" cy="104" r="5"/><circle class="e08-dot e08-d5" cx="434" cy="104" r="5"/>
+<path class="e08-x" d="M538 110 L562 134 M562 110 L538 134"/>
+<text class="e08-small e08-bad" x="550" y="178" text-anchor="middle">rejected</text>
+<rect class="e08-okbox e08-accept" x="490" y="80" width="120" height="116" rx="12" style="opacity:1"/>
+<g class="e08-stamp" style="opacity:1">
+<circle class="e08-stampring" cx="550" cy="122" r="28"/>
+<path class="e08-check" d="M536 123 L546 133 L565 110"/>
+</g>
+<text class="e08-small e08-good e08-accept" x="550" y="178" text-anchor="middle" style="opacity:1">accepted</text>
+</g>
+<g class="e08-segs"><line class="e08-seg" x1="95.33" y1="181" x2="95.33" y2="195"/><line class="e08-seg" x1="160.67" y1="181" x2="160.67" y2="195"/><line class="e08-seg" x1="226.00" y1="181" x2="226.00" y2="195"/><line class="e08-seg" x1="291.33" y1="181" x2="291.33" y2="195"/><line class="e08-seg" x1="356.67" y1="181" x2="356.67" y2="195"/></g>
+</svg>

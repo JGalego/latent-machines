@@ -301,3 +301,58 @@ def test_ledger_rejects_unknown_verdicts_and_missing_links(tmp_path: Path) -> No
     (root / "site" / "hypotheses.json").write_text(json.dumps([entry]))
     with pytest.raises(build.BuildError, match="missing file"):
         build.render_page(root)
+
+
+def add_animation(root: Path, key: str, body: str) -> None:
+    folder = root / "site" / "animations"
+    folder.mkdir(exist_ok=True)
+    (folder / f"{key}.svg").write_text(body)
+
+
+SVG = (
+    '<svg viewBox="0 0 10 10"><title id="t">E00: memory</title>'
+    '<desc id="d">A write replaces one slot.</desc><rect/></svg>'
+)
+
+
+def test_experiment_marker_names_the_experiment_and_links_its_report(
+    tmp_path: Path,
+) -> None:
+    root = make_root(tmp_path, "<p>{{e:E02}} and {{e:E10}}</p>", {})
+    page = build.render_page(root)
+    assert ">E02: learned interfaces</a>" in page
+    assert "results/E02/README.md" in page
+    assert ">E10: machine layer</a>" in page
+
+
+def test_unknown_experiment_marker_fails(tmp_path: Path) -> None:
+    root = make_root(tmp_path, "{{e:E99}}", {})
+    with pytest.raises(build.BuildError, match="unknown experiment"):
+        build.render_page(root)
+
+
+def test_animation_is_inlined_and_captioned_from_its_desc(tmp_path: Path) -> None:
+    root = make_root(tmp_path, "{{anim:e00}}", {})
+    add_animation(root, "e00", SVG)
+    page = build.render_page(root)
+    assert '<svg role="img" aria-label="A write replaces one slot."' in page
+    assert "Figure 1:" in page
+    assert "E00: memory</a>. A write replaces one slot." in page
+
+
+def test_animation_keeps_its_own_accessible_name(tmp_path: Path) -> None:
+    root = make_root(tmp_path, "{{anim:e00}}", {})
+    add_animation(
+        root, "e00", SVG.replace("<svg ", '<svg role="img" aria-labelledby="t" ')
+    )
+    page = build.render_page(root)
+    assert page.count('role="img"') == 1
+
+
+def test_animation_needs_a_file_and_a_description(tmp_path: Path) -> None:
+    root = make_root(tmp_path, "{{anim:e00}}", {})
+    with pytest.raises(build.BuildError, match="missing animation"):
+        build.render_page(root)
+    add_animation(root, "e00", "<svg><title>E00: memory</title></svg>")
+    with pytest.raises(build.BuildError, match="needs a <title> and a <desc>"):
+        build.render_page(root)

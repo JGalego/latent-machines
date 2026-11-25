@@ -11,8 +11,10 @@ static HTML, so every number on the page comes from a source file:
     {{results}}                    tables generated from results/<EXP>/<run>/
     {{toc}}                        contents list of the h2 and h3 headings after it
     {{abstract_result}}, {{conformance_summary}}, {{experiment_status}}
-    {{length_charts}}, {{feedback_grid}}  figures drawn from E02, E03, and E09 run records
+    {{length_charts}}, {{feedback_grid}}  figures drawn from E02, E03, and E09 records
     {{ledger}}                     hypothesis table from site/hypotheses.json
+    {{e:E02}}                      "E02: learned interfaces", linked to its report
+    {{anim:e02}}                   site/animations/e02.svg, captioned from its <desc>
 
 Figures, tables, and equations are numbered in page order after results are
 expanded. Run records are rendered by kind: lockstep conformance runs (E00,
@@ -35,18 +37,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REPO = "https://github.com/JGalego/latent-machines/blob/main"
 EXPERIMENTS = [f"E{n:02d}" for n in range(10)]
-TITLES = {
-    "E00": "memory conformance",
-    "E01": "exact streaming machines",
-    "E02": "learned interface comparison",
-    "E03": "latent ticks and explicit events",
-    "E04": "dataflow, specialization, and conditional units",
-    "E05": "graph, semiring, and logic execution",
-    "E06": "spatial and structured dynamical machines",
-    "E07": "optimization-defined state updates",
-    "E08": "heuristic search with an exact verifier",
-    "E09": "state in the machine, not the context",
+NAMES = {
+    "E00": "memory",
+    "E01": "streaming machines",
+    "E02": "learned interfaces",
+    "E03": "latent feedback",
+    "E04": "dataflow",
+    "E05": "graphs and logic",
+    "E06": "grids and filters",
+    "E07": "optimizer memory",
+    "E08": "search with a verifier",
+    "E09": "state in the machine",
+    "E10": "machine layer",
+    "E11": "learning from outcomes",
 }
+ANIMATIONS = ROOT / "site" / "animations"
 SPLITS = {
     "test_in_distribution": "2-8 statements",
     "test_length_32": "32 statements",
@@ -158,8 +163,13 @@ def row_key(variant: dict) -> str:
     return "/".join(parts)
 
 
+def experiment_label(exp_id: str) -> str:
+    """How prose names an experiment: its code and short name."""
+    return f"{exp_id}: {NAMES[exp_id]}" if exp_id in NAMES else exp_id
+
+
 def intro(exp_id: str, runs: list[dict], detail: str) -> str:
-    title = TITLES.get(exp_id, exp_id).capitalize()
+    title = experiment_label(exp_id)
     revisions = sorted({r["revision"][:7] for r in runs if r["revision"]})
     codes = ", ".join(f"<code>{esc(r)}</code>" for r in revisions)
     report = runs[0]["report"]
@@ -170,7 +180,7 @@ def intro(exp_id: str, runs: list[dict], detail: str) -> str:
     )
     plural = "s" if len(revisions) > 1 else ""
     return (
-        f"<p><strong>{esc(title)} ({esc(exp_id)}).</strong> {detail} "
+        f"<p><strong>{esc(title)}.</strong> {detail} "
         f"Records come from revision{plural} {codes}.{link}</p>"
     )
 
@@ -192,7 +202,11 @@ def render_branch(exp_id: str, branch: str | None, runs: list[dict]) -> str:
         runs, key=lambda r: (r["config"].get("horizon", 0), r["config"].get("seed", 0))
     )
     name = f"{exp_id.lower()}-{branch}" if branch else exp_id.lower()
-    label = f"{exp_id} {branch} branch" if branch else exp_id
+    label = (
+        f"{experiment_label(exp_id)}, {branch} branch"
+        if branch
+        else experiment_label(exp_id)
+    )
     tolerance = all(approximate(v) for r in runs for v in r["metrics"]["variants"])
     total = sum(r["metrics"]["totals"]["actions_checked"] for r in runs)
     probes = False
@@ -323,7 +337,7 @@ def render_search(exp_id: str, run: dict) -> str:
         rows.append(f'<tr><th scope="row">{esc(arm)}</th>{"".join(tds)}</tr>')
     head = "".join(f"<th>{esc(c)}</th>" for c in classes)
     return f"""
-    <p class="caption"><strong>{{{{table:{exp_id.lower()}-search}}}}:</strong> {esc(exp_id)} search arms at a fixed step budget: instances with a verified solution, and instances proved unsatisfiable. Only the complete solver can prove unsatisfiability; every other failure is unknown, not unsatisfiable.</p>
+    <p class="caption"><strong>{{{{table:{exp_id.lower()}-search}}}}:</strong> {esc(experiment_label(exp_id))} search arms at a fixed step budget: instances with a verified solution, and instances proved unsatisfiable. Only the complete solver can prove unsatisfiability; every other failure is unknown, not unsatisfiable.</p>
     <div class="table-wrap"><table>
       <thead><tr><th>Arm</th>{head}</tr></thead>
       <tbody>{"".join(rows)}</tbody>
@@ -390,7 +404,7 @@ def render_learned(exp_id: str, runs: list[dict]) -> str:
         head = "".join(f"<th>{esc(SPLITS.get(s, s))}</th>" for s in splits)
         name = f"{exp_id.lower()}-{r['run_id'].split('-')[-1]}"
         parts.append(f"""{intro(exp_id, [r], detail)}
-    <p class="caption"><strong>{{{{table:{name}}}}}:</strong> {esc(exp_id)} accuracy by arm and test split: mean over training seeds, with the range in brackets.{note}</p>
+    <p class="caption"><strong>{{{{table:{name}}}}}:</strong> {esc(experiment_label(exp_id))} accuracy by arm and test split: mean over training seeds, with the range in brackets.{note}</p>
     <div class="explorer" data-experiment="{esc(exp_id)}" data-run="{esc(r["run_id"])}">
       <div class="table-wrap"><table>
         <thead><tr><th></th>{head}</tr></thead>
@@ -404,7 +418,7 @@ def render_unknown(exp_id: str, runs: list[dict]) -> str:
     links = ", ".join(
         f'<a href="{esc(r["manifest"])}">{esc(r["run_id"])}</a>' for r in runs
     )
-    return f"<p><strong>{esc(exp_id)}.</strong> Records without a renderer yet: {links}.</p>"
+    return f"<p><strong>{esc(experiment_label(exp_id))}.</strong> Records without a renderer yet: {links}.</p>"
 
 
 RENDERERS = {
@@ -452,9 +466,9 @@ ARM_NAMES = {
     },
 }
 CHART_TITLES = {
-    "E02": "E02: record updates",
-    "E03": "E03: record updates with copies",
-    "E09": "E09: one statement at a time, up to 256 statements",
+    "E02": "E02: learned interfaces",
+    "E03": "E03: latent feedback",
+    "E09": "E09: state in the machine, up to 256 statements",
 }
 LENGTH_SPLITS = {
     "test_in_distribution": "2–8",
@@ -631,7 +645,7 @@ def feedback_grid(experiments: dict[str, list[dict]]) -> str:
           <tr><th scope="row">No trained positions</th>{cell("H")}{cell("T")}</tr>
         </tbody>
       </table></div>
-      <figcaption class="caption"><strong>{{{{figure:story-grid}}}}:</strong> E03 task accuracy at 32 statements, mean over seeds. Averaging the cells, trained positions change accuracy by {row_effect:+.2f} and feedback re-entering the model by {column_effect:+.2f}. In {esc(names["T"])} the feedback is ordinary text tokens; in {esc(names["L"])} it is one trained vector per step. Latent arms use more model positions than the others, so work is not matched. One frozen 135M model, one task.</figcaption>
+      <figcaption class="caption"><strong>{{{{figure:story-grid}}}}:</strong> Task accuracy in {esc(experiment_label("E03"))} at 32 statements, mean over seeds. Averaging the cells, trained positions change accuracy by {row_effect:+.2f} and feedback re-entering the model by {column_effect:+.2f}. In {esc(names["T"])} the feedback is text tokens. In {esc(names["L"])} it is one trained vector per step. The latent arms use more model positions than the others, so the work is not matched. One frozen 135M model, one task.</figcaption>
     </figure>"""
 
 
@@ -649,7 +663,8 @@ def render_ledger(root: Path) -> str:
         for label, target in entry["links"]:
             if not (root / target.split("#")[0]).exists():
                 raise BuildError(f"hypotheses.json links to missing file {target!r}")
-            links.append(f'<a href="{REPO}/{esc(target)}">{esc(label)}</a>')
+            text = experiment_label(label) if label in NAMES else label
+            links.append(f'<a href="{REPO}/{esc(target)}">{esc(text)}</a>')
         rows.append(
             f"<tr><td>{esc(entry['claim'])}"
             f'<span class="small">{esc(entry["note"])}</span></td>'
@@ -727,6 +742,8 @@ def join_ids(ids: list[str]) -> str:
 def experiment_status(experiments: dict[str, list[dict]]) -> str:
     done = [e for e in EXPERIMENTS if e in experiments]
     rest = [e for e in EXPERIMENTS if e not in experiments]
+    if not rest:
+        return f"All {len(done)} experiments have recorded results."
     sentences = []
     if done:
         verb = "has" if len(done) == 1 else "have"
@@ -738,6 +755,45 @@ def experiment_status(experiments: dict[str, list[dict]]) -> str:
     elif len(rest) > 2:
         sentences.append(f"{rest[1]}–{rest[-1]} are planned")
     return "; ".join(sentences) + "."
+
+
+# ---------- animations and experiment names ----------
+
+
+def experiment_link(exp_id: str) -> str:
+    """An experiment's code and short name, linked to its report."""
+    if exp_id not in NAMES:
+        raise BuildError(f"unknown experiment {exp_id!r}")
+    return f'<a href="{REPO}/results/{exp_id}/README.md">{esc(experiment_label(exp_id))}</a>'
+
+
+def animation_figure(key: str, root: Path = ROOT) -> str:
+    """An inline animated SVG with its <desc> as the caption.
+
+    ``site/animations/<key>.svg`` must hold a <title> and a one-sentence <desc>;
+    both come from the file so the picture and its caption stay together.
+    """
+    path = root / "site" / "animations" / f"{key}.svg"
+    if not path.exists():
+        raise BuildError(f"missing animation {path.name}")
+    svg = path.read_text().strip()
+    title = re.search(r"<title[^>]*>(.*?)</title>", svg, re.S)
+    desc = re.search(r"<desc[^>]*>(.*?)</desc>", svg, re.S)
+    if not title or not desc:
+        raise BuildError(f"{path.name} needs a <title> and a <desc>")
+    opening = svg[: svg.index(">")]
+    if "role=" not in opening:
+        svg = svg.replace(
+            "<svg",
+            f'<svg role="img" aria-label="{esc(html.unescape(desc.group(1)))}"',
+            1,
+        )
+    return (
+        '<figure class="figure anim">'
+        f'<div class="anim-frame">{svg}</div>'
+        f'<figcaption class="caption"><strong>{{{{figure:anim-{key}}}}}:</strong> '
+        f"{experiment_link(key.upper())}. {desc.group(1).strip()}</figcaption></figure>"
+    )
 
 
 # ---------- markers ----------
@@ -921,14 +977,17 @@ def render_page(root: Path) -> str:
         "feedback_grid": feedback_grid(experiments),
         "ledger": render_ledger(root),
     }
-    page = MARKER.sub(
-        lambda m: (
-            values[m.group(1)]
-            if m.group(1) in values and m.group(2) is None
-            else m.group(0)
-        ),
-        page,
-    )
+
+    def fill(m: re.Match) -> str:
+        if m.group(1) in values and m.group(2) is None:
+            return values[m.group(1)]
+        if m.group(1) == "e" and m.group(2):
+            return experiment_link(m.group(2))
+        if m.group(1) == "anim" and m.group(2):
+            return animation_figure(m.group(2), root)
+        return m.group(0)
+
+    page = MARKER.sub(fill, page)
     page = number(page, "eqtag", "eq", "tag")
     page = number(page, "figure", "fig", "Figure")
     page = number(page, "table", "tab", "Table")

@@ -237,3 +237,16 @@ footer { color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--ru
 .verdict.refuted { color: var(--bad); background: var(--bad-bg); }
 .verdict.null { color: var(--muted); background: var(--surface); }
 .verdict.untested { color: var(--muted); background: transparent; border: 1px dashed currentColor; }
+
+/* Animated experiment illustrations */
+.anim-frame {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+.anim-frame svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
