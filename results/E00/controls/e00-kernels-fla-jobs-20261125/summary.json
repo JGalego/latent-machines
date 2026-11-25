@@ -1,0 +1,1140 @@
+{
+ "smoke": [
+  {
+   "variant": "fla-chunk/float32/c64/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 42.09
+  },
+  {
+   "variant": "fla-chunk/float32/c64/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.2
+  },
+  {
+   "variant": "fla-chunk/float32/c512/overwrite",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/float32/c512/random_mix",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/float32/c4096/overwrite",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/float32/c4096/random_mix",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c64/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 22.99
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c64/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.21
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c512/overwrite",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c512/random_mix",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c4096/overwrite",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c4096/random_mix",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c64/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0039,
+   "seconds": 7.6
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c64/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.00244,
+   "seconds": 0.21
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c512/overwrite",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c512/random_mix",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c4096/overwrite",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c4096/random_mix",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c64/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 7.28
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c64/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.21
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c512/overwrite",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c512/random_mix",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c4096/overwrite",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c4096/random_mix",
+   "actions": 0,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.0
+  },
+  {
+   "variant": "fla-recurrent/float32/c64/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.44
+  },
+  {
+   "variant": "fla-recurrent/float32/c64/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.21
+  },
+  {
+   "variant": "fla-recurrent/float32/c512/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.93
+  },
+  {
+   "variant": "fla-recurrent/float32/c512/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.24
+  },
+  {
+   "variant": "fla-recurrent/float32/c4096/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 11.22
+  },
+  {
+   "variant": "fla-recurrent/float32/c4096/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.47
+  },
+  {
+   "variant": "fla-recurrent/bfloat16/c64/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.45
+  },
+  {
+   "variant": "fla-recurrent/bfloat16/c64/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.21
+  },
+  {
+   "variant": "fla-recurrent/bfloat16/c512/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.95
+  },
+  {
+   "variant": "fla-recurrent/bfloat16/c512/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.23
+  },
+  {
+   "variant": "fla-recurrent/bfloat16/c4096/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 10.43
+  },
+  {
+   "variant": "fla-recurrent/bfloat16/c4096/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 0.0,
+   "seconds": 0.45
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/float32/c64/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 0.5
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/float32/c64/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 0.21
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/float32/c512/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 1.01
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/float32/c512/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 0.23
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/float32/c4096/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 11.22
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/float32/c4096/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 0.51
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/bfloat16/c64/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 0.49
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/bfloat16/c64/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 0.22
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/bfloat16/c512/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 1.06
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/bfloat16/c512/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 0.24
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/bfloat16/c4096/overwrite",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 10.92
+  },
+  {
+   "variant": "fla-recurrent/kernel-norm/bfloat16/c4096/random_mix",
+   "actions": 3000,
+   "mismatches": 0,
+   "max_residue": 9.54e-07,
+   "seconds": 0.45
+  }
+ ],
+ "main": [
+  {
+   "variant": "fla-chunk/float32/c64/idle",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 76.852,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/float32/c64/invalid",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 32.14,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/float32/c64/overwrite",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 118.331,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/float32/c64/untouched",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 118.329,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/float32/c64/alternate",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 118.412,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/float32/c64/capacity",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 118.694,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/float32/c64/clear_region",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 124.161,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/float32/c64/random_mix",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 18.748,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/float32/c512/idle",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c512/capacity",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c512/overwrite",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c512/alternate",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c512/untouched",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c512/invalid",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c512/random_mix",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c512/clear_region",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c4096/clear_region",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c4096/untouched",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c4096/alternate",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c4096/idle",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c4096/random_mix",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c4096/capacity",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c4096/overwrite",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/float32/c4096/invalid",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c64/idle",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 40.676,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c64/invalid",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 31.999,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c64/capacity",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 81.682,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c64/untouched",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 82.593,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c64/overwrite",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 83.632,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c64/alternate",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 82.828,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c64/clear_region",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 87.553,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c64/random_mix",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 18.009,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c512/idle",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c512/clear_region",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c512/overwrite",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c512/alternate",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c512/capacity",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c512/untouched",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c512/invalid",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c512/random_mix",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c4096/alternate",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c4096/idle",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c4096/capacity",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c4096/untouched",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c4096/overwrite",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c4096/clear_region",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c4096/invalid",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/bfloat16/c4096/random_mix",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c64/idle",
+   "classification": "conforms with residue",
+   "mismatches": 0,
+   "seconds": 17.984,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c64/invalid",
+   "classification": "conforms with residue",
+   "mismatches": 0,
+   "seconds": 32.0,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c64/untouched",
+   "classification": "conforms with residue",
+   "mismatches": 0,
+   "seconds": 59.047,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c64/capacity",
+   "classification": "conforms with residue",
+   "mismatches": 0,
+   "seconds": 58.736,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c64/overwrite",
+   "classification": "conforms with residue",
+   "mismatches": 0,
+   "seconds": 59.458,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c64/alternate",
+   "classification": "conforms with residue",
+   "mismatches": 0,
+   "seconds": 59.337,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c64/clear_region",
+   "classification": "conforms with residue",
+   "mismatches": 0,
+   "seconds": 64.841,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c64/random_mix",
+   "classification": "conforms with residue",
+   "mismatches": 0,
+   "seconds": 17.616,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c512/capacity",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c512/idle",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c512/alternate",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c512/untouched",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c512/overwrite",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c512/clear_region",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c512/random_mix",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c512/invalid",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c4096/idle",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c4096/untouched",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c4096/alternate",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c4096/overwrite",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c4096/clear_region",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c4096/capacity",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c4096/invalid",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/float32/c4096/random_mix",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c64/idle",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 16.252,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c64/invalid",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 32.051,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c64/untouched",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 57.818,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c64/alternate",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 58.395,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c64/overwrite",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 58.098,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c64/capacity",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 56.637,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c64/clear_region",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 62.923,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c64/random_mix",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 17.556,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c512/untouched",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c512/capacity",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c512/overwrite",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c512/idle",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c512/alternate",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c512/clear_region",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c512/random_mix",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c512/invalid",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c4096/idle",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c4096/overwrite",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c4096/alternate",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c4096/clear_region",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c4096/untouched",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c4096/capacity",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c4096/random_mix",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-chunk/kernel-norm/bfloat16/c4096/invalid",
+   "classification": "error",
+   "mismatches": 0,
+   "seconds": 0.0,
+   "error": "AssertionError: current kernel does not support head dimension larger than 256."
+  },
+  {
+   "variant": "fla-recurrent/float32/c64/idle",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 5.077,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c64/invalid",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 32.226,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c64/untouched",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 46.237,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c64/overwrite",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 46.905,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c64/alternate",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 46.884,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c64/capacity",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 46.446,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c64/clear_region",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 59.626,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c64/random_mix",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 38.219,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c512/idle",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 32.045,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c512/overwrite",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 48.287,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c512/untouched",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 48.07,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c512/alternate",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 48.562,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c512/invalid",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 26.072,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c512/capacity",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 39.593,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c512/clear_region",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 57.931,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c512/random_mix",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 42.856,
+   "error": null
+  },
+  {
+   "variant": "fla-recurrent/float32/c4096/overwrite",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 92.996,
+   "error": null
+  },
+  {
+   "variant": "fla-chunk/float32/c128/idle",
+   "classification": "exact",
+   "mismatches": 0,
+   "seconds": 76.627,
+   "error": null
+  }
+ ]
+}

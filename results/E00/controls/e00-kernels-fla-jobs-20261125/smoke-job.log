@@ -1,0 +1,237 @@
++ git clone https://github.com/JGalego/latent-machines.git repo
+Cloning into 'repo'...
++ cd repo
++ git checkout 8eb130f804dd52e65aebf7e13142e7899873ae6f
+Note: switching to '8eb130f804dd52e65aebf7e13142e7899873ae6f'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 8eb130f E00: chunked and fused delta-rule kernel check
++ uv sync --locked --extra torch-cuda
+Using CPython 3.13.11 interpreter at: /usr/local/bin/python3.13
+Creating virtual environment at: .venv
+Resolved 74 packages in 0.80ms
+   Building latent-machines @ file:///repo
+Downloading nvidia-nccl-cu13 (206.0MiB)
+Downloading nvidia-cuda-cupti (11.4MiB)
+Downloading nvidia-cuda-runtime (2.2MiB)
+Downloading nvidia-cusparselt-cu13 (162.3MiB)
+Downloading nvidia-nvshmem-cu13 (129.1MiB)
+Downloading cuda-bindings (8.0MiB)
+Downloading nvidia-cufile (1.3MiB)
+Downloading pygments (1.2MiB)
+Downloading networkx (2.0MiB)
+Downloading nvidia-cuda-cccl (3.9MiB)
+Downloading nvidia-cusolver (217.4MiB)
+Downloading nvidia-cufft (208.1MiB)
+Downloading nvidia-cublas (386.1MiB)
+Downloading virtualenv (5.4MiB)
+Downloading sympy (6.0MiB)
+Downloading ruff (10.1MiB)
+Downloading nvidia-cuda-nvrtc (44.8MiB)
+Downloading triton (272.4MiB)
+Downloading nvidia-nvjitlink (44.5MiB)
+Downloading torch (514.2MiB)
+Downloading nvidia-cusparse (144.0MiB)
+Downloading nvidia-cudnn-cu13 (495.1MiB)
+ Downloaded nvidia-cufile
+ Downloaded nvidia-cuda-runtime
+ Downloaded pygments
+      Built latent-machines @ file:///repo
+ Downloaded networkx
+ Downloaded virtualenv
+ Downloaded cuda-bindings
+ Downloaded ruff
+ Downloaded nvidia-cuda-cupti
+ Downloaded sympy
+ Downloaded nvidia-nvjitlink
+ Downloaded nvidia-cuda-nvrtc
+ Downloaded nvidia-cuda-cccl
+ Downloaded nvidia-nvshmem-cu13
+ Downloaded nvidia-cusparse
+ Downloaded nvidia-cusparselt-cu13
+ Downloaded nvidia-nccl-cu13
+ Downloaded nvidia-cufft
+ Downloaded nvidia-cusolver
+ Downloaded triton
+ Downloaded nvidia-cublas
+ Downloaded nvidia-cudnn-cu13
+ Downloaded torch
+Prepared 45 packages in 26.71s
+Installed 45 packages in 486ms
+ + cfgv==3.5.0
+ + cuda-bindings==13.5.0
+ + cuda-pathfinder==1.9.0
+ + cuda-toolkit==13.2.2
+ + distlib==0.4.4
+ + filelock==4.2.10
+ + fsspec==2026.9.0
+ + identify==2.6.20
+ + iniconfig==2.3.1
+ + jinja2==3.1.6
+ + latent-machines==0.1.0 (from file:///repo)
+ + markupsafe==3.0.4
+ + mpmath==1.3.0
+ + networkx==3.7
+ + nodeenv==1.12.0
+ + nvidia-cublas==13.4.1.3
+ + nvidia-cuda-cccl==13.3.5.0.6
+ + nvidia-cuda-cupti==13.2.86
+ + nvidia-cuda-nvrtc==13.2.86
+ + nvidia-cuda-runtime==13.2.86
+ + nvidia-cudnn-cu13==9.26.0.51
+ + nvidia-cufft==12.2.0.57
+ + nvidia-cufile==1.17.1.22
+ + nvidia-cusolver==12.2.0.11
+ + nvidia-cusparse==12.7.10.12
+ + nvidia-cusparselt-cu13==0.8.1
+ + nvidia-nccl-cu13==2.30.7
+ + nvidia-nvjitlink==13.5.37
+ + nvidia-nvshmem-cu13==3.7.2
+ + nvidia-nvtx==13.2.86
+ + packaging==26.3
+ + platformdirs==4.14.5
+ + pluggy==1.7.0
+ + pre-commit==4.7.0
+ + pygments==2.21.0
+ + pytest==9.2.0
+ + python-discovery==1.9.5
+ + pyyaml==6.0.3
+ + ruff==0.17.5
+ + setuptools==84.2.1
+ + sympy==1.14.0
+ + torch==2.15.0
+ + triton==3.9.0
+ + typing-extensions==4.16.0
+ + virtualenv==21.15.6
++ uv pip install --no-deps flash-linear-attention==0.6.0 fla-core==0.6.0 einops
++ tail -5
+Prepared 3 packages in 112ms
+Installed 3 packages in 45ms
+ + einops==0.8.2
+ + fla-core==0.6.0
+ + flash-linear-attention==0.6.0
++ nvidia-smi
++ head -15
+Wed Nov 25 14:15:03 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 620.70.06              KMD Version: 620.70.06     CUDA UMD Version: 13.5     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA L4                      On  |   00000000:31:00.0 Off |                    0 |
+| N/A   40C    P8             17W /   72W |       0MiB /  23034MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
++ uv run --no-sync python -c 'import torch, triton, fla; print(torch.__version__, triton.__version__, torch.cuda.is_available())'
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+2.15.0+cu132 3.9.0 True
++ uv run --no-sync python -m latent_machines.experiments.e00_kernels --kernels fla-chunk,fla-recurrent --dtypes float32,bfloat16 --capacities 64,512,4096 --workloads overwrite,random_mix --horizon 3000 --kernel-norm both --device cuda --jobs 1 --out runs
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+fla-chunk/float32/c64/overwrite                   3000 actions  0 mismatches  residue 0  snapshot not applicable    42.09s
+fla-chunk/float32/c64/random_mix                  3000 actions  0 mismatches  residue 0  snapshot not applicable     0.20s
+fla-chunk/float32/c512/overwrite                     0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/float32/c512/random_mix                    0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/float32/c4096/overwrite                    0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/float32/c4096/random_mix                   0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/bfloat16/c64/overwrite                  3000 actions  0 mismatches  residue 0  snapshot not applicable    22.99s
+fla-chunk/bfloat16/c64/random_mix                 3000 actions  0 mismatches  residue 0  snapshot not applicable     0.21s
+fla-chunk/bfloat16/c512/overwrite                    0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/bfloat16/c512/random_mix                   0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/bfloat16/c4096/overwrite                   0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/bfloat16/c4096/random_mix                  0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/kernel-norm/float32/c64/overwrite       3000 actions  0 mismatches  residue 0.0039  snapshot not applicable     7.60s
+fla-chunk/kernel-norm/float32/c64/random_mix      3000 actions  0 mismatches  residue 0.00244  snapshot not applicable     0.21s
+fla-chunk/kernel-norm/float32/c512/overwrite         0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/kernel-norm/float32/c512/random_mix         0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/kernel-norm/float32/c4096/overwrite         0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/kernel-norm/float32/c4096/random_mix         0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/kernel-norm/bfloat16/c64/overwrite      3000 actions  0 mismatches  residue 0  snapshot not applicable     7.28s
+fla-chunk/kernel-norm/bfloat16/c64/random_mix      3000 actions  0 mismatches  residue 0  snapshot not applicable     0.21s
+fla-chunk/kernel-norm/bfloat16/c512/overwrite         0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/kernel-norm/bfloat16/c512/random_mix         0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/kernel-norm/bfloat16/c4096/overwrite         0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-chunk/kernel-norm/bfloat16/c4096/random_mix         0 actions  0 mismatches  residue 0  snapshot not applicable     0.00s
+fla-recurrent/float32/c64/overwrite               3000 actions  0 mismatches  residue 0  snapshot not applicable     0.44s
+fla-recurrent/float32/c64/random_mix              3000 actions  0 mismatches  residue 0  snapshot not applicable     0.21s
+fla-recurrent/float32/c512/overwrite              3000 actions  0 mismatches  residue 0  snapshot not applicable     0.93s
+fla-recurrent/float32/c512/random_mix             3000 actions  0 mismatches  residue 0  snapshot not applicable     0.24s
+fla-recurrent/float32/c4096/overwrite             3000 actions  0 mismatches  residue 0  snapshot not applicable    11.22s
+fla-recurrent/float32/c4096/random_mix            3000 actions  0 mismatches  residue 0  snapshot not applicable     0.47s
+fla-recurrent/bfloat16/c64/overwrite              3000 actions  0 mismatches  residue 0  snapshot not applicable     0.45s
+fla-recurrent/bfloat16/c64/random_mix             3000 actions  0 mismatches  residue 0  snapshot not applicable     0.21s
+fla-recurrent/bfloat16/c512/overwrite             3000 actions  0 mismatches  residue 0  snapshot not applicable     0.95s
+fla-recurrent/bfloat16/c512/random_mix            3000 actions  0 mismatches  residue 0  snapshot not applicable     0.23s
+fla-recurrent/bfloat16/c4096/overwrite            3000 actions  0 mismatches  residue 0  snapshot not applicable    10.43s
+fla-recurrent/bfloat16/c4096/random_mix           3000 actions  0 mismatches  residue 0  snapshot not applicable     0.45s
+fla-recurrent/kernel-norm/float32/c64/overwrite      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable     0.50s
+fla-recurrent/kernel-norm/float32/c64/random_mix      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable     0.21s
+fla-recurrent/kernel-norm/float32/c512/overwrite      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable     1.01s
+fla-recurrent/kernel-norm/float32/c512/random_mix      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable     0.23s
+fla-recurrent/kernel-norm/float32/c4096/overwrite      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable    11.22s
+fla-recurrent/kernel-norm/float32/c4096/random_mix      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable     0.51s
+fla-recurrent/kernel-norm/bfloat16/c64/overwrite      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable     0.49s
+fla-recurrent/kernel-norm/bfloat16/c64/random_mix      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable     0.22s
+fla-recurrent/kernel-norm/bfloat16/c512/overwrite      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable     1.06s
+fla-recurrent/kernel-norm/bfloat16/c512/random_mix      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable     0.24s
+fla-recurrent/kernel-norm/bfloat16/c4096/overwrite      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable    10.92s
+fla-recurrent/kernel-norm/bfloat16/c4096/random_mix      3000 actions  0 mismatches  residue 9.54e-07  snapshot not applicable     0.45s
+status: passed
+record: runs/e00-kernels-20261125T141517Z-8eb130f-5259
+{
+  "1_chunked_exact_in_float64_and_float32": {
+    "variants": 0,
+    "completed": 0,
+    "with_mismatches": 0,
+    "mismatches": 0,
+    "errors": 0,
+    "met": false
+  },
+  "2_chunked_bfloat16_has_a_mismatch": {
+    "variants": 0,
+    "completed": 0,
+    "with_mismatches": 0,
+    "mismatches": 0,
+    "errors": 0,
+    "met": false
+  },
+  "3_fused_bfloat16_has_a_mismatch": {
+    "variants": 24,
+    "completed": 16,
+    "with_mismatches": 0,
+    "mismatches": 0,
+    "errors": 8,
+    "met": false,
+    "note": null
+  }
+}
++ rc=0
++ uv run --no-sync python -c 'from huggingface_hub import HfApi; HfApi().upload_folder(repo_id='\''jgalego/latent-machines-runs'\'', repo_type='\''dataset'\'', folder_path='\''runs'\'', path_in_repo='\''runs'\'', commit_message='\''E00 kernel smoke from 8eb130f804dd52e65aebf7e13142e7899873ae6f'\'')'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from huggingface_hub import HfApi; HfApi().upload_folder(repo_id='jgalego/latent-machines-runs', repo_type='dataset', folder_path='runs', path_in_repo='runs', commit_message='E00 kernel smoke from 8eb130f804dd52e65aebf7e13142e7899873ae6f')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'huggingface_hub'
++ exit 0

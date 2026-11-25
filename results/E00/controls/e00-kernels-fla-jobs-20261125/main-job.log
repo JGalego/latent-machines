@@ -1,0 +1,303 @@
++ git clone https://github.com/JGalego/latent-machines.git repo
+Cloning into 'repo'...
++ cd repo
++ git checkout 48869da92f4baa146ef3485d0547c797392cebad
+Note: switching to '48869da92f4baa146ef3485d0547c797392cebad'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 48869da E00: print each kernel variant's outcome and error as it finishes
++ uv sync --locked --extra torch-cuda
+Using CPython 3.13.11 interpreter at: /usr/local/bin/python3.13
+Creating virtual environment at: .venv
+Resolved 74 packages in 0.87ms
+   Building latent-machines @ file:///repo
+Downloading nvidia-nvshmem-cu13 (129.1MiB)
+Downloading nvidia-nvjitlink (44.5MiB)
+Downloading nvidia-cusolver (217.4MiB)
+Downloading nvidia-cublas (386.1MiB)
+Downloading nvidia-cufft (208.1MiB)
+Downloading nvidia-cusparselt-cu13 (162.3MiB)
+Downloading nvidia-nccl-cu13 (206.0MiB)
+Downloading virtualenv (5.4MiB)
+Downloading nvidia-cuda-nvrtc (44.8MiB)
+Downloading nvidia-cusparse (144.0MiB)
+Downloading nvidia-cuda-cccl (3.9MiB)
+Downloading nvidia-cuda-runtime (2.2MiB)
+Downloading nvidia-cudnn-cu13 (495.1MiB)
+Downloading sympy (6.0MiB)
+Downloading ruff (10.1MiB)
+Downloading nvidia-cuda-cupti (11.4MiB)
+Downloading pygments (1.2MiB)
+Downloading nvidia-cufile (1.3MiB)
+Downloading networkx (2.0MiB)
+Downloading triton (272.4MiB)
+Downloading torch (514.2MiB)
+Downloading cuda-bindings (8.0MiB)
+ Downloaded nvidia-cufile
+ Downloaded nvidia-cuda-runtime
+      Built latent-machines @ file:///repo
+ Downloaded pygments
+ Downloaded networkx
+ Downloaded virtualenv
+ Downloaded cuda-bindings
+ Downloaded ruff
+ Downloaded nvidia-cuda-cupti
+ Downloaded sympy
+ Downloaded nvidia-nvjitlink
+ Downloaded nvidia-cuda-nvrtc
+ Downloaded nvidia-cuda-cccl
+ Downloaded nvidia-nvshmem-cu13
+ Downloaded nvidia-cusparse
+ Downloaded nvidia-cusparselt-cu13
+ Downloaded nvidia-cufft
+ Downloaded nvidia-nccl-cu13
+ Downloaded nvidia-cusolver
+ Downloaded triton
+ Downloaded nvidia-cublas
+ Downloaded nvidia-cudnn-cu13
+ Downloaded torch
+Prepared 45 packages in 19.33s
+Installed 45 packages in 454ms
+ + cfgv==3.5.0
+ + cuda-bindings==13.5.0
+ + cuda-pathfinder==1.9.0
+ + cuda-toolkit==13.2.2
+ + distlib==0.4.4
+ + filelock==4.2.10
+ + fsspec==2026.9.0
+ + identify==2.6.20
+ + iniconfig==2.3.1
+ + jinja2==3.1.6
+ + latent-machines==0.1.0 (from file:///repo)
+ + markupsafe==3.0.4
+ + mpmath==1.3.0
+ + networkx==3.7
+ + nodeenv==1.12.0
+ + nvidia-cublas==13.4.1.3
+ + nvidia-cuda-cccl==13.3.5.0.6
+ + nvidia-cuda-cupti==13.2.86
+ + nvidia-cuda-nvrtc==13.2.86
+ + nvidia-cuda-runtime==13.2.86
+ + nvidia-cudnn-cu13==9.26.0.51
+ + nvidia-cufft==12.2.0.57
+ + nvidia-cufile==1.17.1.22
+ + nvidia-cusolver==12.2.0.11
+ + nvidia-cusparse==12.7.10.12
+ + nvidia-cusparselt-cu13==0.8.1
+ + nvidia-nccl-cu13==2.30.7
+ + nvidia-nvjitlink==13.5.37
+ + nvidia-nvshmem-cu13==3.7.2
+ + nvidia-nvtx==13.2.86
+ + packaging==26.3
+ + platformdirs==4.14.5
+ + pluggy==1.7.0
+ + pre-commit==4.7.0
+ + pygments==2.21.0
+ + pytest==9.2.0
+ + python-discovery==1.9.5
+ + pyyaml==6.0.3
+ + ruff==0.17.5
+ + setuptools==84.2.1
+ + sympy==1.14.0
+ + torch==2.15.0
+ + triton==3.9.0
+ + typing-extensions==4.16.0
+ + virtualenv==21.15.6
++ uv pip install --no-deps flash-linear-attention==0.6.0 fla-core==0.6.0 einops
++ tail -3
+ + einops==0.8.2
+ + fla-core==0.6.0
+ + flash-linear-attention==0.6.0
++ uv pip install huggingface_hub
++ tail -1
+ + truststore==0.10.5
++ timeout 780 uv run --no-sync python -m latent_machines.experiments.e00_kernels --kernels fla-chunk,fla-recurrent --dtypes float32,bfloat16 --capacities 64,512,4096 --kernel-norm both --device cuda --jobs 6 --out runs
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+fla-chunk/float32/c64/idle                           exact                  0 mismatches, 76.852s
+fla-chunk/float32/c64/invalid                        exact                  0 mismatches, 32.14s
+fla-chunk/float32/c64/overwrite                      exact                  0 mismatches, 118.331s
+fla-chunk/float32/c64/untouched                      exact                  0 mismatches, 118.329s
+fla-chunk/float32/c64/alternate                      exact                  0 mismatches, 118.412s
+fla-chunk/float32/c64/capacity                       exact                  0 mismatches, 118.694s
+fla-chunk/float32/c64/clear_region                   exact                  0 mismatches, 124.161s
+fla-chunk/float32/c64/random_mix                     exact                  0 mismatches, 18.748s
+fla-chunk/float32/c512/idle                          error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c512/capacity                      error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c512/overwrite                     error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c512/alternate                     error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c512/untouched                     error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c512/invalid                       error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c512/random_mix                    error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c512/clear_region                  error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c4096/clear_region                 error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c4096/untouched                    error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c4096/alternate                    error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c4096/idle                         error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c4096/random_mix                   error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c4096/capacity                     error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c4096/overwrite                    error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/float32/c4096/invalid                      error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c64/idle                          exact                  0 mismatches, 40.676s
+fla-chunk/bfloat16/c64/invalid                       exact                  0 mismatches, 31.999s
+fla-chunk/bfloat16/c64/capacity                      exact                  0 mismatches, 81.682s
+fla-chunk/bfloat16/c64/untouched                     exact                  0 mismatches, 82.593s
+fla-chunk/bfloat16/c64/overwrite                     exact                  0 mismatches, 83.632s
+fla-chunk/bfloat16/c64/alternate                     exact                  0 mismatches, 82.828s
+fla-chunk/bfloat16/c64/clear_region                  exact                  0 mismatches, 87.553s
+fla-chunk/bfloat16/c64/random_mix                    exact                  0 mismatches, 18.009s
+fla-chunk/bfloat16/c512/idle                         error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c512/clear_region                 error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c512/overwrite                    error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c512/alternate                    error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c512/capacity                     error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c512/untouched                    error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c512/invalid                      error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c512/random_mix                   error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c4096/alternate                   error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c4096/idle                        error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c4096/capacity                    error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c4096/untouched                   error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c4096/overwrite                   error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c4096/clear_region                error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c4096/invalid                     error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/bfloat16/c4096/random_mix                  error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c64/idle               conforms with residue  0 mismatches, 17.984s
+fla-chunk/kernel-norm/float32/c64/invalid            conforms with residue  0 mismatches, 32.0s
+fla-chunk/kernel-norm/float32/c64/untouched          conforms with residue  0 mismatches, 59.047s
+fla-chunk/kernel-norm/float32/c64/capacity           conforms with residue  0 mismatches, 58.736s
+fla-chunk/kernel-norm/float32/c64/overwrite          conforms with residue  0 mismatches, 59.458s
+fla-chunk/kernel-norm/float32/c64/alternate          conforms with residue  0 mismatches, 59.337s
+fla-chunk/kernel-norm/float32/c64/clear_region       conforms with residue  0 mismatches, 64.841s
+fla-chunk/kernel-norm/float32/c64/random_mix         conforms with residue  0 mismatches, 17.616s
+fla-chunk/kernel-norm/float32/c512/capacity          error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c512/idle              error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c512/alternate         error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c512/untouched         error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c512/overwrite         error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c512/clear_region      error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c512/random_mix        error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c512/invalid           error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c4096/idle             error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c4096/untouched        error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c4096/alternate        error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c4096/overwrite        error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c4096/clear_region     error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c4096/capacity         error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c4096/invalid          error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/float32/c4096/random_mix       error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c64/idle              exact                  0 mismatches, 16.252s
+fla-chunk/kernel-norm/bfloat16/c64/invalid           exact                  0 mismatches, 32.051s
+fla-chunk/kernel-norm/bfloat16/c64/untouched         exact                  0 mismatches, 57.818s
+fla-chunk/kernel-norm/bfloat16/c64/alternate         exact                  0 mismatches, 58.395s
+fla-chunk/kernel-norm/bfloat16/c64/overwrite         exact                  0 mismatches, 58.098s
+fla-chunk/kernel-norm/bfloat16/c64/capacity          exact                  0 mismatches, 56.637s
+fla-chunk/kernel-norm/bfloat16/c64/clear_region      exact                  0 mismatches, 62.923s
+fla-chunk/kernel-norm/bfloat16/c64/random_mix        exact                  0 mismatches, 17.556s
+fla-chunk/kernel-norm/bfloat16/c512/untouched        error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c512/capacity         error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c512/overwrite        error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c512/idle             error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c512/alternate        error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c512/clear_region     error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c512/random_mix       error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c512/invalid          error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c4096/idle            error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c4096/overwrite       error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c4096/alternate       error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c4096/clear_region    error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c4096/untouched       error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c4096/capacity        error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c4096/random_mix      error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-chunk/kernel-norm/bfloat16/c4096/invalid         error                  0 mismatches, 0.0s AssertionError: current kernel does not support head dimension larger than 256.
+fla-recurrent/float32/c64/idle                       exact                  0 mismatches, 5.077s
+fla-recurrent/float32/c64/invalid                    exact                  0 mismatches, 32.226s
+fla-recurrent/float32/c64/untouched                  exact                  0 mismatches, 46.237s
+fla-recurrent/float32/c64/overwrite                  exact                  0 mismatches, 46.905s
+fla-recurrent/float32/c64/alternate                  exact                  0 mismatches, 46.884s
+fla-recurrent/float32/c64/capacity                   exact                  0 mismatches, 46.446s
+fla-recurrent/float32/c64/clear_region               exact                  0 mismatches, 59.626s
+fla-recurrent/float32/c64/random_mix                 exact                  0 mismatches, 38.219s
+fla-recurrent/float32/c512/idle                      exact                  0 mismatches, 32.045s
+fla-recurrent/float32/c512/overwrite                 exact                  0 mismatches, 48.287s
+fla-recurrent/float32/c512/untouched                 exact                  0 mismatches, 48.07s
+fla-recurrent/float32/c512/alternate                 exact                  0 mismatches, 48.562s
+fla-recurrent/float32/c512/invalid                   exact                  0 mismatches, 26.072s
+fla-recurrent/float32/c512/capacity                  exact                  0 mismatches, 39.593s
+fla-recurrent/float32/c512/clear_region              exact                  0 mismatches, 57.931s
+fla-recurrent/float32/c512/random_mix                exact                  0 mismatches, 42.856s
+fla-recurrent/float32/c4096/overwrite                exact                  0 mismatches, 92.996s
+/usr/local/lib/python3.13/multiprocessing/resource_tracker.py:400: UserWarning: resource_tracker: There appear to be 5 leaked semaphore objects to clean up at shutdown: {'/mp-98cutpq5', '/mp-5z7gwxrc', '/mp-bfpcbcmd', '/mp-aux0pbey', '/mp-fusjuowo'}
+  warnings.warn(
++ rc=124
++ timeout 90 uv run --no-sync python -m latent_machines.experiments.e00_kernels --kernels fla-chunk --dtypes float32,bfloat16 --capacities 128,256 --device cuda --jobs 6 --out runs
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+/repo/.venv/lib/python3.13/site-packages/triton/knobs.py:504: UserWarning: TRITON_DEFAULT_FP_FUSION is unset: defaulting to FP fusion ENABLED for backward compatibility in Triton 3.9. The default will change to DISABLED in Triton 3.10; set TRITON_DEFAULT_FP_FUSION=1 to keep fusion enabled or =0 to adopt the new default early and silence this warning.
+  warn_once(FP_FUSION_DEFAULT_WARNING)
+fla-chunk/float32/c128/idle                          exact                  0 mismatches, 76.627s
+/usr/local/lib/python3.13/multiprocessing/resource_tracker.py:400: UserWarning: resource_tracker: There appear to be 5 leaked semaphore objects to clean up at shutdown: {'/mp-yo5l40sa', '/mp-y9_sojn7', '/mp-oaob1j54', '/mp-8m_35gu1', '/mp-2d3afzzl'}
+  warnings.warn(
++ rc2=124
++ uv run --no-sync python -c 'from huggingface_hub import HfApi; HfApi().upload_folder(repo_id='\''jgalego/latent-machines-runs'\'', repo_type='\''dataset'\'', folder_path='\''runs'\'', path_in_repo='\''runs'\'', commit_message='\''E00 fused-kernel runs from 48869da92f4baa146ef3485d0547c797392cebad'\'')'
++ exit 124
