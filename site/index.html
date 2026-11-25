@@ -31,6 +31,27 @@
 </header>
 
 <main>
+  <section id="story" class="story">
+    <h2>Can a model use a machine without writing tool calls?</h2>
+    <p>A language model that needs exact state, such as memory it can overwrite, usually calls a tool: it writes a request as text and reads the reply as text. This project asks whether the model can instead drive a machine through an internal interface, and whether that machine can be built from neural-network arithmetic, so that a program runs in the model's own kind of layers.</p>
+    <p>That is two questions, and we test them separately. Whether a machine runs exactly in layer arithmetic is a conformance question, answered by comparing it with an integer oracle after every action. Whether a model controls it better through an internal interface is a comparison of controllers on matched tasks. The conformance question has produced more results; the controller question is the one that matters, and it has two experiments so far.</p>
+
+    <h3>Where the machine stops being the problem</h3>
+    <p>The machine executes exactly, yet every controller loses accuracy as programs grow beyond the length it was trained on. The chosen actions fail, not the memory.</p>
+    {{length_charts}}
+
+    <h3>A control overturned the headline</h3>
+    <p>In E03, feeding each machine step back into the model as a trained vector gave the best accuracy on long programs. A control that inserted the same kind of vector with no feedback in it did nearly as well. Most of the gain came from the trained positions, not from the feedback.</p>
+    {{feedback_grid}}
+
+    <h3>What each hypothesis has so far</h3>
+    <p>Several experiments check that a construction matches its specification. Those can fail only through a bug, so the ledger separates them from comparisons where the answer was open.</p>
+    {{ledger}}
+
+    <h3>What comes next</h3>
+    <p>The machines so far sit outside the model, reached through heads. The next experiment, <a href="https://github.com/JGalego/latent-machines/blob/main/EXPERIMENTS.md#e09---state-in-the-machine-not-the-context">E09</a>, is pre-registered: its predictions and the outcomes that would count against it are fixed before any run. It tests whether a controller that reads one statement at a time, with the machine holding all state, avoids the length loss above. After it, the plan puts the memory inside a model layer (E10) and tests whether a controller can learn to use it from the answer alone (E11). The paper follows.</p>
+  </section>
+
   <section id="abstract" class="abstract" aria-labelledby="abstract-title">
     <h2 id="abstract-title">Abstract</h2>
     <p>Language models that need exact computation typically call external tools, exchanging requests and results as text. An alternative is an internal interface, through which a model issues typed actions to a machine and receives typed observations within its own computation. Studying such an interface first requires machines that execute exactly when expressed in neural-network arithmetic. We separate the machine specification, its implementation, the controller interface, and the task, and we check every implementation against an independent integer oracle after every action, recording the residue of stored values before they are decoded. We implement a random-access memory in the state matrix of a Gated DeltaNet recurrence, finite-state transducers as two-layer ReLU lookup circuits, and a bounded stack built from delta-rule memory and a one-hot pointer. On CPU, in float32, float64, bfloat16, and float16, {{abstract_result}}. These are finite conformance results rather than proofs. In a comparison of learned controllers built on a frozen 135M-parameter language model, a typed internal interface answered more questions correctly than a textual tool on programs longer than those seen in training, and compiled and native executors gave identical answers; all controllers degraded on long programs. When the result of each machine step re-entered the model as a trained input vector, accuracy on long multi-step programs rose far above text, head, and native-loop feedback, but a control whose vectors carried no feedback did nearly as well: the gain came mostly from trained inputs, not from latent feedback. Tensor implementations of dataflow graphs, graph and Datalog fixed points, cellular automata, optimizer-written memory, and a SAT verifier matched their references in float32 and float64 within declared limits, were rarely faster than conventional algorithms, and failed in bfloat16 wherever an integer or coefficient needed more precision than it has.</p>
@@ -189,6 +210,7 @@ flowchart LR
     E01 --> E02["E02<br/>learned interfaces"]
     E02 --> E03["E03<br/>latent feedback"]
     E01 --> E04["E04-E08<br/>dataflow, graphs, grids,<br/>optimizers, search"]
+    E02 -.-> E09["E09 (pre-registered)<br/>state in the machine,<br/>not the context"]
       </pre>
       <figcaption class="caption"><strong>{{figure:roadmap}}:</strong> Experiment dependencies. {{experiment_status}}</figcaption>
     </figure>

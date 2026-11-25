@@ -11,6 +11,8 @@ static HTML, so every number on the page comes from a source file:
     {{results}}                    tables generated from results/<EXP>/<run>/
     {{toc}}                        contents list of the h2 and h3 headings after it
     {{abstract_result}}, {{conformance_summary}}, {{experiment_status}}
+    {{length_charts}}, {{feedback_grid}}  figures drawn from E02 and E03 run records
+    {{ledger}}                     hypothesis table from site/hypotheses.json
 
 Figures, tables, and equations are numbered in page order after results are
 expanded. Run records are rendered by kind: lockstep conformance runs (E00,
@@ -32,7 +34,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = "https://github.com/JGalego/latent-machines/blob/main"
-EXPERIMENTS = [f"E{n:02d}" for n in range(9)]
+EXPERIMENTS = [f"E{n:02d}" for n in range(10)]
 TITLES = {
     "E00": "memory conformance",
     "E01": "exact streaming machines",
@@ -43,11 +45,13 @@ TITLES = {
     "E06": "spatial and structured dynamical machines",
     "E07": "optimization-defined state updates",
     "E08": "heuristic search with an exact verifier",
+    "E09": "state in the machine, not the context",
 }
 SPLITS = {
     "test_in_distribution": "2-8 statements",
     "test_length_32": "32 statements",
     "test_length_64": "64 statements",
+    "test_length_256": "256 statements",
     "test_held_out_pairs": "held-out record-value pairs",
 }
 MARKER = re.compile(r"\{\{(\w+)(?::([^{}]*))?\}\}")
@@ -423,6 +427,218 @@ def render_results(experiments: dict[str, list[dict]]) -> str:
     )
 
 
+# ---------- story figures ----------
+
+ARM_NAMES = {
+    "E02": {
+        "A": "no interface",
+        "B": "text tool",
+        "C": "typed interface",
+        "D": "typed, delta-rule",
+    },
+    "E03": {
+        "T": "text feedback",
+        "L": "latent feedback",
+        "S": "steering control",
+        "H": "heads only",
+        "N": "native loop",
+    },
+}
+CHART_TITLES = {"E02": "E02: record updates", "E03": "E03: record updates with copies"}
+LENGTH_SPLITS = {
+    "test_in_distribution": "2–8",
+    "test_length_32": "32",
+    "test_length_64": "64",
+}
+VERDICTS = ("supported", "partly", "refuted", "null", "untested")
+
+
+def latest_learned(experiments: dict[str, list[dict]], exp_id: str) -> dict | None:
+    runs = [r for r in experiments.get(exp_id, []) if r["kind"] == "learned"]
+    return runs[-1] if runs else None
+
+
+def task_stats(run: dict) -> dict[str, dict[str, dict]]:
+    """Task accuracy statistics as {arm: {split: {mean, min, max}}} for length splits."""
+    stats: dict[str, dict[str, dict]] = {}
+    for s in run["metrics"]["summary"]:
+        if s.get("split") in LENGTH_SPLITS and s.get("task_accuracy"):
+            stats.setdefault(s["arm"], {})[s["split"]] = s["task_accuracy"]
+    return stats
+
+
+def length_chart(exp_id: str, run: dict) -> str:
+    """Task accuracy against program length, one labelled line per distinct arm."""
+    stats = task_stats(run)
+    order = [a for a in run["config"].get("arms", []) if a in stats] or sorted(stats)
+    splits = [
+        sp for sp in LENGTH_SPLITS if order and all(sp in stats[a] for a in order)
+    ]
+    if len(splits) < 2:
+        return ""
+    groups: list[dict] = []
+    for arm in order:
+        means = tuple(round(stats[arm][sp]["mean"], 6) for sp in splits)
+        match = next((g for g in groups if g["means"] == means), None)
+        if match:
+            match["arms"].append(arm)
+        else:
+            groups.append({"arms": [arm], "means": means})
+    width, height, left, right, top, bottom = 640, 320, 44, 190, 14, 46
+    plot_w, plot_h = width - left - right, height - top - bottom
+
+    def px(i: int) -> float:
+        return left + i * plot_w / (len(splits) - 1)
+
+    def py(value: float) -> float:
+        return top + (1 - value) * plot_h
+
+    parts = []
+    for tick in (0, 0.25, 0.5, 0.75, 1):
+        parts.append(
+            f'<line class="grid" x1="{left}" x2="{left + plot_w}" y1="{py(tick):.1f}" y2="{py(tick):.1f}"/>'
+            f'<text class="tick" x="{left - 6}" y="{py(tick) + 4:.1f}" text-anchor="end">{tick:g}</text>'
+        )
+    for i, sp in enumerate(splits):
+        parts.append(
+            f'<text class="tick" x="{px(i):.1f}" y="{top + plot_h + 18}" text-anchor="middle">{LENGTH_SPLITS[sp]}</text>'
+        )
+    parts.append(
+        f'<text class="tick" x="{left + plot_w / 2:.1f}" y="{height - 6}" text-anchor="middle">'
+        "statements per program (categorical; training used 2–8)</text>"
+        f'<text class="tick" transform="translate(12 {top + plot_h / 2:.0f}) rotate(-90)" text-anchor="middle">task accuracy</text>'
+    )
+    gap, last_y = 14.0, -1e9
+    for index, g in sorted(
+        enumerate(groups), key=lambda item: py(item[1]["means"][-1])
+    ):
+        ys = [py(m) for m in g["means"]]
+        g["label_y"] = last_y = max(ys[-1], last_y + gap)
+        g["index"] = index
+    for g in groups:
+        arm = g["arms"][0]
+        name = ARM_NAMES.get(exp_id, {}).get(arm, "")
+        label = f"{', '.join(g['arms'])} {name} {g['means'][-1]:.3f}".replace("  ", " ")
+        points = " ".join(f"{px(i):.1f},{py(m):.1f}" for i, m in enumerate(g["means"]))
+        marks = []
+        for i, sp in enumerate(splits):
+            lo, hi = stats[arm][sp]["min"], stats[arm][sp]["max"]
+            marks.append(
+                f'<line class="whisker" x1="{px(i):.1f}" x2="{px(i):.1f}" y1="{py(lo):.1f}" y2="{py(hi):.1f}"/>'
+                f'<circle cx="{px(i):.1f}" cy="{py(g["means"][i]):.1f}" r="3.5"/>'
+            )
+        parts.append(
+            f'<g class="series s{g["index"] % 5}"><polyline points="{points}"/>{"".join(marks)}'
+            f'<text x="{px(len(splits) - 1) + 10:.1f}" y="{g["label_y"] + 4:.1f}">{esc(label)}</text></g>'
+        )
+    arms_text = "; ".join(
+        f"{', '.join(g['arms'])}: {g['means'][-1]:.2f} at the longest length"
+        for g in groups
+    )
+    return (
+        f'<svg class="length-chart" viewBox="0 0 {width} {height}" role="img" '
+        f'aria-label="Task accuracy by program length. {esc(arms_text)}">{"".join(parts)}</svg>'
+    )
+
+
+def story_length_figure(experiments: dict[str, list[dict]]) -> str:
+    charts, mismatches, seeds = [], [], 0
+    for exp_id in ("E02", "E03"):
+        run = latest_learned(experiments, exp_id)
+        svg = length_chart(exp_id, run) if run else ""
+        if svg:
+            charts.append(
+                f'<div class="chart-title">{esc(CHART_TITLES[exp_id])}</div>{svg}'
+            )
+            mismatches.append(run["metrics"].get("executor_mismatches"))
+            seeds = max(
+                seeds, max(s.get("seeds", 0) for s in run["metrics"]["summary"])
+            )
+    if not charts:
+        return ""
+    cause = (
+        " The delta-rule executor matched its oracle on every action of every arm, so the drop comes from the controller's chosen actions, not from the machine."
+        if all(m == 0 for m in mismatches)
+        else ""
+    )
+    return (
+        '<figure class="figure story-figure">'
+        + "".join(charts)
+        + '<figcaption class="caption"><strong>{{figure:story-length}}:</strong> '
+        f"Task accuracy by program length, mean over {seeds} training seeds with the seed range as a whisker. "
+        "Arms with identical results share a line." + cause + "</figcaption></figure>"
+    )
+
+
+def feedback_grid(experiments: dict[str, list[dict]]) -> str:
+    """E03's four arms as a 2x2: trained input positions against feedback in the model."""
+    run = latest_learned(experiments, "E03")
+    if not run:
+        return ""
+    stats = task_stats(run)
+    if not {"H", "S", "T", "L"} <= stats.keys() or any(
+        sp not in stats[a]
+        for a in "HSTL"
+        for sp in ("test_length_32", "test_length_64")
+    ):
+        return ""
+
+    def value(arm: str, split: str = "test_length_32") -> float:
+        return stats[arm][split]["mean"]
+
+    def cell(arm: str) -> str:
+        name = ARM_NAMES["E03"][arm]
+        return (
+            f'<td><span class="big">{value(arm):.3f}</span>'
+            f'<span class="small">{arm} · {esc(name)}</span>'
+            f'<span class="small">64 statements: {value(arm, "test_length_64"):.3f}</span></td>'
+        )
+
+    row_effect = (value("S") + value("L") - value("H") - value("T")) / 2
+    column_effect = (value("T") + value("L") - value("H") - value("S")) / 2
+    names = ARM_NAMES["E03"]
+    return f"""<figure class="figure story-figure">
+      <div class="table-wrap"><table class="matrix2">
+        <thead><tr><th></th><th>Feedback stays outside the model</th><th>Feedback re-enters the model</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Trained input positions</th>{cell("S")}{cell("L")}</tr>
+          <tr><th scope="row">No trained positions</th>{cell("H")}{cell("T")}</tr>
+        </tbody>
+      </table></div>
+      <figcaption class="caption"><strong>{{{{figure:story-grid}}}}:</strong> E03 task accuracy at 32 statements, mean over seeds. Averaging the cells, trained positions change accuracy by {row_effect:+.2f} and feedback re-entering the model by {column_effect:+.2f}. In {esc(names["T"])} the feedback is ordinary text tokens; in {esc(names["L"])} it is one trained vector per step. Latent arms use more model positions than the others, so work is not matched. One frozen 135M model, one task.</figcaption>
+    </figure>"""
+
+
+def render_ledger(root: Path) -> str:
+    path = root / "site" / "hypotheses.json"
+    if not path.exists():
+        return ""
+    rows = []
+    for entry in json.loads(path.read_text()):
+        if entry["verdict"] not in VERDICTS:
+            raise BuildError(
+                f"hypothesis verdict {entry['verdict']!r} is not one of {VERDICTS}"
+            )
+        links = []
+        for label, target in entry["links"]:
+            if not (root / target.split("#")[0]).exists():
+                raise BuildError(f"hypotheses.json links to missing file {target!r}")
+            links.append(f'<a href="{REPO}/{esc(target)}">{esc(label)}</a>')
+        rows.append(
+            f"<tr><td>{esc(entry['claim'])}"
+            f'<span class="small">{esc(entry["note"])}</span></td>'
+            f'<td><span class="verdict {entry["verdict"]}">{esc(entry["label"])}</span></td>'
+            f'<td class="links">{" ".join(links)}</td></tr>'
+        )
+    return f"""<figure class="figure story-figure">
+      <div class="table-wrap"><table class="ledger">
+        <thead><tr><th>Hypothesis</th><th>Verdict</th><th>Evidence</th></tr></thead>
+        <tbody>{"".join(rows)}</tbody>
+      </table></div>
+      <figcaption class="caption"><strong>{{{{figure:story-ledger}}}}:</strong> Each hypothesis with its current verdict. Supported and refuted mean on the tested workloads and models only, with one to three seeds. Untested rows have no result.</figcaption>
+    </figure>"""
+
+
 # ---------- generated status text ----------
 
 
@@ -675,6 +891,9 @@ def render_page(root: Path) -> str:
         "conformance_summary": conformance_summary(stats),
         "experiment_status": experiment_status(experiments),
         "results_data": results_data(experiments),
+        "length_charts": story_length_figure(experiments),
+        "feedback_grid": feedback_grid(experiments),
+        "ledger": render_ledger(root),
     }
     page = MARKER.sub(
         lambda m: (

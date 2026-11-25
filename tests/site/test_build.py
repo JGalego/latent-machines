@@ -206,3 +206,76 @@ def test_search_arms_render_as_a_table(tmp_path: Path) -> None:
     page = build.render_page(root)
     assert "2/4 · 2 unsat" in page
     assert "search arms at a fixed step budget" in page
+
+
+def learned_run(arms: dict[str, list[float]], mismatches: int = 0) -> dict:
+    splits = ["test_in_distribution", "test_length_32", "test_length_64"]
+    summary = [
+        {
+            "arm": arm,
+            "split": split,
+            "seeds": 3,
+            "task_accuracy": {
+                "mean": means[i],
+                "min": means[i] - 0.01,
+                "max": means[i] + 0.01,
+            },
+        }
+        for arm, means in arms.items()
+        for i, split in enumerate(splits)
+    ]  # fmt: skip
+    return {
+        "summary": summary,
+        "runs": [],
+        "status": "completed",
+        "executor_mismatches": mismatches,
+    }
+
+
+def test_length_chart_merges_arms_with_identical_results(tmp_path: Path) -> None:
+    root = make_root(tmp_path, "{{length_charts}}", {})
+    arms = {"A": [0.7, 0.3, 0.2], "C": [0.9, 0.5, 0.3], "D": [0.9, 0.5, 0.3]}
+    add_run(root, "E02", "e02-x-abc1234-0001", learned_run(arms), {"arms": list(arms)})
+    page = build.render_page(root)
+    assert page.count("<polyline") == 2
+    assert "C, D typed interface 0.300" in page
+    assert "matched its oracle on every action" in page
+    assert "Figure 1:" in page
+
+
+def test_length_chart_omits_the_executor_claim_after_a_mismatch(tmp_path: Path) -> None:
+    root = make_root(tmp_path, "{{length_charts}}", {})
+    arms = {"A": [0.7, 0.3, 0.2], "C": [0.9, 0.5, 0.3]}
+    add_run(
+        root, "E02", "e02-x-abc1234-0001", learned_run(arms, 1), {"arms": list(arms)}
+    )
+    assert "matched its oracle" not in build.render_page(root)
+
+
+def test_feedback_grid_reports_row_and_column_effects(tmp_path: Path) -> None:
+    root = make_root(tmp_path, "{{feedback_grid}}", {})
+    arms = {
+        "H": [0.9, 0.4, 0.3], "S": [0.99, 0.8, 0.6],
+        "T": [0.8, 0.2, 0.1], "L": [0.98, 0.8, 0.6],
+    }  # fmt: skip
+    add_run(root, "E03", "e03-x-abc1234-0001", learned_run(arms), {"arms": list(arms)})
+    page = build.render_page(root)
+    assert "trained positions change accuracy by +0.50" in page
+    assert "re-entering the model by -0.10" in page
+
+
+def test_story_figures_are_empty_without_records(tmp_path: Path) -> None:
+    root = make_root(tmp_path, "{{length_charts}}{{feedback_grid}}{{ledger}}", {})
+    assert build.render_page(root) == ""
+
+
+def test_ledger_rejects_unknown_verdicts_and_missing_links(tmp_path: Path) -> None:
+    root = make_root(tmp_path, "{{ledger}}", {})
+    entry = {"claim": "c", "verdict": "maybe", "label": "x", "note": "n", "links": []}
+    (root / "site" / "hypotheses.json").write_text(json.dumps([entry]))
+    with pytest.raises(build.BuildError, match="verdict"):
+        build.render_page(root)
+    entry |= {"verdict": "supported", "links": [["E00", "results/E00/README.md"]]}
+    (root / "site" / "hypotheses.json").write_text(json.dumps([entry]))
+    with pytest.raises(build.BuildError, match="missing file"):
+        build.render_page(root)

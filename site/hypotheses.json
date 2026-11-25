@@ -1,0 +1,79 @@
+[
+  {
+    "claim": "A delta-rule state matrix with gates fixed at 0 or 1 works as exact random-access memory.",
+    "verdict": "supported",
+    "label": "supported",
+    "note": "In the tested CPU formats and workloads. It breaks when a gate is slightly below 1 or the key norm adds an epsilon, as the interactive memory below shows.",
+    "links": [["E00", "results/E00/README.md"]]
+  },
+  {
+    "claim": "Finite-state transducers and a bounded stack compile into layer arithmetic exactly.",
+    "verdict": "supported",
+    "label": "supported",
+    "note": "ReLU lookup circuits and a delta-rule stack, on the tested workloads.",
+    "links": [["E01", "results/E01/README.md"]]
+  },
+  {
+    "claim": "A learned controller does better through a typed internal interface than through a text tool.",
+    "verdict": "supported",
+    "label": "supported",
+    "note": "The margin is small at the training length and clear beyond it. One frozen 135M model, one task.",
+    "links": [["E02", "results/E02/README.md"]]
+  },
+  {
+    "claim": "Running the machine as compiled tensors, instead of native code, changes the controller's accuracy.",
+    "verdict": "null",
+    "label": "no effect",
+    "note": "Identical answers, as the executor conformance results predict.",
+    "links": [["E02", "results/E02/README.md"]]
+  },
+  {
+    "claim": "Feeding each machine step back into the model improves control beyond what extra trained input positions give.",
+    "verdict": "refuted",
+    "label": "mostly refuted",
+    "note": "A control with the same positions and no feedback matched it, and led on shorter programs. Feedback led only on the longest.",
+    "links": [["E03", "results/E03/README.md"]]
+  },
+  {
+    "claim": "Tensor implementations of dataflow, graph, and logic machines are faster than conventional code.",
+    "verdict": "refuted",
+    "label": "refuted",
+    "note": "Slower than plain Python for single inputs and sparse graphs. The compiled SAT verifier was faster than the Python verifier, but search stayed uncompetitive.",
+    "links": [["E04", "results/E04/README.md"], ["E05", "results/E05/README.md"], ["E08", "results/E08/README.md"]]
+  },
+  {
+    "claim": "The machines keep their exactness in bfloat16.",
+    "verdict": "refuted",
+    "label": "fails past limits",
+    "note": "Boolean and fixed-pattern machines held. Integers beyond 256, filter poles near 1, and small decay factors did not.",
+    "links": [["E04", "results/E04/README.md"], ["E05", "results/E05/README.md"], ["E06", "results/E06/README.md"], ["E07", "results/E07/README.md"], ["E08", "results/E08/README.md"]]
+  },
+  {
+    "claim": "A memory written by an optimizer behaves as random-access memory.",
+    "verdict": "partly",
+    "label": "one setting",
+    "note": "Only sequential SGD with learning rate 1 and one-hot keys. Every single change departed from RAM in its own way.",
+    "links": [["E07", "results/E07/README.md"]]
+  },
+  {
+    "claim": "A controller that reads one statement at a time, with the machine holding all state, beats full-context controllers on long programs.",
+    "verdict": "untested",
+    "label": "pre-registered",
+    "note": "Predictions and the outcomes that would count against it are fixed before the run.",
+    "links": [["E09", "EXPERIMENTS.md#e09---state-in-the-machine-not-the-context"]]
+  },
+  {
+    "claim": "A memory inside a model layer controls better than the same memory reached through heads.",
+    "verdict": "untested",
+    "label": "proposed",
+    "note": "Must beat the E03 arms with the same trained parameters before the placement gets credit.",
+    "links": [["E10", "EXPERIMENTS.md#e10---a-machine-layer-inside-the-model"]]
+  },
+  {
+    "claim": "A controller can learn to use the machine from the answer loss alone.",
+    "verdict": "untested",
+    "label": "proposed",
+    "note": "Needs gradients through the machine, which an external tool cannot offer.",
+    "links": [["E11", "EXPERIMENTS.md#e11---learning-to-use-the-machine-from-outcomes"]]
+  }
+]
