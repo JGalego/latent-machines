@@ -1,0 +1,286 @@
+{
+  "schema_version": 1,
+  "experiment": "E09",
+  "run_id": "e09-heldout-fold1-20261125T140732Z-d525d59-0948",
+  "command": [
+    "python",
+    "-m",
+    "latent_machines.experiments.e09",
+    "--held-out",
+    "--fold",
+    "1",
+    "--arms",
+    "S,S+delta,W",
+    "--device",
+    "cuda"
+  ],
+  "started_at": "2026-11-25T14:07:32+00:00",
+  "source": {
+    "revision": "d525d5929fda092d7389093b3a463362fbafce6c",
+    "dirty": false,
+    "dirty_fingerprint": null,
+    "untracked": []
+  },
+  "config": {
+    "model": "HuggingFaceTB/SmolLM2-135M",
+    "revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2",
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "data_seed": 0,
+    "train": 2000,
+    "test": 300,
+    "long_test": 100,
+    "epochs": 30,
+    "hidden": 256,
+    "learning_rate": 0.001,
+    "batch_size": 256,
+    "arms": [
+      "S",
+      "S+delta",
+      "W"
+    ],
+    "fold": 1
+  },
+  "environment": {
+    "python": "3.13.11",
+    "implementation": "CPython",
+    "platform": "Linux-6.12.115-140.210.amzn2023.x86_64-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "cpu": "AMD EPYC 7R13 Processor",
+    "cpu_count": 8,
+    "cpu_quota": 8.0,
+    "hf_job": {
+      "job_id": "6b06e904d91f621b9307dc94",
+      "accelerator": "gpu",
+      "cpu_cores": "8",
+      "memory": "30.0G"
+    },
+    "launch": {
+      "flavor": "l4x1",
+      "image": "ghcr.io/astral-sh/uv:python3.13-bookworm",
+      "timeout": "45m"
+    },
+    "torch": "2.15.0+cu132",
+    "torch_threads_per_variant": 1,
+    "deterministic": false,
+    "device": "cuda",
+    "uv_lock_sha256": "ca3bf7296e19440f7703271d050f5b259db3a9a80eb7eb8d20f9359dbfd8dedb",
+    "gpu": "NVIDIA L4",
+    "cuda": "13.2"
+  },
+  "seeds": {
+    "heads": [
+      0,
+      1,
+      2
+    ],
+    "data": 0
+  },
+  "model": {
+    "name": "HuggingFaceTB/SmolLM2-135M",
+    "revision": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2",
+    "parameters": 134515008,
+    "hidden_size": 576,
+    "frozen": true,
+    "features": "last-layer hidden state at each chunk's last token"
+  },
+  "task": {
+    "machine": "memory/v1, capacity 8, 4-bit words",
+    "records": "abcdefgh",
+    "held_out_pairs": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        3
+      ]
+    ],
+    "fold": 1,
+    "follow_up": "held-out pairs",
+    "splits": {
+      "train": {
+        "name": "train",
+        "count": 2000,
+        "min_statements": 2,
+        "max_statements": 8,
+        "held_out": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            3
+          ]
+        ],
+        "exclude_held_out": true,
+        "sha256": "567786e4703bba41c3c03446a2033cfde365074d04ea9cf7613ff2b74cc264ff"
+      },
+      "test_in_distribution": {
+        "name": "test_in_distribution",
+        "count": 300,
+        "min_statements": 2,
+        "max_statements": 8,
+        "held_out": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            3
+          ]
+        ],
+        "exclude_held_out": true,
+        "sha256": "be4793e34fd2e731cda77af7cde323561409f5a590ed43434e22c29ad36b8ede"
+      },
+      "test_held_out_pairs": {
+        "name": "test_held_out_pairs",
+        "count": 300,
+        "min_statements": 2,
+        "max_statements": 8,
+        "held_out": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            3
+          ]
+        ],
+        "exclude_held_out": false,
+        "sha256": "1d9b7aaaa59e2df854e17d9ea8f6a93bb9be26140cb35e5b69f5e2fdf07556a9"
+      }
+    }
+  },
+  "arms": {
+    "B": "text tool, full context; oracle executor (E02 arm B)",
+    "C": "typed interface, full context; oracle executor (E02 arm C)",
+    "S": "typed interface; one statement per forward pass (preamble plus statement); oracle executor",
+    "S+delta": "S's heads with the delta-rule executor and shadow oracle",
+    "W": "no machine; one statement per forward pass"
+  },
+  "windows": "the preamble followed by one statement; features are cached by statement text because they do not depend on position",
+  "trained": {
+    "S": {
+      "trainable_parameters": 317290,
+      "training_steps": 1170,
+      "action_examples": 9890,
+      "answer_examples": 4981
+    },
+    "S+delta": {
+      "trainable_parameters": 317290,
+      "training_steps": 1170,
+      "action_examples": 9890,
+      "answer_examples": 4981
+    },
+    "W": {
+      "trainable_parameters": 152976,
+      "training_steps": 1170,
+      "action_examples": 0,
+      "answer_examples": 4981
+    }
+  }
+}

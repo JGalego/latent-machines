@@ -1,0 +1,1146 @@
+{
+  "schema_version": 1,
+  "experiment": "E09",
+  "status": "completed",
+  "finished_at": "2026-11-25T13:58:53+00:00",
+  "acceptance": "pre-registered predictions in EXPERIMENTS.md evaluated as written (the held-out follow-up amendment, with --held-out); zero executor mismatches for the delta-rule arm",
+  "executor_mismatches": 0,
+  "peak_rss_mb": 371.7,
+  "summary": [
+    {
+      "arm": "S",
+      "split": "test_held_out_pairs",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.8574456809750929,
+        "min": 0.8521462639109698,
+        "max": 0.8616852146263911
+      },
+      "action_accuracy": {
+        "mean": 0.8534773801485483,
+        "min": 0.8521269412559082,
+        "max": 0.8555030384875084
+      }
+    },
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.8904761904761904,
+        "min": 0.8818181818181818,
+        "max": 0.8987012987012987
+      },
+      "action_accuracy": {
+        "mean": 0.8969049209530171,
+        "min": 0.8911155644622578,
+        "max": 0.9031396125584502
+      }
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_held_out_pairs",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.8574456809750929,
+        "min": 0.8521462639109698,
+        "max": 0.8616852146263911
+      },
+      "action_accuracy": {
+        "mean": 0.8534773801485483,
+        "min": 0.8521269412559082,
+        "max": 0.8555030384875084
+      }
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_in_distribution",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.8904761904761904,
+        "min": 0.8818181818181818,
+        "max": 0.8987012987012987
+      },
+      "action_accuracy": {
+        "mean": 0.8969049209530171,
+        "min": 0.8911155644622578,
+        "max": 0.9031396125584502
+      }
+    },
+    {
+      "arm": "W",
+      "split": "test_held_out_pairs",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.4340222575516693,
+        "min": 0.43402225755166934,
+        "max": 0.43402225755166934
+      }
+    },
+    {
+      "arm": "W",
+      "split": "test_in_distribution",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.4779220779220779,
+        "min": 0.4779220779220779,
+        "max": 0.4779220779220779
+      }
+    }
+  ],
+  "runs": [
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seed": 0,
+      "questions": 770,
+      "task_accuracy": 0.8909090909090909,
+      "actions": 1497,
+      "action_accuracy": 0.8964595858383434,
+      "executor_mismatches": null,
+      "machine_work": 1497,
+      "lm_tokens": 56372,
+      "transcript_tokens": 0,
+      "eval_seconds": 1.416
+    },
+    {
+      "arm": "S",
+      "split": "test_held_out_pairs",
+      "seed": 0,
+      "questions": 629,
+      "task_accuracy": 0.8616852146263911,
+      "actions": 1481,
+      "action_accuracy": 0.8555030384875084,
+      "executor_mismatches": null,
+      "machine_work": 1481,
+      "lm_tokens": 55986,
+      "transcript_tokens": 0,
+      "eval_seconds": 1.37
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_in_distribution",
+      "seed": 0,
+      "questions": 770,
+      "task_accuracy": 0.8909090909090909,
+      "actions": 1497,
+      "action_accuracy": 0.8964595858383434,
+      "executor_mismatches": 0,
+      "machine_work": 1497,
+      "lm_tokens": 56372,
+      "transcript_tokens": 0,
+      "eval_seconds": 3.303
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_held_out_pairs",
+      "seed": 0,
+      "questions": 629,
+      "task_accuracy": 0.8616852146263911,
+      "actions": 1481,
+      "action_accuracy": 0.8555030384875084,
+      "executor_mismatches": 0,
+      "machine_work": 1481,
+      "lm_tokens": 55986,
+      "transcript_tokens": 0,
+      "eval_seconds": 2.858
+    },
+    {
+      "arm": "W",
+      "split": "test_in_distribution",
+      "seed": 0,
+      "questions": 770,
+      "task_accuracy": 0.4779220779220779,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 56372,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.416
+    },
+    {
+      "arm": "W",
+      "split": "test_held_out_pairs",
+      "seed": 0,
+      "questions": 629,
+      "task_accuracy": 0.43402225755166934,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 55986,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.556
+    },
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seed": 1,
+      "questions": 770,
+      "task_accuracy": 0.8818181818181818,
+      "actions": 1497,
+      "action_accuracy": 0.8911155644622578,
+      "executor_mismatches": null,
+      "machine_work": 1497,
+      "lm_tokens": 56372,
+      "transcript_tokens": 0,
+      "eval_seconds": 1.423
+    },
+    {
+      "arm": "S",
+      "split": "test_held_out_pairs",
+      "seed": 1,
+      "questions": 629,
+      "task_accuracy": 0.8521462639109698,
+      "actions": 1481,
+      "action_accuracy": 0.8521269412559082,
+      "executor_mismatches": null,
+      "machine_work": 1481,
+      "lm_tokens": 55986,
+      "transcript_tokens": 0,
+      "eval_seconds": 1.148
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_in_distribution",
+      "seed": 1,
+      "questions": 770,
+      "task_accuracy": 0.8818181818181818,
+      "actions": 1497,
+      "action_accuracy": 0.8911155644622578,
+      "executor_mismatches": 0,
+      "machine_work": 1497,
+      "lm_tokens": 56372,
+      "transcript_tokens": 0,
+      "eval_seconds": 4.201
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_held_out_pairs",
+      "seed": 1,
+      "questions": 629,
+      "task_accuracy": 0.8521462639109698,
+      "actions": 1481,
+      "action_accuracy": 0.8521269412559082,
+      "executor_mismatches": 0,
+      "machine_work": 1481,
+      "lm_tokens": 55986,
+      "transcript_tokens": 0,
+      "eval_seconds": 3.328
+    },
+    {
+      "arm": "W",
+      "split": "test_in_distribution",
+      "seed": 1,
+      "questions": 770,
+      "task_accuracy": 0.4779220779220779,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 56372,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.305
+    },
+    {
+      "arm": "W",
+      "split": "test_held_out_pairs",
+      "seed": 1,
+      "questions": 629,
+      "task_accuracy": 0.43402225755166934,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 55986,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.351
+    },
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "questions": 770,
+      "task_accuracy": 0.8987012987012987,
+      "actions": 1497,
+      "action_accuracy": 0.9031396125584502,
+      "executor_mismatches": null,
+      "machine_work": 1497,
+      "lm_tokens": 56372,
+      "transcript_tokens": 0,
+      "eval_seconds": 1.325
+    },
+    {
+      "arm": "S",
+      "split": "test_held_out_pairs",
+      "seed": 2,
+      "questions": 629,
+      "task_accuracy": 0.8585055643879174,
+      "actions": 1481,
+      "action_accuracy": 0.8528021607022283,
+      "executor_mismatches": null,
+      "machine_work": 1481,
+      "lm_tokens": 55986,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.994
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "questions": 770,
+      "task_accuracy": 0.8987012987012987,
+      "actions": 1497,
+      "action_accuracy": 0.9031396125584502,
+      "executor_mismatches": 0,
+      "machine_work": 1497,
+      "lm_tokens": 56372,
+      "transcript_tokens": 0,
+      "eval_seconds": 3.447
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_held_out_pairs",
+      "seed": 2,
+      "questions": 629,
+      "task_accuracy": 0.8585055643879174,
+      "actions": 1481,
+      "action_accuracy": 0.8528021607022283,
+      "executor_mismatches": 0,
+      "machine_work": 1481,
+      "lm_tokens": 55986,
+      "transcript_tokens": 0,
+      "eval_seconds": 3.981
+    },
+    {
+      "arm": "W",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "questions": 770,
+      "task_accuracy": 0.4779220779220779,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 56372,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.233
+    },
+    {
+      "arm": "W",
+      "split": "test_held_out_pairs",
+      "seed": 2,
+      "questions": 629,
+      "task_accuracy": 0.43402225755166934,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 55986,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.28
+    }
+  ],
+  "compounding_baseline": [
+    {
+      "seed": 0,
+      "epsilon": 0.1035404141616566,
+      "a": 1.0,
+      "accuracy": {
+        "test_in_distribution": 0.8972727272727272,
+        "test_held_out_pairs": 0.8773449920508744
+      }
+    },
+    {
+      "seed": 1,
+      "epsilon": 0.10888443553774219,
+      "a": 1.0,
+      "accuracy": {
+        "test_in_distribution": 0.8969480519480519,
+        "test_held_out_pairs": 0.8860890302066773
+      }
+    },
+    {
+      "seed": 2,
+      "epsilon": 0.09686038744154979,
+      "a": 1.0,
+      "accuracy": {
+        "test_in_distribution": 0.8968181818181818,
+        "test_held_out_pairs": 0.8939586645468999
+      }
+    }
+  ],
+  "statement_accuracy": [
+    {
+      "seed": 0,
+      "unseen": 0.75,
+      "seen": 0.7890625,
+      "failed_unseen": [
+        {
+          "statement": "Set f to 10.",
+          "chose": {
+            "op": "write",
+            "address": 5,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set f to 11.",
+          "chose": {
+            "op": "write",
+            "address": 5,
+            "value": 1
+          }
+        }
+      ],
+      "failed_seen": [
+        {
+          "statement": "Set a to 0.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 10
+          }
+        },
+        {
+          "statement": "Set a to 3.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 8
+          }
+        },
+        {
+          "statement": "Set a to 6.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 8
+          }
+        },
+        {
+          "statement": "Set a to 13.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set a to 15.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 9
+          }
+        },
+        {
+          "statement": "Set b to 1.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 10
+          }
+        },
+        {
+          "statement": "Set b to 7.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 2
+          }
+        },
+        {
+          "statement": "Set b to 8.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 15
+          }
+        },
+        {
+          "statement": "Set b to 9.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 15
+          }
+        },
+        {
+          "statement": "Set b to 10.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set b to 11.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set d to 1.",
+          "chose": {
+            "op": "write",
+            "address": 3,
+            "value": 7
+          }
+        },
+        {
+          "statement": "Set d to 3.",
+          "chose": {
+            "op": "write",
+            "address": 3,
+            "value": 8
+          }
+        },
+        {
+          "statement": "Set d to 6.",
+          "chose": {
+            "op": "write",
+            "address": 3,
+            "value": 5
+          }
+        },
+        {
+          "statement": "Set d to 13.",
+          "chose": {
+            "op": "write",
+            "address": 2,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set f to 2.",
+          "chose": {
+            "op": "write",
+            "address": 4,
+            "value": 0
+          }
+        },
+        {
+          "statement": "Set f to 7.",
+          "chose": {
+            "op": "write",
+            "address": 4,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set f to 12.",
+          "chose": {
+            "op": "write",
+            "address": 4,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set g to 10.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 0
+          }
+        },
+        {
+          "statement": "Set g to 11.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set g to 13.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 13
+          }
+        },
+        {
+          "statement": "Set g to 15.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 5
+          }
+        },
+        {
+          "statement": "Set h to 5.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 5
+          }
+        },
+        {
+          "statement": "Set h to 6.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 3
+          }
+        },
+        {
+          "statement": "Set h to 7.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 10
+          }
+        },
+        {
+          "statement": "Set h to 9.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 4
+          }
+        },
+        {
+          "statement": "Set h to 15.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 3
+          }
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "unseen": 0.75,
+      "seen": 0.7734375,
+      "failed_unseen": [
+        {
+          "statement": "Set f to 10.",
+          "chose": {
+            "op": "write",
+            "address": 5,
+            "value": 0
+          }
+        },
+        {
+          "statement": "Set f to 11.",
+          "chose": {
+            "op": "write",
+            "address": 5,
+            "value": 1
+          }
+        }
+      ],
+      "failed_seen": [
+        {
+          "statement": "Set a to 0.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 7
+          }
+        },
+        {
+          "statement": "Set a to 3.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 8
+          }
+        },
+        {
+          "statement": "Set a to 6.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 8
+          }
+        },
+        {
+          "statement": "Set a to 13.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set a to 15.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 7
+          }
+        },
+        {
+          "statement": "Set b to 1.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 0
+          }
+        },
+        {
+          "statement": "Set b to 4.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 0
+          }
+        },
+        {
+          "statement": "Set b to 7.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 2
+          }
+        },
+        {
+          "statement": "Set b to 8.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 3
+          }
+        },
+        {
+          "statement": "Set b to 9.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 15
+          }
+        },
+        {
+          "statement": "Set b to 10.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set b to 11.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set b to 14.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set d to 1.",
+          "chose": {
+            "op": "write",
+            "address": 3,
+            "value": 7
+          }
+        },
+        {
+          "statement": "Set d to 3.",
+          "chose": {
+            "op": "write",
+            "address": 3,
+            "value": 15
+          }
+        },
+        {
+          "statement": "Set d to 10.",
+          "chose": {
+            "op": "write",
+            "address": 3,
+            "value": 0
+          }
+        },
+        {
+          "statement": "Set d to 13.",
+          "chose": {
+            "op": "write",
+            "address": 2,
+            "value": 7
+          }
+        },
+        {
+          "statement": "Set e to 2.",
+          "chose": {
+            "op": "write",
+            "address": 4,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set e to 4.",
+          "chose": {
+            "op": "write",
+            "address": 3,
+            "value": 4
+          }
+        },
+        {
+          "statement": "Set f to 2.",
+          "chose": {
+            "op": "write",
+            "address": 5,
+            "value": 0
+          }
+        },
+        {
+          "statement": "Set g to 3.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 6
+          }
+        },
+        {
+          "statement": "Set g to 10.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 0
+          }
+        },
+        {
+          "statement": "Set g to 11.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set g to 13.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 3
+          }
+        },
+        {
+          "statement": "Set g to 14.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 4
+          }
+        },
+        {
+          "statement": "Set h to 2.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set h to 5.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 6
+          }
+        },
+        {
+          "statement": "Set h to 9.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 4
+          }
+        },
+        {
+          "statement": "Set h to 15.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 3
+          }
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "unseen": 0.75,
+      "seen": 0.796875,
+      "failed_unseen": [
+        {
+          "statement": "Set f to 10.",
+          "chose": {
+            "op": "write",
+            "address": 5,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set f to 11.",
+          "chose": {
+            "op": "write",
+            "address": 5,
+            "value": 1
+          }
+        }
+      ],
+      "failed_seen": [
+        {
+          "statement": "Set a to 0.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 7
+          }
+        },
+        {
+          "statement": "Set a to 3.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 8
+          }
+        },
+        {
+          "statement": "Set a to 5.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 8
+          }
+        },
+        {
+          "statement": "Set a to 6.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 8
+          }
+        },
+        {
+          "statement": "Set a to 13.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set a to 15.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 9
+          }
+        },
+        {
+          "statement": "Set b to 1.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set b to 7.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 2
+          }
+        },
+        {
+          "statement": "Set b to 8.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 15
+          }
+        },
+        {
+          "statement": "Set b to 9.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 15
+          }
+        },
+        {
+          "statement": "Set b to 10.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set b to 11.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set d to 1.",
+          "chose": {
+            "op": "write",
+            "address": 3,
+            "value": 7
+          }
+        },
+        {
+          "statement": "Set d to 3.",
+          "chose": {
+            "op": "write",
+            "address": 3,
+            "value": 8
+          }
+        },
+        {
+          "statement": "Set d to 13.",
+          "chose": {
+            "op": "write",
+            "address": 2,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set f to 2.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 0
+          }
+        },
+        {
+          "statement": "Set f to 7.",
+          "chose": {
+            "op": "write",
+            "address": 5,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set f to 12.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set g to 3.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 6
+          }
+        },
+        {
+          "statement": "Set g to 10.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 0
+          }
+        },
+        {
+          "statement": "Set g to 11.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 1
+          }
+        },
+        {
+          "statement": "Set g to 13.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 13
+          }
+        },
+        {
+          "statement": "Set g to 14.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 4
+          }
+        },
+        {
+          "statement": "Set h to 2.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 12
+          }
+        },
+        {
+          "statement": "Set h to 5.",
+          "chose": {
+            "op": "write",
+            "address": 6,
+            "value": 6
+          }
+        },
+        {
+          "statement": "Set h to 9.",
+          "chose": {
+            "op": "write",
+            "address": 7,
+            "value": 4
+          }
+        }
+      ]
+    }
+  ],
+  "predictions": null,
+  "context_positions": {
+    "S": {
+      "test_in_distribution": {
+        "max_positions": 39,
+        "mean_positions_per_program": 187.90666666666667
+      },
+      "test_held_out_pairs": {
+        "max_positions": 39,
+        "mean_positions_per_program": 186.62
+      }
+    },
+    "S+delta": {
+      "test_in_distribution": {
+        "max_positions": 39,
+        "mean_positions_per_program": 187.90666666666667
+      },
+      "test_held_out_pairs": {
+        "max_positions": 39,
+        "mean_positions_per_program": 186.62
+      }
+    },
+    "W": {
+      "test_in_distribution": {
+        "max_positions": 39,
+        "mean_positions_per_program": 187.90666666666667
+      },
+      "test_held_out_pairs": {
+        "max_positions": 39,
+        "mean_positions_per_program": 186.62
+      }
+    }
+  },
+  "not_measured": [
+    "tasks whose statements need earlier statements to be read",
+    "other model sizes, fine-tuned or unfrozen baselines",
+    "free-running context length for B (positions use the gold transcript)"
+  ],
+  "error": null
+}

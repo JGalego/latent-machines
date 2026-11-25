@@ -1,0 +1,470 @@
+{
+  "schema_version": 1,
+  "experiment": "E09",
+  "status": "completed",
+  "finished_at": "2026-11-25T14:08:09+00:00",
+  "acceptance": "pre-registered predictions in EXPERIMENTS.md evaluated as written (the held-out follow-up amendment, with --held-out); zero executor mismatches for the delta-rule arm",
+  "executor_mismatches": 0,
+  "peak_rss_mb": 1882.7,
+  "summary": [
+    {
+      "arm": "S",
+      "split": "test_held_out_pairs",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.9513299377475949,
+        "min": 0.9269949066213922,
+        "max": 1.0
+      },
+      "action_accuracy": {
+        "mean": 0.9608108108108109,
+        "min": 0.9412162162162162,
+        "max": 1.0
+      }
+    },
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "action_accuracy": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      }
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_held_out_pairs",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.9513299377475949,
+        "min": 0.9269949066213922,
+        "max": 1.0
+      },
+      "action_accuracy": {
+        "mean": 0.9608108108108109,
+        "min": 0.9412162162162162,
+        "max": 1.0
+      }
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_in_distribution",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "action_accuracy": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      }
+    },
+    {
+      "arm": "W",
+      "split": "test_held_out_pairs",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.5195246179966044,
+        "min": 0.5195246179966044,
+        "max": 0.5195246179966044
+      }
+    },
+    {
+      "arm": "W",
+      "split": "test_in_distribution",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.4904214559386973,
+        "min": 0.4904214559386973,
+        "max": 0.4904214559386973
+      }
+    }
+  ],
+  "runs": [
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seed": 0,
+      "questions": 783,
+      "task_accuracy": 1.0,
+      "actions": 1528,
+      "action_accuracy": 1.0,
+      "executor_mismatches": null,
+      "machine_work": 1528,
+      "lm_tokens": 23178,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.396
+    },
+    {
+      "arm": "S",
+      "split": "test_held_out_pairs",
+      "seed": 0,
+      "questions": 589,
+      "task_accuracy": 0.9269949066213922,
+      "actions": 1480,
+      "action_accuracy": 0.9412162162162162,
+      "executor_mismatches": null,
+      "machine_work": 1480,
+      "lm_tokens": 22745,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.347
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_in_distribution",
+      "seed": 0,
+      "questions": 783,
+      "task_accuracy": 1.0,
+      "actions": 1528,
+      "action_accuracy": 1.0,
+      "executor_mismatches": 0,
+      "machine_work": 1528,
+      "lm_tokens": 23178,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.703
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_held_out_pairs",
+      "seed": 0,
+      "questions": 589,
+      "task_accuracy": 0.9269949066213922,
+      "actions": 1480,
+      "action_accuracy": 0.9412162162162162,
+      "executor_mismatches": 0,
+      "machine_work": 1480,
+      "lm_tokens": 22745,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.663
+    },
+    {
+      "arm": "W",
+      "split": "test_in_distribution",
+      "seed": 0,
+      "questions": 783,
+      "task_accuracy": 0.4904214559386973,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 23178,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.168
+    },
+    {
+      "arm": "W",
+      "split": "test_held_out_pairs",
+      "seed": 0,
+      "questions": 589,
+      "task_accuracy": 0.5195246179966044,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 22745,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.143
+    },
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seed": 1,
+      "questions": 783,
+      "task_accuracy": 1.0,
+      "actions": 1528,
+      "action_accuracy": 1.0,
+      "executor_mismatches": null,
+      "machine_work": 1528,
+      "lm_tokens": 23178,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.379
+    },
+    {
+      "arm": "S",
+      "split": "test_held_out_pairs",
+      "seed": 1,
+      "questions": 589,
+      "task_accuracy": 1.0,
+      "actions": 1480,
+      "action_accuracy": 1.0,
+      "executor_mismatches": null,
+      "machine_work": 1480,
+      "lm_tokens": 22745,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.351
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_in_distribution",
+      "seed": 1,
+      "questions": 783,
+      "task_accuracy": 1.0,
+      "actions": 1528,
+      "action_accuracy": 1.0,
+      "executor_mismatches": 0,
+      "machine_work": 1528,
+      "lm_tokens": 23178,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.722
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_held_out_pairs",
+      "seed": 1,
+      "questions": 589,
+      "task_accuracy": 1.0,
+      "actions": 1480,
+      "action_accuracy": 1.0,
+      "executor_mismatches": 0,
+      "machine_work": 1480,
+      "lm_tokens": 22745,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.696
+    },
+    {
+      "arm": "W",
+      "split": "test_in_distribution",
+      "seed": 1,
+      "questions": 783,
+      "task_accuracy": 0.4904214559386973,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 23178,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.166
+    },
+    {
+      "arm": "W",
+      "split": "test_held_out_pairs",
+      "seed": 1,
+      "questions": 589,
+      "task_accuracy": 0.5195246179966044,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 22745,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.157
+    },
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "questions": 783,
+      "task_accuracy": 1.0,
+      "actions": 1528,
+      "action_accuracy": 1.0,
+      "executor_mismatches": null,
+      "machine_work": 1528,
+      "lm_tokens": 23178,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.371
+    },
+    {
+      "arm": "S",
+      "split": "test_held_out_pairs",
+      "seed": 2,
+      "questions": 589,
+      "task_accuracy": 0.9269949066213922,
+      "actions": 1480,
+      "action_accuracy": 0.9412162162162162,
+      "executor_mismatches": null,
+      "machine_work": 1480,
+      "lm_tokens": 22745,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.34
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "questions": 783,
+      "task_accuracy": 1.0,
+      "actions": 1528,
+      "action_accuracy": 1.0,
+      "executor_mismatches": 0,
+      "machine_work": 1528,
+      "lm_tokens": 23178,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.697
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_held_out_pairs",
+      "seed": 2,
+      "questions": 589,
+      "task_accuracy": 0.9269949066213922,
+      "actions": 1480,
+      "action_accuracy": 0.9412162162162162,
+      "executor_mismatches": 0,
+      "machine_work": 1480,
+      "lm_tokens": 22745,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.662
+    },
+    {
+      "arm": "W",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "questions": 783,
+      "task_accuracy": 0.4904214559386973,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 23178,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.157
+    },
+    {
+      "arm": "W",
+      "split": "test_held_out_pairs",
+      "seed": 2,
+      "questions": 589,
+      "task_accuracy": 0.5195246179966044,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 22745,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.136
+    }
+  ],
+  "compounding_baseline": [
+    {
+      "seed": 0,
+      "epsilon": 0.0,
+      "a": 1.0,
+      "accuracy": {
+        "test_in_distribution": 1.0,
+        "test_held_out_pairs": 1.0
+      }
+    },
+    {
+      "seed": 1,
+      "epsilon": 0.0,
+      "a": 1.0,
+      "accuracy": {
+        "test_in_distribution": 1.0,
+        "test_held_out_pairs": 1.0
+      }
+    },
+    {
+      "seed": 2,
+      "epsilon": 0.0,
+      "a": 1.0,
+      "accuracy": {
+        "test_in_distribution": 1.0,
+        "test_held_out_pairs": 1.0
+      }
+    }
+  ],
+  "statement_accuracy": [
+    {
+      "seed": 0,
+      "unseen": 0.75,
+      "seen": 1.0,
+      "failed_unseen": [
+        {
+          "statement": "Set a to 3.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 2
+          }
+        },
+        {
+          "statement": "Set b to 3.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 4
+          }
+        }
+      ],
+      "failed_seen": []
+    },
+    {
+      "seed": 1,
+      "unseen": 1.0,
+      "seen": 1.0,
+      "failed_unseen": [],
+      "failed_seen": []
+    },
+    {
+      "seed": 2,
+      "unseen": 0.75,
+      "seen": 1.0,
+      "failed_unseen": [
+        {
+          "statement": "Set a to 3.",
+          "chose": {
+            "op": "write",
+            "address": 0,
+            "value": 2
+          }
+        },
+        {
+          "statement": "Set b to 3.",
+          "chose": {
+            "op": "write",
+            "address": 1,
+            "value": 4
+          }
+        }
+      ],
+      "failed_seen": []
+    }
+  ],
+  "predictions": null,
+  "context_positions": {
+    "S": {
+      "test_in_distribution": {
+        "max_positions": 17,
+        "mean_positions_per_program": 77.26
+      },
+      "test_held_out_pairs": {
+        "max_positions": 17,
+        "mean_positions_per_program": 75.81666666666666
+      }
+    },
+    "S+delta": {
+      "test_in_distribution": {
+        "max_positions": 17,
+        "mean_positions_per_program": 77.26
+      },
+      "test_held_out_pairs": {
+        "max_positions": 17,
+        "mean_positions_per_program": 75.81666666666666
+      }
+    },
+    "W": {
+      "test_in_distribution": {
+        "max_positions": 17,
+        "mean_positions_per_program": 77.26
+      },
+      "test_held_out_pairs": {
+        "max_positions": 17,
+        "mean_positions_per_program": 75.81666666666666
+      }
+    }
+  },
+  "not_measured": [
+    "tasks whose statements need earlier statements to be read",
+    "other model sizes, fine-tuned or unfrozen baselines",
+    "free-running context length for B (positions use the gold transcript)"
+  ],
+  "error": null
+}
