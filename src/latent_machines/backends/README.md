@@ -2,7 +2,7 @@
 
 > **TL;DR:** Ways to run a machine, each checked step by step against its reference.
 
-Implementations of machine semantics, validated step by step against the integer oracles in [machines/](../machines/). See [ownership boundaries](../../../EXPERIMENTS.md#ownership-boundaries).
+Each backend implements machine semantics and is validated step by step against the integer oracles in [machines/](../machines/). See [ownership boundaries](../../../EXPERIMENTS.md#ownership-boundaries).
 
 ## Delta-rule memory
 
@@ -72,13 +72,13 @@ Clearing on pop keeps freed slots at zero, so the live tensors always equal a fr
 
 > **TL;DR:** The same integer DAG runs as Python code, as a scalar machine on delta-rule memory, and as one tensor step per level.
 
-[dataflow.py](dataflow.py) implements [`dataflow/v1`](../machines/README.md#dataflowv1) several ways for [E04](../../../EXPERIMENTS.md#e04---dataflow-specialization-and-conditional-units):
+[dataflow.py](dataflow.py) implements [`dataflow/v1`](../machines/README.md#dataflowv1) in several ways for [E04: dataflow](../../../EXPERIMENTS.md#e04---dataflow-specialization-and-conditional-units):
 
 | Backend | Lowering | What it tests |
 |---|---|---|
 | `python_int` | none: unbounded Python ints, then the first out-of-range node | conventional reference path |
 | `CompiledGraph(lowering="grouped")`, int64 | one batched op per op type per level | optimized conventional baseline |
-| `ScalarDelta` | one node per instruction; operands in the E00 delta-rule memory | scalar interpretation |
+| `ScalarDelta` | one node per instruction; operands in the delta-rule memory from E00: memory | scalar interpretation |
 | `CompiledGraph(lowering="gather")` | gather operands by index; every node computes linear, product, and max units; a mask selects one | direct compiled graph |
 | `CompiledGraph(lowering="weights")` | wiring and constants baked into dense matrices | program-specialized weights |
 | `CompiledGraph(lowering="dispatch")` | static routing to op experts with fixed capacity, extra rounds instead of drops | conditional units |
@@ -94,7 +94,7 @@ flowchart LR
     V2 -.->|next level| V
 ```
 
-Integers stay exact in float32 while every value and partial sum is below 2^24, which holds for 16-bit words and the declared workloads. bfloat16 and float16 cannot hold every 16-bit word; E04 runs them as precision probes.
+Integers stay exact in float32 while every value and partial sum is below 2^24, which holds for 16-bit words and the declared workloads. bfloat16 and float16 cannot hold every 16-bit word. E04: dataflow runs them as precision probes.
 
 ## Tensor CNF verifier
 
@@ -113,7 +113,7 @@ flowchart LR
     T -->|no| R["reject; unsatisfied count,<br/>first unsatisfied clause"]
 ```
 
-Counts are exact while every partial sum is an integer the dtype represents: up to 256 in bfloat16, 2048 in float16, and 2^24 in float32. The incidence lowering adds only nonnegative terms, so a zero count stays zero and a positive count stays positive even beyond that range; the folded lowering saves one product but adds signed terms, so rounding can cancel a clause's only true literal. Validation runs on the integer input before the cast.
+Counts are exact while every partial sum is an integer the dtype represents: up to 256 in bfloat16, 2048 in float16, and 2^24 in float32. The incidence lowering adds only nonnegative terms, so a zero count stays zero and a positive count stays positive even beyond that range. The folded lowering saves one product but adds signed terms, so rounding can cancel a clause's only true literal. Validation runs on the integer input before the cast.
 
 ## Convolution plus lookup for cellular rules
 
@@ -138,13 +138,13 @@ Every intermediate is an integer from −8 to 9, so the circuit is exact in floa
 
 > **TL;DR:** A linear filter rewritten as independent complex modes, run one sample at a time or in chunks.
 
-[ssm.py](ssm.py) implements [`lds/v1`](../machines/lds.py) three ways: `DirectLDS`, the dense recurrence; and `DiagonalSSM`, which diagonalizes `A` once in float64 and runs the modes `z ← λ z + b u` either sequentially or in chunks with a lower-triangular kernel of powers of `λ`. Complex arithmetic uses separate real and imaginary tensors, so bfloat16 works. None of these is exact; each is measured against the float64 reference under a declared tolerance.
+[ssm.py](ssm.py) implements [`lds/v1`](../machines/lds.py) three ways. `DirectLDS` is the dense recurrence. `DiagonalSSM` diagonalizes `A` once in float64 and runs the modes `z ← λ z + b u` either sequentially or in chunks with a lower-triangular kernel of powers of `λ`. Complex arithmetic uses separate real and imaginary tensors, so bfloat16 works. None of these is exact. Each is measured against the float64 reference under a declared tolerance.
 
 ## Semiring tensor kernels
 
 > **TL;DR:** Graph rounds become dense matrix products: Boolean products clamped to 1, or min-plus broadcasts.
 
-[semiring.py](semiring.py) lowers each round of the [E05 machines](../machines/README.md#reachv1-minplusv1-chain-datalogv1) to dense `n × n` tensors; [graph_native.py](graph_native.py) holds the conventional sparse algorithms (BFS, Dijkstra, semi-naive Datalog) that compute the same fixed points directly.
+[semiring.py](semiring.py) lowers each round of the [E05: graphs and logic machines](../machines/README.md#reachv1-minplusv1-chain-datalogv1) to dense `n × n` tensors; [graph_native.py](graph_native.py) holds the conventional sparse algorithms (BFS, Dijkstra, semi-naive Datalog) that compute the same fixed points directly.
 
 ```mermaid
 flowchart LR

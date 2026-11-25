@@ -11,8 +11,8 @@ These guidelines apply to code, experiments, results, documentation, and automat
 - Write the simplest implementation that satisfies the stated contract. Prefer small functions, explicit data flow, and descriptive names.
 - Keep machine semantics separate from backend optimizations, controller interfaces, and task definitions.
 - Use type annotations for interfaces and state/action representations. Make bounds, units, dtypes, and ownership explicit where they affect correctness.
-- Reuse working patterns, but do not build a framework for hypothetical future experiments. Extract shared abstractions only after concrete implementations justify them.
-- Comment non-obvious invariants and numerical assumptions, not what the code already says. Delete obsolete code rather than keeping alternate implementations commented out.
+- Reuse working patterns, but do not build a framework for hypothetical future experiments. Extract a shared abstraction only after concrete implementations justify it.
+- Comment non-obvious invariants and numerical assumptions, not what the code already says. Delete obsolete code instead of keeping alternate implementations commented out.
 
 ## 2. Minimal dependencies
 
@@ -20,7 +20,7 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 - Prefer the standard library when it solves the problem clearly. Add a dependency only for a concrete requirement, and explain why existing tools are insufficient.
 - Separate runtime, development, and optional accelerator/model dependencies. A small CPU experiment must not require the full research stack.
-- Default to Ruff, pytest, and pre-commit for Python development; add overlapping tools only for a demonstrated gap.
+- Default to Ruff, pytest, and pre-commit for Python development. Add an overlapping tool only for a demonstrated gap.
 - Do not require a hosted service for tests, run tracking, or basic reproduction.
 
 ## 3. Use uv
@@ -28,8 +28,8 @@ These guidelines apply to code, experiments, results, documentation, and automat
 > **TL;DR:** uv manages Python and packages, so everyone gets the same environment.
 
 - Manage Python environments, dependencies, and commands with uv. Declare dependencies in `pyproject.toml` and commit `uv.lock` with dependency changes.
-- Use `uv add` and `uv remove` rather than manually editing the lockfile. Declare the supported Python version; record the actual interpreter used for results.
-- Use `uv sync --locked` to restore the declared environment and `uv run --locked ...` for checks and experiments. CI must fail on an inconsistent lockfile rather than updating it.
+- Use `uv add` and `uv remove` instead of editing the lockfile by hand. Declare the supported Python version, and record the interpreter actually used for results.
+- Use `uv sync --locked` to restore the declared environment and `uv run --locked ...` for checks and experiments. CI must fail on an inconsistent lockfile instead of updating it.
 - Do not rely on globally installed packages, ad hoc pip installs, or an undocumented activated environment.
 
 ## 4. Use pre-commit
@@ -37,16 +37,16 @@ These guidelines apply to code, experiments, results, documentation, and automat
 > **TL;DR:** Automatic checks run before every commit.
 
 - Add a version-pinned `.pre-commit-config.yaml` with the first executable implementation. Use it for formatting, linting, and cheap repository hygiene checks.
-- Document hook installation and the full local check command when the configuration exists. Run the same checks in CI; local hooks are convenience, not the only enforcement.
-- Keep commit hooks fast, deterministic, and CPU-only. No model downloads, training, network-dependent tests, or long benchmarks in hooks.
-- Fix failures rather than routinely bypassing hooks. Any exceptional bypass needs an explanation and equivalent validation before integration.
+- When the configuration exists, document hook installation and the full local check command. Run the same checks in CI. Local hooks are a convenience, not the only enforcement.
+- Keep commit hooks fast, deterministic, and CPU-only. Hooks must not download models, train, run network-dependent tests, or run long benchmarks.
+- Fix failures instead of routinely bypassing hooks. Explain any exceptional bypass and run equivalent validation before integration.
 
 ## 5. Practice continuous integration
 
 > **TL;DR:** Keep changes small enough to review and validate independently.
 
-- Commit early and often, in small, coherent, validated increments. Integrate frequently rather than accumulating a large unreviewable branch.
-- A commit should be understandable and reproducible on its own. Separate refactoring, behavior changes, and scientific conclusions where practical.
+- Commit early and often, in small, coherent, validated increments. Integrate frequently instead of accumulating a large unreviewable branch.
+- A commit should be understandable and reproducible on its own. Where practical, separate refactoring, behavior changes, and scientific conclusions.
 - Add CI with the first executable implementation: locked environment restoration, format/lint checks, and bounded CPU tests on every pull request and integration push.
 - Keep GPU sweeps, training, and long numerical tests explicit and separately budgeted. Passing the fast CI suite does not validate an unrun accelerator path.
 - Do not commit unrelated staged work, secrets, generated checkpoints, or raw run directories. Fix failures before merging; do not hide them by weakening assertions.
@@ -58,8 +58,8 @@ These guidelines apply to code, experiments, results, documentation, and automat
 - Write an imperative subject of at most 72 characters, ideally about 50, without a trailing period: `Add integer memory oracle`, not `Added oracle` or `wip`.
 - Optionally prefix the subject with an experiment ID or a top-level directory from the [repository layout](EXPERIMENTS.md#repository-organization), or `docs` for the root documents: `E01: add bounded stack parser`, `backends: validate gate endpoints`. Do not invent a separate type taxonomy.
 - After a blank line, explain why the change is needed and what it affects, wrapped at 72 characters. The diff already shows what changed.
-- Keep each commit to one logical change and at most one experiment. Shared code used by several experiments takes its directory prefix, not an experiment ID. An experiment normally spans many commits; integrate them as they pass rather than holding the experiment on a long-lived branch.
-- Commit code before running it for reported results, then record each result in its own commit that names the source revision the run used. A result committed together with its code was produced from uncommitted code, so its recorded revision does not contain that code.
+- Keep each commit to one logical change and at most one experiment. Shared code used by several experiments takes its directory prefix, not an experiment ID. An experiment normally spans many commits. Integrate them as they pass instead of holding the experiment on a long-lived branch.
+- Commit code before running it for reported results. Then record each result in its own commit that names the source revision the run used. A result committed together with its code was produced from uncommitted code, so its recorded revision does not contain that code.
 - State results at their evidence strength: name the experiment, scope, and outcome, and put the run manifest path in the body. Write `E00: record zero GDN mismatches on bounded suite`, not `Prove delta memory is exact`.
 - Commit negative and failed results the same way, without waiting for the experiment to succeed: `E00: record RWKV-7 idle-retention failure at 10^3 steps`.
 - Credit substantial AI-agent or other automated contributions with a `Co-Authored-By:` trailer.
@@ -69,17 +69,17 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 > **TL;DR:** Anyone should be able to rerun a result from a clean checkout.
 
-- Provide a command that runs from a clean checkout, with declared inputs, budgets, and expected outputs. No undocumented notebook state or manual file edits.
+- Provide a command that runs from a clean checkout, with declared inputs, budgets, and expected outputs. Leave no undocumented notebook state or manual file edits.
 - Record the source revision, resolved configuration, seeds, input/model hashes, environment, kernels, and relevant dtypes. Follow the [run-record contract](EXPERIMENTS.md#run-records-and-results).
 - Seeds alone do not ensure reproducibility. State which outcomes are bit-exact, tolerance-based, statistically replicated, or device-dependent.
-- Curated results must identify the exact source used. Prefer a committed clean revision; if a dirty tree is used, retain a retrievable patch and fingerprint.
-- Keep small reports and manifests in Git; keep large artifacts outside it with stable references and integrity hashes. Preserve failed runs and first-mismatch evidence.
+- Curated results must identify the exact source used. Prefer a committed clean revision. If a dirty tree is used, retain a retrievable patch and fingerprint.
+- Keep small reports and manifests in Git. Keep large artifacts outside it, with stable references and integrity hashes. Preserve failed runs and first-mismatch evidence.
 
 ## 8. Verified results are mandatory
 
 > **TL;DR:** Validate each reported execution path against an independent reference.
 
-- Do not present an experiment as successful until the stated acceptance criteria pass on the actual execution path being reported.
+- Do not present an experiment as successful until the stated acceptance criteria pass on the execution path being reported.
 - Test state transitions, events, and outputs against an independent reference. Final-answer agreement alone is insufficient for an exact-machine claim.
 - Check correctness before timing optimizations. Report validation commands, scope, limitations, and failures alongside results.
 - Label hypotheses, theoretical results, upstream reports, local reproductions, and independently checked results distinctly. Never turn a proposed experiment into a claimed result.
@@ -93,7 +93,7 @@ These guidelines apply to code, experiments, results, documentation, and automat
 - Include a credible conventional baseline. Do not handicap textual tools with unnecessary subprocess or network overhead.
 - Separate initialization/compilation, steady-state execution, and end-to-end costs. Synchronize asynchronous work before timing.
 - Report uncertainty where relevant, negative results, invalid actions, timeouts, and exhausted budgets. Do not select only favorable seeds or silently discard failed cases.
-- Distinguish exploration from held-out evaluation. Record tuning effort and do not repeatedly tune on the test set.
+- Distinguish exploration from held-out evaluation. Record tuning effort, and do not repeatedly tune on the test set.
 
 ## 10. Make failures and limits explicit
 
@@ -111,8 +111,8 @@ These guidelines apply to code, experiments, results, documentation, and automat
 - Accompany each new concept, machine, experiment, or data flow with a diagram when structure carries the meaning: state transitions, event order, ownership between axes, experiment arms and controls, and dependencies.
 - Write diagrams as code: [Mermaid](https://mermaid.js.org/) blocks in Markdown, which GitHub renders in files, issues, and pull requests. Place each next to the prose it illustrates. Do not commit exported or binary diagrams that cannot be reviewed in a diff.
 - Show one idea per diagram, use the same names as the code and documents, and keep it small enough to read without zooming.
-- The text stays authoritative. A diagram illustrates a specification but does not replace it; update both in the same change.
-- Generate result figures from run records with a committed script, never by hand, and name the script and run in the report that uses them.
+- The text stays authoritative. A diagram illustrates a specification and does not replace it. Update both in the same change.
+- Generate result figures from run records with a committed script, never by hand. Name the script and run in the report that uses them.
 
 ## 12. Run intensive work on Hugging Face Jobs
 
@@ -122,8 +122,8 @@ These guidelines apply to code, experiments, results, documentation, and automat
 - Run a pushed commit: clone the public repository at that revision inside the job and restore the environment with `uv sync --locked`, so the run record names source anyone can fetch. Do not ship uncommitted code to a job.
 - Choose the smallest flavor that fits (`hf jobs hardware` lists flavors and prices) and always set `--timeout`. Label each job with its experiment and revision, for example `--label experiment=E00 --label revision=<sha>`.
 - Pass credentials with `--secrets`, never in the command, plain environment variables, or logs.
-- The job's filesystem is discarded when it ends. Upload the run directory, for example to a Hub dataset, and record the job ID, flavor, image, timeout, wall time, and artifact location in the run record. Runners record the job's own variables (`JOB_ID`, `CPU_CORES`, `MEMORY`, `ACCELERATOR`) and the cgroup CPU quota automatically; pass what the container cannot see as `-e LM_RUN_FLAVOR=… -e LM_RUN_IMAGE=… -e LM_RUN_TIMEOUT=…`. Keep the logs of failed, timed-out, and cancelled jobs.
-- A job validates only the hardware, kernels, and dtypes it ran on; label results by flavor. GPU backends need a CUDA build of PyTorch, added as a separate extra when the first GPU job requires it.
+- The job's filesystem is discarded when it ends. Upload the run directory, for example to a Hub dataset, and record the job ID, flavor, image, timeout, wall time, and artifact location in the run record. Runners record the job's own variables (`JOB_ID`, `CPU_CORES`, `MEMORY`, `ACCELERATOR`) and the cgroup CPU quota automatically. Pass what the container cannot see as `-e LM_RUN_FLAVOR=… -e LM_RUN_IMAGE=… -e LM_RUN_TIMEOUT=…`. Keep the logs of failed, timed-out, and cancelled jobs.
+- A job validates only the hardware, kernels, and dtypes it ran on, so label results by flavor. GPU backends need a CUDA build of PyTorch. Add it as a separate extra when the first GPU job requires it.
 
 ## 13. Lead every page and section with a TL;DR
 
@@ -131,26 +131,26 @@ These guidelines apply to code, experiments, results, documentation, and automat
 
 - Start every Markdown page, section, and subsection with a one-line TL;DR directly under its heading, written as `> **TL;DR:** …`.
 - Write for a newcomer, including non-specialists. Use one factual sentence, ideally under 20 words, and explain unfamiliar terms in the section.
-- A TL;DR summarizes; it adds no claims. Keep the evidence class: a proposal stays a proposal, and a finite test stays a finite test.
-- Do not repeat the heading or substitute a slogan for a summary. Revise the heading or section if its point is unclear.
+- A TL;DR summarizes and adds no claims. Keep the evidence class: a proposal stays a proposal, and a finite test stays a finite test.
+- Do not repeat the heading or substitute a slogan for a summary. If the point is unclear, revise the heading or the section.
 - Update a section's TL;DR in the same change as the section. The main README.md and pointer files such as CLAUDE.md are exempt.
 
 ## 14. Write for the reader
 
 > **TL;DR:** Give readers the conclusion and the evidence they need to assess it.
 
-These rules apply to documentation, website copy, reports, pull requests, and agent-written text. Whether a person or a model wrote a sentence does not change the standard.
+These rules apply to documentation, website copy, reports, pull requests, and agent-written text. The standard is the same whether a person or a model wrote the sentence.
 
-- **Lead with the point.** State the result, decision, or question before its background. Prefer a short narrative when the reader needs an argument; use lists for items they need to scan. Do not impose a memo length or turn every paragraph into bullets.
+- **Lead with the point.** State the result, decision, or question before its background. Prefer a short narrative when the reader needs an argument. Use lists for items they need to scan. Do not impose a memo length or turn every paragraph into bullets.
 - **Name the subject and action.** Write `The backend rejects invalid addresses`, not `Invalid-address handling is supported`. Say which implementation, experiment, or source a claim concerns.
-- **Replace praise with evidence.** Words such as `robust`, `powerful`, `seamless`, and `efficient` need a measurable meaning. Give the metric, baseline, and test conditions, or remove the adjective. A larger number is not an explanation of why a result matters.
-- **Delete filler.** Remove openings such as `It is worth noting`, `In today's rapidly evolving landscape`, and `Let's delve into`. Cut sentences that merely announce the next paragraph, repeat its point, or congratulate the project.
+- **Replace praise with evidence.** Words such as `robust`, `powerful`, `seamless`, and `efficient` need a measurable meaning. Give the metric, baseline, and test conditions, or remove the adjective. A larger number does not explain why a result matters.
+- **Delete filler.** Remove openings such as `It is worth noting`, `In today's rapidly evolving landscape`, and `Let's delve into`. Cut sentences that announce the next paragraph, repeat its point, or congratulate the project.
 - **Do not manufacture cardinality.** Write `Research questions`, not `Four separate questions`, unless the count matters to the argument. Do not pad a list to reach a round number, force points into groups of three, or add `key` and `core` to make ordinary categories sound important. Keep meaningful counts, dimensions, limits, and experiment IDs.
-- **Avoid stock rhetoric.** Do not dress a claim as `not just X, but Y`, a rhetorical question with an obvious answer, a grand analogy, or a slogan. Remove decorative emphasis and punctuation. Parallel wording is useful only when the underlying items are parallel.
-- **Keep necessary precision.** Retain technical terms, assumptions, equations, and counterexamples when they distinguish the claim. Explain a term on first use rather than replacing it with a vague synonym. Brevity is not a reason to remove a limitation.
-- **Calibrate certainty.** Distinguish plans from implementations and reports from local checks. Scope `exact`, `verified`, and `zero failures` to the machine, representation, hardware, and tests concerned. Replace vague hedges with the specific uncertainty; retain uncertainty that the evidence warrants.
+- **Avoid stock rhetoric.** Do not use `not just X, but Y`, a rhetorical question with an obvious answer, a grand analogy, or a slogan. Remove decorative emphasis and punctuation. Use parallel wording only when the items are parallel.
+- **Keep necessary precision.** Keep technical terms, assumptions, equations, and counterexamples when they distinguish the claim. Explain a term on first use instead of replacing it with a vague synonym. Do not remove a limitation for brevity.
+- **Calibrate certainty.** Distinguish plans from implementations and reports from local checks. Scope `exact`, `verified`, and `zero failures` to the machine, representation, hardware, and tests concerned. Replace vague hedges with the specific uncertainty, and keep uncertainty that the evidence warrants.
 - **Make headings informative.** Name the subject or finding. Avoid generic labels such as `Unlocking the potential` and headings that only announce a numbered list. A reader scanning headings should be able to locate the answer.
-- **Treat website copy as a report.** Put the current result and its limits near the top. Do not imply that planned controllers or comparisons already exist. Generate aggregate result counts from manifests rather than maintaining promotional totals by hand. Keep captions about what the figure shows.
+- **Treat website copy as a report.** Put the current result and its limits near the top. Do not imply that planned controllers or comparisons already exist. Generate aggregate result counts from manifests instead of maintaining promotional totals by hand. Keep captions about what the figure shows.
 
 | Instead of | Write |
 |---|---|
@@ -159,7 +159,7 @@ These rules apply to documentation, website copy, reports, pull requests, and ag
 | `It is important to note that finite tests do not constitute a proof.` | `Finite tests are not a proof.` |
 | `This unlocks exciting possibilities for internal tools.` | Name the proposed experiment and what it would test, or delete the sentence. |
 
-Before submitting, read the rendered text in order. Delete any sentence whose removal loses no information the reader needs. Check each result against its source and each plan against its implementation status. Search tools can flag stock phrases, but a word match is not proof of bad writing; equations, quotations, source titles, and immutable run records are not copy to polish.
+Before submitting, read the rendered text in order. Delete any sentence whose removal loses no information the reader needs. Check each result against its source and each plan against its implementation status. Search tools can flag stock phrases, but a word match is not proof of bad writing. Do not polish equations, quotations, source titles, or immutable run records.
 
 ## Current tooling status
 
@@ -174,6 +174,6 @@ uv run --locked pre-commit run --all-files   # Ruff lint and format, hygiene che
 uv run --locked pytest                       # bounded CPU tests
 ```
 
-The `torch-cpu` extra adds CPU-only PyTorch for tensor backends; the machine oracles need no runtime dependencies. CI runs the same checks with the locked environment on every pull request and push to `main`. The E00 runner writes run records under the ignored `runs/` directory; see [experiments](src/latent_machines/experiments/README.md).
+The `torch-cpu` extra adds CPU-only PyTorch for tensor backends. The machine oracles need no runtime dependencies. CI runs the same checks with the locked environment on every pull request and push to `main`. The runner for E00: memory writes run records under the ignored `runs/` directory; see [experiments](src/latent_machines/experiments/README.md).
 
 Follow the [first implementation slice](EXPERIMENTS.md#first-implementation-slice) for build order.

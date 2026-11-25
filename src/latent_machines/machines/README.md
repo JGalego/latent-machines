@@ -2,13 +2,13 @@
 
 > **TL;DR:** Independent integer oracles define the state transitions that backends must match.
 
-Specifications and independent integer oracles. A machine here depends on no model family or tensor backend; backends are validated against it. See [ownership boundaries](../../../EXPERIMENTS.md#ownership-boundaries).
+Each machine here has a specification and an independent integer oracle. It depends on no model family or tensor backend. Backends are validated against it. See [ownership boundaries](../../../EXPERIMENTS.md#ownership-boundaries).
 
 ## `memory/v1`
 
 > **TL;DR:** Fixed-capacity memory supports reads, writes, idle, and halt; invalid addresses or values fault without changing state.
 
-Fixed-capacity random-access memory of unsigned words, the reference for [E00](../../../EXPERIMENTS.md#e00---memory-and-transition-conformance). The docstring in [memory.py](memory.py) is the authoritative specification; this diagram shows the order of checks in one step.
+Fixed-capacity random-access memory of unsigned words. It is the reference for [E00: memory](../../../EXPERIMENTS.md#e00---memory-and-transition-conformance). The docstring in [memory.py](memory.py) is the authoritative specification. The diagram shows the order of checks in one step.
 
 ```mermaid
 flowchart TD
@@ -31,7 +31,7 @@ Every outcome costs one work unit. Faults leave the state unchanged, and an acti
 
 > **TL;DR:** A machine that reads symbols one at a time and looks up its next state and output in a table.
 
-Deterministic finite-state transducer, the reference for [E01](../../../EXPERIMENTS.md#e01---exact-streaming-machines-and-transition-algebras). [transducer.py](transducer.py) is the authoritative specification and builds the E01 targets: running parity, modular counters, and S_n permutation tracking.
+Deterministic finite-state transducer. It is the reference for [E01: streaming machines](../../../EXPERIMENTS.md#e01---exact-streaming-machines-and-transition-algebras). [transducer.py](transducer.py) is the authoritative specification. It also builds that experiment's targets: running parity, modular counters, and S_n permutation tracking.
 
 ```mermaid
 flowchart LR
@@ -46,7 +46,7 @@ Snapshots carry a digest of both tables, so a snapshot cannot be restored into a
 
 > **TL;DR:** A bounded last-in, first-out stack faults on overflow or underflow without changing state.
 
-Bounded stack of unsigned words, the reference for E01's stack parser. [stack.py](stack.py) is the authoritative specification.
+Bounded stack of unsigned words. It is the reference for the stack parser in E01: streaming machines. [stack.py](stack.py) is the authoritative specification.
 
 ```mermaid
 flowchart LR
@@ -66,7 +66,7 @@ Every fault leaves the stack unchanged, and every action costs one work unit.
 
 > **TL;DR:** A DAG of integer operations evaluated level by level; the first out-of-range node faults, and nothing wraps.
 
-Signed integer dataflow graphs, the reference for [E04](../../../EXPERIMENTS.md#e04---dataflow-specialization-and-conditional-units). Nodes are `input`, `const`, `add`, `sub`, `mul`, `max`, and n-ary `sum`; arguments name earlier nodes. The docstring in [dataflow.py](dataflow.py) is the authoritative specification.
+Signed integer dataflow graphs. They are the reference for [E04: dataflow](../../../EXPERIMENTS.md#e04---dataflow-specialization-and-conditional-units). Nodes are `input`, `const`, `add`, `sub`, `mul`, `max`, and n-ary `sum`; arguments name earlier nodes. The docstring in [dataflow.py](dataflow.py) is the authoritative specification.
 
 ```mermaid
 flowchart TD
@@ -81,13 +81,13 @@ flowchart TD
     E -->|yes| O["output: values of the output nodes"]
 ```
 
-A tick is one level; levels are the safepoints where snapshots are taken. Work is one unit per node evaluated, the faulting node included. A `sum` is checked on its final value only.
+A tick is one level. Levels are the safepoints where snapshots are taken. Work is one unit per node evaluated, the faulting node included. A `sum` is checked on its final value only.
 
 ## `cnf/v1`
 
 > **TL;DR:** A stateless checker accepts an assignment only when every clause has a true literal; malformed assignments fault.
 
-Assignment verifier for CNF formulas, the reference for [E08](../../../EXPERIMENTS.md#e08---heuristic-search-with-an-exact-verifier). The docstring in [cnf.py](cnf.py) is the authoritative specification.
+Assignment verifier for CNF formulas. It is the reference for [E08: search with a verifier](../../../EXPERIMENTS.md#e08---heuristic-search-with-an-exact-verifier). The docstring in [cnf.py](cnf.py) is the authoritative specification.
 
 ```mermaid
 flowchart TD
@@ -103,13 +103,13 @@ flowchart TD
     A -->|no| REJ["output 0: reject,<br/>unsatisfied count, first index"]
 ```
 
-A valid check costs one work unit per clause; a fault costs none. Accepting is the only claim the verifier makes: a rejection says nothing about whether another assignment satisfies the formula.
+A valid check costs one work unit per clause. A fault costs none. The verifier claims only acceptance. A rejection says nothing about whether another assignment satisfies the formula.
 
 ## `cellular/v1`
 
 > **TL;DR:** A grid of live and dead cells updates all at once from neighbor counts, with dead or wrapping edges.
 
-Binary outer-totalistic cellular automaton, the exact-branch reference for [E06](../../../EXPERIMENTS.md#e06---spatial-and-structured-dynamical-machines). [cellular.py](cellular.py) is the authoritative specification. A rule such as `B3/S23` lists the neighbor counts that give birth to a dead cell and keep a live one alive.
+Binary outer-totalistic cellular automaton. It is the exact-branch reference for [E06: grids and filters](../../../EXPERIMENTS.md#e06---spatial-and-structured-dynamical-machines). [cellular.py](cellular.py) is the authoritative specification. A rule such as `B3/S23` lists the neighbor counts that give birth to a dead cell and keep a live one alive.
 
 ```mermaid
 flowchart LR
@@ -125,19 +125,19 @@ flowchart LR
     V -->|yes| OK["overwrite one cell; continue"]
 ```
 
-`Advance` costs one work unit per cell; `Set` costs one, faults included. Snapshots carry a digest of the rule, size, boundary, and starting grid.
+`Advance` costs one work unit per cell. `Set` costs one, faults included. Snapshots carry a digest of the rule, size, boundary, and starting grid.
 
 ## `lds/v1`
 
 > **TL;DR:** A linear filter with a float64 reference, measured under a tolerance rather than checked for exactness.
 
-Single-input, single-output linear dynamical system `y = C x + D u`, `x ← A x + B u`, the reference for E06's numerical branch. [lds.py](lds.py) evaluates it in IEEE double precision and builds the E06 systems: a lightly damped oscillator (pole radius 0.999), a second-order Butterworth low-pass, and a random stable 8-dimensional system. It is a declared numerical reference, not an exact oracle.
+Single-input, single-output linear dynamical system `y = C x + D u`, `x ← A x + B u`, the reference for the numerical branch of E06: grids and filters. [lds.py](lds.py) evaluates it in IEEE double precision and builds that branch's systems: a lightly damped oscillator (pole radius 0.999), a second-order Butterworth low-pass, and a random stable 8-dimensional system. It is a declared numerical reference, not an exact oracle.
 
 ## `reach/v1`, `minplus/v1`, `chain-datalog/v1`
 
 > **TL;DR:** Graph and logic problems run as fixed-point machines: one synchronous round per step until nothing changes.
 
-Three fixed-point machines for [E05](../../../EXPERIMENTS.md#e05---graph-semiring-and-logic-execution), specified in [graph.py](graph.py). Each machine holds one validated problem; its state is a relation or distance table that changes monotonically, one synchronous round per `Iterate` action:
+Three fixed-point machines for [E05: graphs and logic](../../../EXPERIMENTS.md#e05---graph-semiring-and-logic-execution), specified in [graph.py](graph.py). Each holds one validated problem. Its state is a relation or distance table that changes monotonically, one synchronous round per `Iterate` action:
 
 - `reach/v1`: reflexive transitive closure of a directed graph; a round extends every known path by one edge.
 - `minplus/v1`: all-pairs shortest paths with integer weights `0..max_weight`; `None` is the infinity sentinel, negative weights are rejected when the problem is built, and any stored distance above `max_distance` faults rather than saturating.
@@ -163,7 +163,7 @@ Faults leave the state unchanged and every action costs one work unit. The defau
 
 > **TL;DR:** A memory written by optimizer steps: one gradient step per action, with the optimizer's settings as the specification.
 
-An associative map `f(k)` updated by one optimizer step per action on `½‖f(k) − y‖²`, the reference for [E07](../../../EXPERIMENTS.md#e07---optimization-defined-state-updates). [optimizer_memory.py](optimizer_memory.py) is the authoritative specification and a plain-Python float64 reference. It fixes what the optimizer does; whether that behaves like `memory/v1` is what E07 measures.
+An associative map `f(k)` updated by one optimizer step per action on `½‖f(k) − y‖²`. It is the reference for [E07: optimizer memory](../../../EXPERIMENTS.md#e07---optimization-defined-state-updates). [optimizer_memory.py](optimizer_memory.py) is the authoritative specification and a plain-Python float64 reference. It fixes what the optimizer does. Whether that behaves like `memory/v1` is what that experiment measures.
 
 ```mermaid
 flowchart LR

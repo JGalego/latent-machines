@@ -35,7 +35,7 @@ Each run writes `runs/e00-<time>-<revision>-<id>/` with `run.json`, `metrics.jso
 
 > **TL;DR:** Compare compiled transducers and a delta-rule stack against their integer oracles after each action.
 
-[e01.py](e01.py) uses the same [lockstep check](lockstep.py) as E00:
+[e01.py](e01.py) uses the [lockstep check](lockstep.py) that E00: memory uses:
 
 ```mermaid
 flowchart LR
@@ -101,7 +101,7 @@ flowchart LR
     W --> T["timing: compile, cold call,<br/>batch-1 latency, batch throughput"]
 ```
 
-bfloat16 and float16 variants are precision probes: reported like the others but outside the acceptance, since they cannot represent every 16-bit word. Timing amortizes each compile against the Python-int baseline at batch 1 and the int64 baseline per batched evaluation.
+bfloat16 and float16 variants are precision probes. They are reported like the others but excluded from acceptance, since they cannot represent every 16-bit word. Timing amortizes each compile against the Python-int baseline at batch 1 and the int64 baseline per batched evaluation.
 
 ```bash
 uv run --locked python -m latent_machines.experiments.e04       # 20 programs × 50 inputs per workload
@@ -159,7 +159,7 @@ uv run --locked python -m latent_machines.experiments.e06 --branch numerical    
 
 > **TL;DR:** Check optimizer-written memory against its own reference every step, and report where it stops behaving like RAM.
 
-[e07.py](e07.py) runs each setting of [`optimizer-memory/v1`](../machines/README.md#optimizer-memoryv1) three ways over E00's workloads and an online regression task:
+[e07.py](e07.py) runs each setting of [`optimizer-memory/v1`](../machines/README.md#optimizer-memoryv1) three ways over the workloads of E00: memory and an online regression task:
 
 ```mermaid
 flowchart LR
@@ -203,7 +203,7 @@ flowchart LR
     T --> S
 ```
 
-The budget is counted in steps: a variable assignment for DPLL, a flip for WalkSAT, a verified candidate for proposers. Only DPLL can report `unsat`; the others report `unknown` when the budget runs out. The two energy arms see the same proposals, so their accept decisions must be identical and their difference is verification cost alone.
+The budget counts steps: a variable assignment for DPLL, a flip for WalkSAT, a verified candidate for proposers. Only DPLL can report `unsat`; the others report `unknown` when the budget runs out. The two energy arms see the same proposals, so their accept decisions must be identical and their difference is verification cost alone.
 
 ```bash
 uv run --locked python -m latent_machines.experiments.e08          # default run, about 3 minutes on 2 threads

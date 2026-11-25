@@ -1,6 +1,6 @@
 # Research
 
-> **TL;DR:** The reviewed systems demonstrate compiled execution or learned memory, but do not establish the proposed interface comparison.
+> **TL;DR:** The reviewed systems show compiled execution or learned memory. None establishes the proposed interface comparison.
 
 Reviewed: 2026-11-17. Primary-source literature and implementation review; experiments have not been reproduced here. Benchmark results below are attributed reports, not independent validation.
 
@@ -20,11 +20,11 @@ Reviewed: 2026-11-17. Primary-source literature and implementation review; exper
 
 Learned controllers with explicit state predate modern LLMs. Compiled neural programs have also been combined with pretrained language models.
 
-The less-established combination is a pretrained LM with a learned internal interface to an exact, mutable machine, evaluated against both external tools and native in-process implementations. The sources below establish parts of this combination, not a mature general solution. This is a research hypothesis, not a novelty claim.
+The less-established combination is a pretrained LM with a learned internal interface to an exact, mutable machine, evaluated against both external tools and native in-process implementations. The sources below establish parts of it. None is a mature general solution. The combination is a research hypothesis, not a novelty claim.
 
 ## Closest systems
 
-> **TL;DR:** These systems demonstrate compiled execution, learned control, or integration with language models, with different limits.
+> **TL;DR:** These systems show compiled execution, learned control, or integration with language models. Each has different limits.
 
 | Work | Mechanism | Relevance and limit |
 |---|---|---|
@@ -41,13 +41,13 @@ The less-established combination is a pretrained LM with a learned internal inte
 
 > **TL;DR:** Qwenputer adds a compiled CPU to a language model; interaction still uses tool-call text and execution tokens.
 
-The original Qwen language weights are unchanged. Added compiled layers implement the CPU. The LM emits a familiar tool-call format; the circuit receives those tokens and executes the request.
+The original Qwen language weights are unchanged. Added compiled layers implement the CPU. The LM emits a tool-call format; the circuit receives those tokens and executes the request.
 
-The RV32 driver keeps CPU trace tokens out of Qwen's language layers and caches. This is not a learned latent read/write channel between the LM residual stream and arbitrary machine state. The RV32 variant also needs its driver rather than a plain `generate()` call.
+The RV32 driver keeps CPU trace tokens out of Qwen's language layers and caches. This is not a learned latent read/write channel between the LM residual stream and arbitrary machine state. The RV32 variant also needs its driver, not a plain `generate()` call.
 
 The author reports official ISA tests, long free-running executions, and arithmetic results roughly comparable to a Python-tool baseline. A [third-party reproduction report](https://github.com/divagr18/qwenputer/issues/3) identifies dtype- and kernel-sensitive behavior. Neither finite testing nor compilation alone establishes exactness on every backend.
 
-The filesystem variant saves selected state through host-managed files. Cross-session persistence is explicit, not an automatic property of storing the CPU in weights.
+The filesystem variant saves selected state through host-managed files. Cross-session persistence is explicit. Storing the CPU in weights does not provide it.
 
 [QwenFX](https://github.com/divagr18/QwenFX) runs Vercel's fx coding agent, compiled as an RV32 binary, on Qwenputer's CPU, calling the same Qwen3.5-4B for every model step. The author reports 15 of 15 small coding tasks passing hidden tests, six pull requests opened by the agent, and no wrong chip token against a reference machine. Control runs in the opposite direction from this project's question: the compiled machine drives the language model, which it reaches through a tool-shaped call.
 
@@ -57,9 +57,9 @@ Sources: [code](https://github.com/divagr18/qwenputer), [design and results](htt
 
 > **TL;DR:** Percepta represents machine state through attention lookups over an append-only execution history.
 
-Machine state is represented through an append-only history and attention lookups, rather than Qwenputer's recurrent RAM. These designs have different memory-growth and execution-cost tradeoffs.
+Percepta stores machine state as an append-only history read by attention lookups. Qwenputer uses recurrent RAM. The two designs trade off memory growth and execution cost differently.
 
-The team describes a subset of WebAssembly, substantial overhead relative to conventional execution, and integration with learned models as future work. Do not equate the released executor with a trained hybrid.
+The team describes a subset of WebAssembly, substantial overhead relative to conventional execution, and integration with learned models as future work. The released executor is not a trained hybrid.
 
 The overview and repository describe a specialized decoding path: two-dimensional hard-max lookup heads permit incremental convex-hull indexing, with reported logarithmic insert/query cost instead of a dense scan over history. This does not establish an equivalent exact acceleration for arbitrary softmax attention. Hard-max ties, finite-temperature softmax, index maintenance, and numerical behavior need separate checks. The append-only representation still grows with the trace.
 
@@ -73,7 +73,7 @@ Sources: [construction](https://www.percepta.ai/blog/constructing-llm-computer),
 
 Compiled neural networks encode symbolic rules using constructed attention weights. A gate combines their one-hot outputs with the LM's output distribution during generation.
 
-This is a relevant counterexample to any broad claim that combining LMs and compiled neural programs is new. It is output-level integration over context, not a demonstrated general RAM that the LM reads and updates through latent actions.
+This is a counterexample to any broad claim that combining LMs and compiled neural programs is new. The integration is at the output level, over context. It is not a demonstrated general RAM that the LM reads and updates through latent actions.
 
 The paper reports symbolic-task length generalization and comparisons with tool-based arithmetic. Those results do not isolate every benefit of internal placement from routing, representation, or implementation.
 
@@ -85,9 +85,9 @@ Sources: [paper, section 4.1](https://arxiv.org/html/2304.01665v3#S4.SS1), [code
 
 A Tracr-compiled model supplies training targets. GPT-2 is trained so a linear projection of its residual stream resembles the compiled model's variables. The compiled model does not execute at inference.
 
-Reported out-of-distribution results improve on some Dyck-language cases but remain weak on several counting and addition cases. The method does not preserve the compiled algorithm's semantics as a guarantee.
+Reported out-of-distribution results improve on some Dyck-language cases but remain weak on several counting and addition cases. The method gives no guarantee that the compiled algorithm's semantics are preserved.
 
-The repository also labels an earlier live compiled-model coupling attempt as failed. That prototype explores learned attention between model and compiled activations, but is not evidence of a working exact read/write interface.
+The repository also labels an earlier live compiled-model coupling attempt as failed. That prototype explores learned attention between model and compiled activations. It is not evidence of a working exact read/write interface.
 
 Sources: [paper](https://arxiv.org/abs/2505.10719), [code and prototype](https://github.com/tvergara/tracr-injection). Check upstream licensing before reusing code.
 
@@ -104,13 +104,13 @@ Sources: [paper](https://arxiv.org/abs/2505.10719), [code and prototype](https:/
 | [Neural Turing Machines](https://arxiv.org/abs/1410.5401), 2014, and [Differentiable Neural Computer](https://github.com/google-deepmind/dnc), 2016 | Learned controllers read and write memory every recurrent step. | Soft addressing and learned behavior are not exact discrete-machine semantics. |
 | [Differentiable Forth code](https://github.com/uclnlp/d4) | A released implementation of program sketches, stacks, heap, and learned operations. | Historical research code; the repository explicitly says it is not maintained. |
 
-The Neural Harvard Computer is especially relevant to experiment design: its controller and memory-access interfaces operate on a control stream separated from data manipulation. It uses hard memory decisions and evolutionary training. Reported generalization to much larger task configurations is empirical, not a proof that every learned controller implements the intended algorithm.
+The Neural Harvard Computer is relevant to experiment design. Its controller and memory-access interfaces operate on a control stream separate from data manipulation. It uses hard memory decisions and evolutionary training. Its reported generalization to much larger task configurations is empirical. It does not prove that every learned controller implements the intended algorithm.
 
 ## Adjacent work
 
 > **TL;DR:** Related memory and interface ideas that stop short of an exact machine.
 
-These are useful interface or memory precedents, but do not establish an exact persistent machine inside a pretrained LM.
+These are interface or memory precedents. None establishes an exact persistent machine inside a pretrained LM.
 
 | Work | Relevant mechanism | What it does not establish |
 |---|---|---|
@@ -189,7 +189,7 @@ These are capabilities to test, not a compatibility list. [Research coverage](EX
 
 Supporting sources: [GLU variants](https://arxiv.org/abs/2002.05202), [sparsely gated MoE](https://arxiv.org/abs/1701.06538), [Switch Transformers](https://arxiv.org/abs/2101.03961), [Titans](https://arxiv.org/abs/2501.00663).
 
-An ordinary frozen MLP's "key-value memory" is not writable runtime RAM. [Geva et al.](https://aclanthology.org/2021.emnlp-main.446/) describe a useful interpretation of learned feed-forward weights; that differs from updating recurrent state or fast weights during execution.
+An ordinary frozen MLP's "key-value memory" is not writable runtime RAM. [Geva et al.](https://aclanthology.org/2021.emnlp-main.446/) describe an interpretation of learned feed-forward weights. That differs from updating recurrent state or fast weights during execution.
 
 ### Transition algebra matters more than architecture names
 
@@ -224,7 +224,7 @@ A deterministic finite-state transition can be `state_next = P_symbol @ state`, 
 
 This avoids instruction fetch and a general-purpose decoder for tasks that only require a small transition system. Stack or Forth-like ISAs can simplify implementation, but changing from RISC-V to WebAssembly alone does not establish a fundamentally different computational model.
 
-Evidence includes the automata, compiled-program, and differentiable-stack foundations above. [E01](results/E01/README.md) has local CPU conformance results for ReLU transducers and a delta-rule stack; comparisons across the other candidate backends remain proposed.
+Evidence includes the automata, compiled-program, and differentiable-stack foundations above. [E01: streaming machines](results/E01/README.md) has local CPU conformance results for ReLU transducers and a delta-rule stack; comparisons across the other candidate backends remain proposed.
 
 ### Dataflow, vector, and conditional functional-unit machines
 
@@ -232,7 +232,7 @@ Evidence includes the automata, compiled-program, and differentiable-stack found
 
 Compile `gather -> map -> reduce -> scatter` or a scheduled arithmetic graph instead of serial scalar instructions. Potential workloads include bit-parallel arithmetic, expression evaluation, fixed-point inference, and specialized hot paths.
 
-This direction already has a concrete precedent: [QwenPU](https://github.com/divagr18/QwenPU) adds compiled vector operations and dedicated DeltaNet memories. The author reports reducing work for one generated token of the nested stories260K model from 2,430,000 trace tokens in ordinary C, to 225,000 with dot-product extensions, to 53,000 with its vector unit. These are related-system implementation reports, not a speedup over native model inference or a matched backend-only experiment.
+This direction has a precedent: [QwenPU](https://github.com/divagr18/QwenPU) adds compiled vector operations and dedicated DeltaNet memories. The author reports reducing work for one generated token of the nested stories260K model from 2,430,000 trace tokens in ordinary C, to 225,000 with dot-product extensions, to 53,000 with its vector unit. These are related-system implementation reports, not a speedup over native model inference or a matched backend-only experiment.
 
 Proposals: generalize to a small dataflow IR; compare dense predication with expert dispatch; specialize hot programs or basic blocks. Compare interpreter and specialized variants separately, account for construction time, and preserve precise faults and work budgets.
 
@@ -262,7 +262,7 @@ Related but distinct: structured SSMs may be better used as compiled filters and
 
 ### Optimizers as machines
 
-> **TL;DR:** Some memory updates are learning steps: useful, but exact only in special cases.
+> **TL;DR:** Some memory updates are learning steps, and they are exact only in special cases.
 
 The quadratic-loss derivation above makes delta memory a restricted optimizer. Broader TTT/Titans-style updates suggest online regression, adaptive filtering, or task-local fitting as computation models.
 
@@ -276,7 +276,7 @@ This is a proposal for specified optimization machines, not a claim that arbitra
 
 [Modern Hopfield networks](https://arxiv.org/abs/2008.02217) connect attention with associative energy-based dynamics. This motivates candidate retrieval or constraint-search systems, not a generic efficient global optimizer.
 
-A useful hybrid is heuristic search followed by a fixed exact verifier. Measure search quality and verification correctness independently. Rejecting invalid candidates does not prove that failure to find a candidate means none exists. Compare equal search budgets against conventional algorithms.
+One hybrid is heuristic search followed by a fixed exact verifier. Measure search quality and verification correctness independently. Rejecting invalid candidates does not prove that failure to find a candidate means none exists. Compare equal search budgets against conventional algorithms.
 
 ## Latent execution and compilation
 
@@ -295,7 +295,7 @@ event = continue | output | halt | fault | host_exit
 
 The runtime repeatedly executes within a work budget. This separates the clock, internal payload transport, and audit trace from the text vocabulary. It might avoid embedding/unembedding overhead and language-cache pollution, but does not remove sequential dependencies.
 
-Simply hiding trace tokens is insufficient: late-layer computations need a defined route back to the next tick's inputs or state. Specify which layer state updates, which learned context freezes, and which outputs are visible to the controller. [Coconut](https://arxiv.org/abs/2412.06769) is a feedback-interface precedent, not an exact-machine implementation.
+Hiding trace tokens is insufficient: late-layer computations need a defined route back to the next tick's inputs or state. Specify which layer state updates, which learned context freezes, and which outputs are visible to the controller. [Coconut](https://arxiv.org/abs/2412.06769) is a feedback-interface precedent, not an exact-machine implementation.
 
 Compare token feedback, repeated latent computation, and an ordinary native in-process loop at matched information and work budgets. Host initialization, stopping, and I/O remain part of the system even if execution is internal.
 
@@ -303,7 +303,7 @@ Compare token feedback, repeated latent computation, and an ordinary native in-p
 
 > **TL;DR:** A shared compiler remains proposed; its numerical checks and runtime costs need separate validation.
 
-RASP/Tracr, ALTA, looped transformers, Qwenputer, and Percepta provide complementary precedents for program representation, recurrence, memory, scheduling, and optimized execution. A general compiler combining their strengths remains a research direction.
+RASP/Tracr, ALTA, looped transformers, Qwenputer, and Percepta provide precedents for program representation, recurrence, memory, scheduling, and optimized execution. A general compiler combining their strengths remains a research direction.
 
 Separate fixed weights as code/ROM, recurrent state as writable storage, KV history as a log, and runtime-updated fast weights. A capability description should eventually record value domains, state-update semantics, communication, numerical obligations, work units, and snapshot behavior.
 
@@ -317,7 +317,7 @@ Proposed proof-oriented compilation would emit bounds on intermediate values and
 - **Integer representation:** all consecutive integers through 2^8 in BF16, 2^11 in FP16, 2^24 in FP32, and 2^53 in FP64 are representable. Intermediates, reductions, and casts must also stay within the required domain.
 - **Normalization:** correct storage does not guarantee a magnitude-preserving read path. Orthogonal keys and multi-hot normalization require explicit analysis.
 - **Kernel equivalence:** Qwenputer's [technical notes](https://github.com/divagr18/qwenputer/blob/main/experimental/riscv/docs/rv32.md) describe residues from an eight-row read in a chunked kernel and a resulting redesign. A graph evaluator alone can miss backend errors.
-- **State dtype:** [Lost in Rounding](https://arxiv.org/abs/2611.12127), November 2026 preprint, reports behavior changes from recurrent-state rounding in trained hybrid reasoning models. This is not a compiled-CPU experiment, but reinforces that state precision belongs in the run specification.
+- **State dtype:** [Lost in Rounding](https://arxiv.org/abs/2611.12127), November 2026 preprint, reports behavior changes from recurrent-state rounding in trained hybrid reasoning models. This is not a compiled-CPU experiment. It supports recording state precision in the run specification.
 - **Reduction order:** [Telling identical GPUs apart](https://divagr.com/blog/telling-identical-gpus-apart), Divyansh Agrawal, October 2026 ([code](https://github.com/divagr18/gpu-instance-fingerprint)), reports that atomic-add ordering differs enough between identical GPUs to identify the chip (99.1% among 19 A40s), and that a default `torch.index_add_` exposes it; PyTorch's deterministic mode removes that signal. GPU conformance runs must record deterministic settings and the exact device.
 - **Finite memory:** fixed-width, fixed-precision recurrent state has finitely many configurations. Turing-completeness claims must state where growing memory, precision, or context enters.
 - **Access cost:** logical one-hot random access can still touch an entire dense state. Fused gather, dense matrix operations, and structured indexed attention have different physical costs.
@@ -343,9 +343,9 @@ The reviewed sources do not settle this combination. Absence from this review is
 
 ## First controller experiment
 
-> **TL;DR:** E02 will compare internal and textual interfaces, then compiled and native execution under the same internal interface.
+> **TL;DR:** The E02: learned interfaces experiment will compare internal and textual interfaces, then compiled and native execution under the same internal interface.
 
-The executable research program and repository organization are specified in [EXPERIMENTS.md](EXPERIMENTS.md). Start with executor conformance and a streaming machine (E00/E01), then this controller study (E02), not a complete operating system. Keep transition rules fixed. Train action heads with supervised traces before attempting harder credit assignment.
+[EXPERIMENTS.md](EXPERIMENTS.md) specifies the research program and repository organization. Start with executor conformance and a streaming machine (E00: memory and E01: streaming machines), then this controller study (E02: learned interfaces). Do not build a complete operating system. Keep transition rules fixed. Train action heads with supervised traces before attempting harder credit assignment.
 
 Compare:
 
@@ -358,6 +358,6 @@ Use state-tracking tasks such as nested scopes or record updates. Train on short
 
 Measure task accuracy separately from executor state equivalence. Account for generated tokens, internal actions, machine instructions, wall-clock latency, and memory. Match available information and resource budgets; do not make subprocess overhead an artificial disadvantage for the tool baseline.
 
-A positive result must distinguish the benefit of the interface from the benefit of compiling it into weights. If native integration wins, that is still useful evidence.
+A positive result must distinguish the benefit of the interface from the benefit of compiling it into weights. If native integration wins, that result still counts.
 
 A runtime such as [Shem](https://github.com/JGalego/shem) can supply execution and snapshots; verifying an internal controller and its state transitions still requires dedicated traces.

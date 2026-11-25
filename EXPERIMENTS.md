@@ -2,13 +2,13 @@
 
 > **TL;DR:** Validate executors before comparing learned interfaces; E00-E08 all have initial results.
 
-Status, 2026-11-25: every experiment, E00-E09, has a first recorded run and report under [results/](results/); each experiment's **Results** line summarizes it. These are initial results with one or a few seeds, not completed studies. [E09](#e09---state-in-the-machine-not-the-context) ran against pre-registered predictions: two held (one vacuously) and one failed, and its held-out follow-up met one of three and left one inconclusive; [E10](#e10---a-machine-layer-inside-the-model) and [E11](#e11---learning-to-use-the-machine-from-outcomes) are proposals. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
+Status, 2026-11-25: E00-E09 each have a first recorded run and report under [results/](results/), summarized in the experiment's **Results** line. These are initial results with one or a few seeds, not completed studies. [E09](#e09---state-in-the-machine-not-the-context) ran against pre-registered predictions: two held (one vacuously) and one failed. Its held-out follow-up met one of three and left one inconclusive. [E10](#e10---a-machine-layer-inside-the-model) and [E11](#e11---learning-to-use-the-machine-from-outcomes) are proposals. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
 
 ## Questions and priorities
 
 > **TL;DR:** Separate what runs, how it runs, how it is controlled, and what it is for; start with E00.
 
-Separate the following axes:
+Keep these axes separate:
 
 | Axis | Meaning | Example |
 |---|---|---|
@@ -17,7 +17,7 @@ Separate the following axes:
 | Interface | Controller's observations and actions | Textual tool, typed internal actions, latent feedback |
 | Task | Workload and evaluation distribution | Record updates, nested scopes, graph reachability |
 
-Do not treat every combination as valid. A backend must declare supported semantics and limits, and reject unsupported configurations explicitly. An approximate optimizer or filter can participate only with its own stated numerical contract, not under an exact-RAM label.
+Not every combination is valid. A backend must declare its supported semantics and limits and reject other configurations explicitly. An approximate optimizer or filter can participate only with its own stated numerical contract, not under an exact-RAM label.
 
 Recommended order:
 
@@ -34,7 +34,7 @@ E04-E08 are independent follow-on branches after their prerequisites pass, not r
 
 > **TL;DR:** Where code lives: one folder per part, plus curated results and ignored raw runs.
 
-Keep the current research documents at the root. Add implementation directories only when they contain a working experiment; the following is a target layout, not a list of existing files:
+Keep the current research documents at the root. Add an implementation directory only when it holds a working experiment. This is a target layout, not a list of existing files:
 
 ```text
 README.md
@@ -82,16 +82,16 @@ flowchart LR
 
 Solid edges are the execution path. The dotted edge exists only for validation: decoded backend state is compared against the oracle and never reaches the controller.
 
-- `machines/` defines legal actions, canonical state, numerical domain, transition order, exits, capacity, and work accounting without depending on a model family or tensor backend.
+- `machines/` defines legal actions, canonical state, numerical domain, transition order, exits, capacity, and work accounting with no dependency on a model family or tensor backend.
 - `backends/` owns state encoding, layer-specific lowering, kernels, and conversion to canonical state for conformance and snapshots. Decoding the full state for validation must not leak it to a controller.
 - `interfaces/` owns what the controller can observe, how it requests actions, and how results return. It does not own task answers or executor arithmetic.
 - `tasks/` owns input generation, ground truth, trace supervision, and split construction. It cannot change machine semantics for a backend.
-- `experiments/` composes those parts and writes results. Do not duplicate the machine or metric implementations in notebooks or one-off benchmark scripts.
+- `experiments/` composes those parts and writes results. Do not duplicate machine or metric implementations in notebooks or one-off benchmark scripts.
 - `tests/` contains bounded regression and conformance checks. Long precision sweeps and performance measurements are explicit experiments, not default unit tests.
 
-Use Python and an integer reference implementation for the first harness, with PyTorch only when the tensor backend is added. Pin the actual dependencies and interpreter requirements then. A Python oracle is not an optimized native-performance baseline; introduce and label a suitable conventional implementation before claiming speed advantages.
+Use Python and an integer reference implementation for the first harness, with PyTorch only when the tensor backend is added. Pin dependencies and the interpreter version then. A Python oracle is not an optimized native-performance baseline; introduce and label a suitable conventional implementation before claiming speed advantages.
 
-Do not start with a general compiler, plugin registry, training framework, Rust runtime, or a full ISA. Two concrete machines and backends should establish which abstractions are worth sharing. Keep differences in state semantics visible rather than hiding them behind one overly permissive `step`.
+Do not start with a general compiler, plugin registry, training framework, Rust runtime, or a full ISA. Two concrete machines and backends should show which abstractions to share. Keep differences in state semantics visible rather than hiding them behind one overly permissive `step`.
 
 ### First implementation slice
 
@@ -102,7 +102,7 @@ Do not start with a general compiler, plugin registry, training framework, Rust 
 3. Implement an explicit eager delta-rule tensor backend with the same observations and actions. Validate every step, not just the final answer.
 4. Add an E00 entry point, a small default run, and the result records described below.
 5. Add one compiled finite-state transducer and a bounded stack for E01.
-6. Only then add a small LM, a frozen-base/learned-action-head baseline, and E02. Record exactly what is trained; unfreeze more only as a separate ablation.
+6. Only then add a small LM, a frozen-base/learned-action-head baseline, and E02: learned interfaces. Record exactly what is trained; unfreeze more only as a separate ablation.
 
 Keep CPU runs small by default. GPU sweeps, model downloads, paid jobs, and long training runs must be explicit and separately budgeted.
 
@@ -168,7 +168,7 @@ An approximate backend must declare a reference, error metric, tolerance, horizo
 
 > **TL;DR:** Does neural-network memory behave exactly like real memory?
 
-**Question:** which layer families actually implement the required storage semantics on the chosen execution path?
+**Question:** which layer families implement the required storage semantics on the chosen execution path?
 
 **Prerequisites:** none. Begin with the integer oracle and explicit GDN-style recurrence; a full pretrained model is unnecessary.
 
@@ -190,7 +190,7 @@ An approximate backend must declare a reference, error metric, tolerance, horizo
 
 **Question:** can useful specified algorithms run directly without a general-purpose CPU?
 
-**Prerequisite:** E00 for each stateful backend used. A backend used here only for state tracking, not as addressed memory, needs E00's retention, idle, and snapshot checks for its declared state rather than RAM conformance.
+**Prerequisite:** E00: memory for each stateful backend used. A backend used here only for state tracking, not as addressed memory, needs the retention, idle, and snapshot checks from E00: memory for its declared state, not RAM conformance.
 
 **Targets:** one-hot finite transducers, parity and modular counters, mutable-record assignment, permutation tracking, and one bounded stack parser. Test simple cyclic groups before larger permutation tasks; do not assume theory implies a particular low-precision encoding.
 
@@ -210,7 +210,7 @@ An approximate backend must declare a reference, error metric, tolerance, horizo
 
 **Question:** does an internal machine interface help a learned controller, and does compiling the machine add anything beyond native integration?
 
-**Prerequisites:** E00 and E01. This is the first learned-controller study, not a prerequisite for executor research.
+**Prerequisites:** E00: memory and E01: streaming machines. This is the first learned-controller study and is not a prerequisite for executor research.
 
 Compare:
 
@@ -241,7 +241,7 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 **Question:** does an explicit non-text feedback path improve cost or control without changing the available information or permitted computation?
 
-**Prerequisites:** E01 and E02, including the native internal baseline.
+**Prerequisites:** E01: streaming machines and E02: learned interfaces, including the native internal baseline.
 
 **Variants:** token feedback, repeated latent transitions, and a conventional in-process loop over the same machine. Declare where late-computed control reenters the next tick, whether learned context is frozen, and which recurrent caches update.
 
@@ -251,7 +251,7 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 **Discriminator:** improvements must survive comparison with an efficient native loop and cannot come solely from providing hidden privileged state.
 
-**Results:** [results/E03](results/E03/README.md). On copy programs that need a read then a write, latent feedback (one trained adaptor vector per tick through a frozen SmolLM2-135M) beat token feedback, head-only feedback, and a native loop by 0.08 to 0.49 task accuracy. A steering control with the same trained positions but no feedback in them matched it up to 32 statements, and latent feedback led only at 64 statements (+0.05), so the gain is mostly trained steering at unmatched model work. Zero executor mismatches; mid-copy snapshots resumed identically.
+**Results:** [results/E03](results/E03/README.md). On copy programs that need a read then a write, latent feedback (one trained adaptor vector per tick through a frozen SmolLM2-135M) beat token feedback, head-only feedback, and a native loop by 0.08 to 0.49 task accuracy. A steering control with the same trained positions but no feedback in them matched it up to 32 statements. Latent feedback led only at 64 statements (+0.05), so the gain is mostly trained steering at unmatched model work. Executors had zero mismatches, and mid-copy snapshots resumed identically.
 
 ### E04 - Dataflow, specialization, and conditional units
 
@@ -259,7 +259,7 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 **Question:** is direct scheduling a better fit than scalar interpretation?
 
-**Prerequisites:** E00 and E01; no learned controller required for replayed workloads.
+**Prerequisites:** E00: memory and E01: streaming machines. Replayed workloads need no learned controller.
 
 **Targets:** an arithmetic expression DAG, a bounded integer dot product, and a small gather/map/reduce/scatter workload.
 
@@ -279,7 +279,7 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 **Question:** can a small exact relational/message-passing machine replace scalar instruction dispatch for suitable workloads?
 
-**Prerequisites:** E00 plus a declared bounded Boolean or integer arithmetic contract.
+**Prerequisites:** E00: memory plus a declared bounded Boolean or integer arithmetic contract.
 
 **Targets:** Boolean reachability first; then bounded min-plus shortest paths; finally a small positive finite-domain Datalog program.
 
@@ -319,7 +319,7 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 **Question:** which optimizer settings preserve useful specified memory or adaptation semantics?
 
-**Prerequisite:** E00 reference traces; an independently specified optimizer for non-RAM variants.
+**Prerequisite:** E00: memory reference traces; an independently specified optimizer for non-RAM variants.
 
 **Variants:** sequential quadratic-loss updates, chunk-start/stale gradients, momentum, decay, normalization, and then nonlinear memory. Change one feature at a time.
 
@@ -339,7 +339,7 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 **Question:** can neural or energy-based candidate generation improve verified solution yield at a fixed budget?
 
-**Prerequisite:** an independently tested verifier and conventional search baseline; recurrent backends also need the relevant E00 checks.
+**Prerequisite:** an independently tested verifier and conventional search baseline; recurrent backends also need the relevant checks from E00: memory.
 
 **Targets:** one small, explicitly specified constraint problem. Compare conventional search, heuristic proposals plus native verification, and the same proposals plus compiled verification.
 
@@ -446,13 +446,13 @@ flowchart LR
 
 > **TL;DR:** Proposed: put the memory inside the layer stack, driven by trained projections of the residual stream, and compare it with an outside machine at matched trainable parameters.
 
-**Status:** proposal; refine and pre-register after E09.
+**Status:** proposal; refine and pre-register after E09: state in the machine.
 
-**Question:** E02 and E03 keep the machine outside the model and reach it through heads. Does a machine that lives in a layer, written and read by projections of the residual stream, improve control over the same machine reached through heads?
+**Question:** E02: learned interfaces and E03: latent feedback keep the machine outside the model and reach it through heads. Does a machine that lives in a layer, written and read by projections of the residual stream, improve control over the same machine reached through heads?
 
 **Design sketch:** insert one layer at depth k of the frozen model. Trained projections of the residual stream produce a key, a value, a write gate, and a query for a delta-rule state S. The key is selected by argmax with a straight-through gradient so addressing stays one-hot, and the read is added back to the residual stream. A shadow oracle checks S at every action. Before building a new layer, check whether a small Gated DeltaNet hybrid listed in [RESEARCH.md](RESEARCH.md) lets the memory occupy reserved heads of an existing layer instead.
 
-**Discriminator:** E03 showed that trained positions inside the model can account for most of a gain. The machine layer must beat arm S and arm H of E03, which have the same trained-parameter budget, before any benefit is attributed to the machine living in the layer.
+**Discriminator:** E03: latent feedback showed that trained positions inside the model can account for most of a gain. The machine layer must beat arms S and H there, which have the same trained-parameter budget, before any benefit is attributed to the machine living in the layer.
 
 **Results:** not run.
 
@@ -460,11 +460,11 @@ flowchart LR
 
 > **TL;DR:** Proposed: train the controller from answer loss alone, through the machine, to test whether a model can discover how to use it.
 
-**Status:** proposal; refine and pre-register after E09.
+**Status:** proposal; refine and pre-register after E09: state in the machine.
 
-**Question:** E02 and E03 train heads on gold action traces, so the controller imitates a known procedure. If gradients pass through the machine, can a controller learn to write and read from the answer loss alone, which an external tool cannot support?
+**Question:** E02: learned interfaces and E03: latent feedback train heads on gold action traces, so the controller imitates a known procedure. If gradients pass through the machine, can a controller learn to write and read from the answer loss alone, which an external tool cannot support?
 
-**Design sketch:** compare imitation of gold actions (E02 arm C) with outcome-only training using straight-through estimators on the discrete address and value. Both use the same model, heads, and training programs.
+**Design sketch:** compare imitation of gold actions (arm C of E02: learned interfaces) with outcome-only training using straight-through estimators on the discrete address and value. Both use the same model, heads, and training programs.
 
 **Discriminator:** outcome-only training must beat the no-machine arm A and show writes before reads in its action traces; otherwise the answer head may be solving the task without the machine. A failure to learn is a result about discoverability in this setting.
 
@@ -558,4 +558,4 @@ Each curated report should state the hypothesis, evidence class, matched control
 5. **Before an exactness guarantee:** distinguish finite testing from proof; define the checker, floating-point assumptions, and trusted runtime. Compiler-generated range/representation obligations are a later research target, not certificates that already exist.
 6. **Before Shem integration:** identify a workload that benefits. Adapt execution/snapshot APIs without forcing graph or spatial state into RV32 registers, or expanding this repository into another container runtime.
 
-The executor milestone requires a conforming memory backend, an exact streaming machine, and reproducible evidence. E02 then tests interface benefits separately from implementation benefits, whether the result is positive or negative.
+The executor milestone requires a conforming memory backend, an exact streaming machine, and reproducible evidence. E02: learned interfaces then tests interface benefits separately from implementation benefits, whether the result is positive or negative.
