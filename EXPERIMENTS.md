@@ -300,7 +300,7 @@ V and S are run in one new job, on the same programs and seeds as the recorded r
 
 **Cost:** two arms of the first run's five; cap 2 hours, $1.60.
 
-**Results:** not run.
+**Results:** [results/E03](results/E03/README.md#e03-latent-feedback-reply-only-vectors). Run 2026-11-25 on an `l4x1` job, three seeds, with S rerun in the same job; the rerun S matched the recorded S exactly. Arm V, whose latent vector carries only the value a read returned, scored the same as S at every length that mattered (64 statements: 0.566 against 0.566, difference 0.000, bound 0.032) and 0.049 below the recorded L at 64 statements (0.566 against 0.615, bound 0.032). Prediction 1 (V beats S at 64) was not met and prediction 2 (V within the bound of L at 64) was not met. The reply alone does not carry L's lead over S at 64 statements. Whether the action fields carry it, or the lead is within seed variation, is untested. The job cost about $1.32.
 
 ### E04 - Dataflow, specialization, and conditional units
 
