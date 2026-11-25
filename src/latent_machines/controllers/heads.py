@@ -44,12 +44,22 @@ class AnswerHead(nn.Module):
         self.net = mlp(features + extra, hidden, values)
 
     def forward(
-        self, features: torch.Tensor, observation: torch.Tensor | None = None
+        self,
+        features: torch.Tensor,
+        observation: torch.Tensor | None = None,
+        observation_probs: torch.Tensor | None = None,
     ) -> torch.Tensor:
+        """``observation_probs`` ``(..., observations)`` is a soft or one-hot
+        observation; it embeds as ``probs @ embedding`` and equals the integer
+        path for one-hot rows, so gradients can reach whatever produced it."""
         if self.embed is not None:
-            if observation is None:
+            if observation_probs is not None:
+                embedded = observation_probs @ self.embed.weight
+            elif observation is not None:
+                embedded = self.embed(observation)
+            else:
                 raise ValueError("this head needs an observation")
-            features = torch.cat([features, self.embed(observation)], dim=-1)
+            features = torch.cat([features, embedded], dim=-1)
         return self.net(features)
 
 
