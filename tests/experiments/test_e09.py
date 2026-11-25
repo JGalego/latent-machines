@@ -8,7 +8,7 @@ import pytest
 pytest.importorskip("torch")
 pytest.importorskip("transformers")
 
-from latent_machines.experiments import e09  # noqa: E402
+from latent_machines.experiments import e09, e09_folds  # noqa: E402
 from latent_machines.tasks import records as task  # noqa: E402
 
 
@@ -87,3 +87,54 @@ def test_held_out_run_measures_unseen_statements(tmp_path: Path) -> None:
     }
     runs = {(r["arm"], r["split"]): r for r in metrics["runs"]}
     assert runs["S", "test_held_out_pairs"]["questions"] > 0
+
+
+def test_folds_are_disjoint_and_cover_every_set_statement() -> None:
+    pairs = [pair for fold in e09.FOLDS.values() for pair in fold]
+    assert len(pairs) == len(set(pairs)) == 32
+    assert {r for r, _ in pairs} == set(range(len(task.NAMES)))
+    assert e09.FOLDS[0] == task.HELD_OUT
+
+
+def test_fold_run_holds_out_its_own_statements(tmp_path: Path) -> None:
+    code = e09.main(
+        ["--model", "tiny-random", "--train", "20", "--test", "4", "--epochs", "2",
+         "--seeds", "0", "--held-out", "--fold", "1", "--arms", "S,S+delta,W",
+         "--out", str(tmp_path)]
+    )  # fmt: skip
+    assert code == 0
+    (run_dir,) = tmp_path.iterdir()
+    assert "fold1" in run_dir.name
+    run = json.loads((run_dir / "run.json").read_text())
+    assert run["task"]["fold"] == 1
+    assert run["task"]["held_out_pairs"] == [list(p) for p in sorted(e09.FOLDS[1])]
+    train = run["task"]["splits"]["train"]
+    assert train["held_out"] == [list(p) for p in sorted(e09.FOLDS[1])]
+    metrics = json.loads((run_dir / "metrics.json").read_text())
+    assert {r["arm"] for r in metrics["runs"]} == {"S", "S+delta", "W"}
+    (statements,) = metrics["statement_accuracy"]
+    assert len(statements["failed_unseen"]) <= 8
+    assert all(f["statement"].startswith("Set ") for f in statements["failed_unseen"])
+    # The unseen statements are the ones with records a, b and values 0-3.
+    assert {
+        e09_folds.per_statement([statements], 1)[s]
+        for s in ("Set a to 0.", "Set b to 3.")
+    } <= {0, 1}
+
+
+def test_fold_aggregation_evaluates_the_three_predictions() -> None:
+    def rows(unseen: float, seen: float = 1.0) -> list[dict]:
+        return [{"unseen": unseen, "seen": seen, "failed_unseen": []}] * 3
+
+    smollm = {fold: rows(0.9) for fold in e09.FOLDS}
+    random = {fold: rows(0.2) for fold in e09.FOLDS}
+    result = e09_folds.evaluate(smollm, random)
+    assert result["1_s_reads_unseen_statements"]["met"]
+    assert result["2_no_fold_below_half"]["met"]
+    assert result["3_pretraining_adds_over_random"]["met"]
+    assert result["sanity_seen_statements"]["ok"]
+    smollm[2] = rows(0.4)
+    result = e09_folds.evaluate(smollm, random)
+    assert not result["2_no_fold_below_half"]["met"]
+    assert not result["1_s_reads_unseen_statements"]["met"]
+    assert result["1_s_reads_unseen_statements"]["inconclusive"]

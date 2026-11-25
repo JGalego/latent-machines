@@ -24,7 +24,9 @@ predictions, so the report states each one as met or not met.
 
 ``--held-out`` runs the pre-registered follow-up: 2-8 statement and held-out
 record-value-pair test splits only, plus the action accuracy of S's heads on
-the 8 statements never trained on.
+the 8 statements never trained on. ``--fold`` picks which 8 (four disjoint sets
+cover all 32 record-value pairs of the second follow-up; fold 0 is the first),
+and ``--arms`` restricts the run to some arms.
 
 Exit status: 0 when the run completes with no executor mismatches, 1 if the
 delta-rule executor disagrees with its shadow oracle, 2 if the run failed.
@@ -59,6 +61,13 @@ TEST_SPLITS = (
     "test_length_256",
 )
 HELD_OUT_SPLITS = ("test_in_distribution", "test_held_out_pairs")
+# Four disjoint sets of unseen ``Set`` statements: two records times four values.
+FOLDS = {
+    0: task.HELD_OUT,  # records g, h; values 12-15
+    1: frozenset((r, v) for r in (0, 1) for v in range(0, 4)),
+    2: frozenset((r, v) for r in (2, 3) for v in range(4, 8)),
+    3: frozenset((r, v) for r in (4, 5) for v in range(8, 12)),
+}
 LENGTH_THRESHOLDS = (64, 256)  # splits where prediction 1 is evaluated
 UNSEEN_MIN = 0.90  # held-out prediction 1: action accuracy on unseen statements
 SEEN_MIN = 0.99  # held-out sanity check: action accuracy on seen statements
@@ -82,10 +91,11 @@ class Config:
     learning_rate: float
     batch_size: int
     arms: tuple[str, ...] = ARMS
+    fold: int = 0
 
 
 def splits(config: Config, held_out: bool = False) -> list[task.Split]:
-    held = task.HELD_OUT
+    held = FOLDS[config.fold]
     if held_out:
         return [
             task.Split("train", config.train, 2, 8, held),
@@ -218,22 +228,44 @@ def answer_given_gold(
 
 @torch.no_grad()
 def statement_accuracy(
-    controller: e02.Controller, windows: WindowedLM
-) -> dict[str, float]:
+    controller: e02.Controller,
+    windows: WindowedLM,
+    held_out: frozenset[tuple[int, int]] = task.HELD_OUT,
+) -> dict[str, Any]:
     """Action accuracy of S's heads on single statements, from their window
-    features alone: the 8 statements never trained on, and the 128 trained on."""
-    unseen, seen = [], []
+    features alone: the statements in ``held_out`` never trained on, and the
+    others trained on. Also lists the statements whose action was wrong."""
+    unseen, seen, failed_unseen, failed_seen = [], [], [], []
     for record in range(len(task.NAMES)):
         for value in range(task.MAX_VALUE + 1):
             statement = task.Statement("set", record, value)
-            right = e02.choose(controller, windows.feature(statement.text))
-            (unseen if (record, value) in task.HELD_OUT else seen).append(
-                right == statement.action
-            )
+            chosen = e02.choose(controller, windows.feature(statement.text))
+            right = chosen == statement.action
+            is_unseen = (record, value) in held_out
+            (unseen if is_unseen else seen).append(right)
+            if not right:
+                (failed_unseen if is_unseen else failed_seen).append(
+                    {
+                        "statement": statement.text.strip(),
+                        "chose": lockstep.action_json(chosen),
+                    }
+                )
         question = task.Statement("get", record)
-        right = e02.choose(controller, windows.feature(question.text))
-        seen.append(right == question.action)
-    return {"unseen": sum(unseen) / len(unseen), "seen": sum(seen) / len(seen)}
+        chosen = e02.choose(controller, windows.feature(question.text))
+        seen.append(chosen == question.action)
+        if chosen != question.action:
+            failed_seen.append(
+                {
+                    "statement": question.text.strip(),
+                    "chose": lockstep.action_json(chosen),
+                }
+            )
+    return {
+        "unseen": sum(unseen) / len(unseen),
+        "seen": sum(seen) / len(seen),
+        "failed_unseen": failed_unseen,
+        "failed_seen": failed_seen,
+    }
 
 
 def evaluate_held_out(
@@ -390,7 +422,26 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         action="store_true",
         help="follow-up on held-out record-value pairs instead of the length splits",
     )
+    parser.add_argument(
+        "--fold",
+        type=int,
+        choices=sorted(FOLDS),
+        default=0,
+        help="which set of 8 statements is held out (needs --held-out unless 0)",
+    )
+    parser.add_argument(
+        "--arms",
+        default=",".join(ARMS),
+        help="comma-separated arms to run (S is needed for the statement measure)",
+    )
     args = parser.parse_args(argv)
+    if args.fold and not args.held_out:
+        parser.error("--fold other than 0 needs --held-out")
+    chosen = args.arms.split(",")
+    if "S" not in chosen or any(arm not in ARMS for arm in chosen):
+        parser.error(f"--arms must be a subset of {','.join(ARMS)} that includes S")
+    if not args.held_out and chosen != list(ARMS):
+        parser.error("the length run needs every arm; use --arms with --held-out")
     if min(args.train, args.test, args.long_test, args.epochs) < 1:
         parser.error("sizes and epochs must be positive")
     return args
@@ -415,11 +466,15 @@ def main(argv: list[str] | None = None) -> int:
         hidden=args.hidden,
         learning_rate=args.learning_rate,
         batch_size=args.batch_size,
+        arms=tuple(arm for arm in ARMS if arm in args.arms.split(",")),
+        fold=args.fold,
     )
+    held = FOLDS[config.fold]
     test_splits = HELD_OUT_SPLITS if args.held_out else TEST_SPLITS
-    run_dir, source, root = lockstep.start(
-        args.out, "e09-heldout" if args.held_out else "e09"
-    )
+    slug = "e09" if not args.held_out else "e09-heldout"
+    if args.fold:
+        slug += f"-fold{args.fold}"
+    run_dir, source, root = lockstep.start(args.out, slug)
     data = {
         s.name: (s, list(task.programs(s, config.data_seed)))
         for s in splits(config, args.held_out)
@@ -452,13 +507,17 @@ def main(argv: list[str] | None = None) -> int:
         lm = FrozenLM.load(config.model, config.revision, args.device)
         windows = WindowedLM(lm)
         train_programs = data["train"][1]
-        full = {arm: e02.build_examples(lm, train_programs, arm) for arm in "BC"}
+        full = {
+            arm: e02.build_examples(lm, train_programs, arm)
+            for arm in "BC"
+            if arm in config.arms
+        }
         windowed = e02.build_examples(windows, train_programs, "C")
         features = {
             "full": {
                 name: [lm.chunk_features(e02.plain_chunks(p))[1:] for p in programs]
                 for name, (_, programs) in data.items()
-                if name in test_splits
+                if name in test_splits and ("B" in config.arms or "C" in config.arms)
             },
             "window": {
                 name: [
@@ -468,22 +527,26 @@ def main(argv: list[str] | None = None) -> int:
                 if name in test_splits
             },
         }
-        for arm in ARMS:
+        for arm in config.arms:
             positions[arm] = {
                 name: context_positions(arm, lm, windows, data[name][1])
                 for name in test_splits
             }
         for seed in config.seeds:
-            controllers = {
-                "B": e02.train("B", full["B"], lm, config, seed),
-                "C": e02.train("C", full["C"], lm, config, seed),
-                "S": e02.train("C", windowed, windows, config, seed),
-                "W": e02.train("A", windowed, windows, config, seed),
-            }
+            controllers: dict[str, e02.Controller] = {}
+            for arm in ("B", "C"):
+                if arm in config.arms:
+                    controllers[arm] = e02.train(arm, full[arm], lm, config, seed)
+            controllers["S"] = e02.train("C", windowed, windows, config, seed)
+            if "W" in config.arms:
+                controllers["W"] = e02.train("A", windowed, windows, config, seed)
             controllers["S+delta"] = controllers["S"]  # same heads, delta executor
             if args.held_out:
                 statements.append(
-                    {"seed": seed, **statement_accuracy(controllers["S"], windows)}
+                    {
+                        "seed": seed,
+                        **statement_accuracy(controllers["S"], windows, held),
+                    }
                 )
                 print(
                     f"seed {seed} statements unseen {statements[-1]['unseen']:.3f} "
@@ -497,9 +560,9 @@ def main(argv: list[str] | None = None) -> int:
                 "S+delta": ("D", features["window"], windows),
                 "W": ("A", features["window"], windows),
             }
-            for arm in ARMS:
+            for arm in config.arms:
                 c = controllers[arm]
-                examples = {"B": full["B"], "C": full["C"]}.get(arm, windowed)
+                examples = full.get(arm, windowed)
                 trained[arm] = {
                     "trainable_parameters": parameter_count(c.actions, c.answers),
                     "training_steps": c.steps,
@@ -559,11 +622,10 @@ def main(argv: list[str] | None = None) -> int:
                 + " ".join(f"{k.split('_')[-1]}:{v:.3f}" for k, v in accuracy.items()),
                 flush=True,
             )
-        predictions = (
-            evaluate_held_out(rows, statements)
-            if args.held_out
-            else evaluate_predictions(rows, baselines)
-        )
+        if not args.held_out:
+            predictions = evaluate_predictions(rows, baselines)
+        elif {"B", "C", "S"} <= set(config.arms):
+            predictions = evaluate_held_out(rows, statements)
     except Exception:
         error = traceback.format_exc()
         print(error, file=sys.stderr)
@@ -588,7 +650,8 @@ def main(argv: list[str] | None = None) -> int:
             "task": {
                 "machine": "memory/v1, capacity 8, 4-bit words",
                 "records": task.NAMES,
-                "held_out_pairs": sorted(task.HELD_OUT),
+                "held_out_pairs": sorted(held),
+                "fold": config.fold,
                 "follow_up": "held-out pairs" if args.held_out else None,
                 "splits": {
                     name: asdict(split)
