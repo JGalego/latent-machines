@@ -62,3 +62,28 @@ def test_tiny_run_writes_records_and_predictions(tmp_path: Path) -> None:
     }
     record = json.loads((run_dir / "run.json").read_text())
     assert set(record["arms"]) == set(e09.ARMS)
+
+
+def test_held_out_run_measures_unseen_statements(tmp_path: Path) -> None:
+    code = e09.main(
+        ["--model", "tiny-random", "--train", "20", "--test", "4", "--epochs", "2",
+         "--seeds", "0", "--held-out", "--out", str(tmp_path)]
+    )  # fmt: skip
+    assert code == 0
+    (run_dir,) = tmp_path.iterdir()
+    assert "e09-heldout" in run_dir.name
+    metrics = json.loads((run_dir / "metrics.json").read_text())
+    splits = {r["split"] for r in metrics["runs"]}
+    assert splits == set(e09.HELD_OUT_SPLITS)
+    (statements,) = metrics["statement_accuracy"]
+    assert 0 <= statements["unseen"] <= 1 and 0 <= statements["seen"] <= 1
+    # The 8 held-out texts and the 128 others cover every statement once.
+    predictions = metrics["predictions"]
+    assert set(predictions) == {
+        "1_s_reads_unseen_statements",
+        "2_s_beats_c_on_held_out_pairs",
+        "3_pretraining_adds_over_random",
+        "sanity_s_seen_statements",
+    }
+    runs = {(r["arm"], r["split"]): r for r in metrics["runs"]}
+    assert runs["S", "test_held_out_pairs"]["questions"] > 0

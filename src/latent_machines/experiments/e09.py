@@ -20,6 +20,11 @@ predictions, so the report states each one as met or not met.
 
     uv run --locked python -m latent_machines.experiments.e09 --model tiny-random
     uv run --locked python -m latent_machines.experiments.e09 --device cuda
+    uv run --locked python -m latent_machines.experiments.e09 --held-out --device cuda
+
+``--held-out`` runs the pre-registered follow-up: 2-8 statement and held-out
+record-value-pair test splits only, plus the action accuracy of S's heads on
+the 8 statements never trained on.
 
 Exit status: 0 when the run completes with no executor mismatches, 1 if the
 delta-rule executor disagrees with its shadow oracle, 2 if the run failed.
@@ -53,7 +58,10 @@ TEST_SPLITS = (
     "test_length_64",
     "test_length_256",
 )
+HELD_OUT_SPLITS = ("test_in_distribution", "test_held_out_pairs")
 LENGTH_THRESHOLDS = (64, 256)  # splits where prediction 1 is evaluated
+UNSEEN_MIN = 0.90  # held-out prediction 1: action accuracy on unseen statements
+SEEN_MIN = 0.99  # held-out sanity check: action accuracy on seen statements
 WITHIN = 0.05  # prediction 2 tolerance
 FLOOR = 0.15  # prediction 3 ceiling for W
 ACTION_DRIFT = 0.03  # implementation check on S's action accuracy across lengths
@@ -76,8 +84,16 @@ class Config:
     arms: tuple[str, ...] = ARMS
 
 
-def splits(config: Config) -> list[task.Split]:
+def splits(config: Config, held_out: bool = False) -> list[task.Split]:
     held = task.HELD_OUT
+    if held_out:
+        return [
+            task.Split("train", config.train, 2, 8, held),
+            task.Split("test_in_distribution", config.test, 2, 8, held),
+            task.Split(
+                "test_held_out_pairs", config.test, 2, 8, held, exclude_held_out=False
+            ),
+        ]
     return [
         task.Split("train", config.train, 2, 8, held),
         task.Split("test_in_distribution", config.test, 2, 8, held),
@@ -200,6 +216,70 @@ def answer_given_gold(
     return right / total
 
 
+@torch.no_grad()
+def statement_accuracy(
+    controller: e02.Controller, windows: WindowedLM
+) -> dict[str, float]:
+    """Action accuracy of S's heads on single statements, from their window
+    features alone: the 8 statements never trained on, and the 128 trained on."""
+    unseen, seen = [], []
+    for record in range(len(task.NAMES)):
+        for value in range(task.MAX_VALUE + 1):
+            statement = task.Statement("set", record, value)
+            right = e02.choose(controller, windows.feature(statement.text))
+            (unseen if (record, value) in task.HELD_OUT else seen).append(
+                right == statement.action
+            )
+        question = task.Statement("get", record)
+        right = e02.choose(controller, windows.feature(question.text))
+        seen.append(right == question.action)
+    return {"unseen": sum(unseen) / len(unseen), "seen": sum(seen) / len(seen)}
+
+
+def evaluate_held_out(
+    rows: list[dict[str, Any]], statements: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Held-out predictions 1 and 2 and the sanity check. Prediction 3 compares
+    this run with a random-model run, so the report evaluates it."""
+
+    def by(arm: str, split: str, key: str) -> dict[int, Any]:
+        return {
+            r["seed"]: r[key] for r in rows if r["arm"] == arm and r["split"] == split
+        }
+
+    split = "test_held_out_pairs"
+    seeds = sorted(by("S", split, "task_accuracy"))
+    unseen = mean([s["unseen"] for s in statements])
+    seen = mean([s["seen"] for s in statements])
+    questions = by("S", split, "questions")[seeds[0]]
+    diff = mean(
+        [
+            by("S", split, "task_accuracy")[s] - by("C", split, "task_accuracy")[s]
+            for s in seeds
+        ]
+    )
+    return {
+        "1_s_reads_unseen_statements": {
+            "unseen_action_accuracy": unseen,
+            "minimum": UNSEEN_MIN,
+            "met": unseen >= UNSEEN_MIN,
+            "counts_against_reading": unseen < 0.5,
+            "inconclusive": 0.5 <= unseen < UNSEEN_MIN,
+        },
+        "2_s_beats_c_on_held_out_pairs": {
+            "mean_s_minus_c": diff,
+            "bound": bound(questions),
+            "met": diff > bound(questions),
+        },
+        "3_pretraining_adds_over_random": "needs the random-model run; see report",
+        "sanity_s_seen_statements": {
+            "seen_action_accuracy": seen,
+            "minimum": SEEN_MIN,
+            "ok": seen >= SEEN_MIN,
+        },
+    }
+
+
 # ---------- evaluation of the pre-registered predictions ----------
 
 
@@ -305,6 +385,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--threads", type=int, default=0)
     parser.add_argument("--device", default="cpu", help="device for the frozen model")
     parser.add_argument("--out", default="runs")
+    parser.add_argument(
+        "--held-out",
+        action="store_true",
+        help="follow-up on held-out record-value pairs instead of the length splits",
+    )
     args = parser.parse_args(argv)
     if min(args.train, args.test, args.long_test, args.epochs) < 1:
         parser.error("sizes and epochs must be positive")
@@ -331,9 +416,13 @@ def main(argv: list[str] | None = None) -> int:
         learning_rate=args.learning_rate,
         batch_size=args.batch_size,
     )
-    run_dir, source, root = lockstep.start(args.out, "e09")
+    test_splits = HELD_OUT_SPLITS if args.held_out else TEST_SPLITS
+    run_dir, source, root = lockstep.start(
+        args.out, "e09-heldout" if args.held_out else "e09"
+    )
     data = {
-        s.name: (s, list(task.programs(s, config.data_seed))) for s in splits(config)
+        s.name: (s, list(task.programs(s, config.data_seed)))
+        for s in splits(config, args.held_out)
     }
     header = lockstep.run_header(
         experiment=EXPERIMENT,
@@ -356,6 +445,7 @@ def main(argv: list[str] | None = None) -> int:
     trained: dict[str, Any] = {}
     positions: dict[str, Any] = {}
     predictions = None
+    statements: list[dict[str, Any]] = []
     error = None
     lm = None
     try:
@@ -368,20 +458,20 @@ def main(argv: list[str] | None = None) -> int:
             "full": {
                 name: [lm.chunk_features(e02.plain_chunks(p))[1:] for p in programs]
                 for name, (_, programs) in data.items()
-                if name in TEST_SPLITS
+                if name in test_splits
             },
             "window": {
                 name: [
                     windows.chunk_features(e02.plain_chunks(p))[1:] for p in programs
                 ]
                 for name, (_, programs) in data.items()
-                if name in TEST_SPLITS
+                if name in test_splits
             },
         }
         for arm in ARMS:
             positions[arm] = {
                 name: context_positions(arm, lm, windows, data[name][1])
-                for name in TEST_SPLITS
+                for name in test_splits
             }
         for seed in config.seeds:
             controllers = {
@@ -391,6 +481,15 @@ def main(argv: list[str] | None = None) -> int:
                 "W": e02.train("A", windowed, windows, config, seed),
             }
             controllers["S+delta"] = controllers["S"]  # same heads, delta executor
+            if args.held_out:
+                statements.append(
+                    {"seed": seed, **statement_accuracy(controllers["S"], windows)}
+                )
+                print(
+                    f"seed {seed} statements unseen {statements[-1]['unseen']:.3f} "
+                    f"seen {statements[-1]['seen']:.3f}",
+                    flush=True,
+                )
             arm_setup = {  # arm -> (e02 arm name, features, executor note)
                 "B": ("B", features["full"], lm),
                 "C": ("C", features["full"], lm),
@@ -408,7 +507,7 @@ def main(argv: list[str] | None = None) -> int:
                     "answer_examples": len(examples.answers),
                 }
                 e02_arm, plain, model = arm_setup[arm]
-                for name in TEST_SPLITS:
+                for name in test_splits:
                     local: list[dict[str, Any]] = []
                     result = e02.evaluate(
                         e02_arm,
@@ -450,7 +549,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             accuracy = {
                 name: a * replay_accuracy(data[name][1], epsilon, seed=seed * 1000 + i)
-                for i, name in enumerate(TEST_SPLITS)
+                for i, name in enumerate(test_splits)
             }
             baselines.append(
                 {"seed": seed, "epsilon": epsilon, "a": a, "accuracy": accuracy}
@@ -460,7 +559,11 @@ def main(argv: list[str] | None = None) -> int:
                 + " ".join(f"{k.split('_')[-1]}:{v:.3f}" for k, v in accuracy.items()),
                 flush=True,
             )
-        predictions = evaluate_predictions(rows, baselines)
+        predictions = (
+            evaluate_held_out(rows, statements)
+            if args.held_out
+            else evaluate_predictions(rows, baselines)
+        )
     except Exception:
         error = traceback.format_exc()
         print(error, file=sys.stderr)
@@ -486,6 +589,7 @@ def main(argv: list[str] | None = None) -> int:
                 "machine": "memory/v1, capacity 8, 4-bit words",
                 "records": task.NAMES,
                 "held_out_pairs": sorted(task.HELD_OUT),
+                "follow_up": "held-out pairs" if args.held_out else None,
                 "splits": {
                     name: asdict(split)
                     | {
@@ -519,7 +623,8 @@ def main(argv: list[str] | None = None) -> int:
             "status": status,
             "finished_at": records.now(),
             "acceptance": (
-                "pre-registered predictions in EXPERIMENTS.md evaluated as written; "
+                "pre-registered predictions in EXPERIMENTS.md evaluated as written "
+                "(the held-out follow-up amendment, with --held-out); "
                 "zero executor mismatches for the delta-rule arm"
             ),
             "executor_mismatches": mismatches,
@@ -529,6 +634,7 @@ def main(argv: list[str] | None = None) -> int:
             "summary": e02.summarize(rows),
             "runs": rows,
             "compounding_baseline": baselines,
+            "statement_accuracy": statements,
             "predictions": predictions,
             "context_positions": positions,
             "not_measured": [

@@ -466,7 +466,21 @@ VERDICTS = ("supported", "partly", "refuted", "null", "untested")
 
 
 def latest_learned(experiments: dict[str, list[dict]], exp_id: str) -> dict | None:
-    runs = [r for r in experiments.get(exp_id, []) if r["kind"] == "learned"]
+    """The latest learned run with at least two length splits; follow-up runs on
+    other splits (E09's held-out pairs) do not draw the length figures."""
+    runs = [
+        r
+        for r in experiments.get(exp_id, [])
+        if r["kind"] == "learned"
+        and len(
+            {
+                s["split"]
+                for s in r["metrics"].get("summary", [])
+                if s.get("split") in LENGTH_SPLITS
+            }
+        )
+        >= 2
+    ]
     return runs[-1] if runs else None
 
 
