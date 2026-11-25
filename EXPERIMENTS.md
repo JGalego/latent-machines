@@ -572,7 +572,15 @@ Trainable parameters are matched within 5% across arms by sizing the hidden laye
 
 **Cost:** one `l4x1` job; the upper layers run for every question, so expect about an hour. Cap: 90 minutes, $1.20.
 
-**Results:** not run.
+**Results:** [results/E10](results/E10/README.md). Run 2026-11-25 on an `l4x1` job, three seeds. A delta-rule memory inside layer 15 of a frozen SmolLM2, written and read by trained projections of the residual stream, matched an integer oracle after every statement and answered every copy-program question correctly on 2-8, 32, 64, and 256 statements and on held-out pairs. The same memory with the read going to the answer head did the same. The outside machine matched it on every length split and trailed by 0.026 on held-out pairs, within the bound. All five predictions held, but the accuracy tests were at ceiling, so this shows parity, not a benefit of the in-layer memory. A reject macro rejected every trained invalid form and 0.70 of unseen ones, so learned validation does not replace the host check. The job cost about $0.17.
+
+#### Amendment 2026-11-25: first run
+
+> **TL;DR:** Where the first run differed from the text above.
+
+- **Model passes:** the arm table says O makes two model passes per copy. O reuses the statement's feature for both ticks, as E03's arm H does, so model positions are equal across arms. The saving is in controller decisions: O makes three per copy (read, write, end) and M makes one.
+- **Prediction 2** is evaluated on all five splits, including held-out pairs.
+- **Prediction 5** is evaluated on the pooled unseen texts, with the two kinds (record `l`, values 32-47) reported separately.
 
 ### E11 - Learning to use the machine from outcomes
 
