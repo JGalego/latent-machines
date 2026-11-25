@@ -2,7 +2,7 @@
 
 > **TL;DR:** Validate executors before comparing learned interfaces; E00-E08 all have initial results.
 
-Status, 2026-11-25: E00-E09 each have a first recorded run and report under [results/](results/), summarized in the experiment's **Results** line. These are initial results with one or a few seeds, not completed studies. [E09](#e09---state-in-the-machine-not-the-context) ran against pre-registered predictions: two held (one vacuously) and one failed. Its held-out follow-up met one of three and left one inconclusive. [E10](#e10---a-machine-layer-inside-the-model) and [E11](#e11---learning-to-use-the-machine-from-outcomes) are proposals. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
+Status, 2026-11-25: E00-E09 each have a first recorded run and report under [results/](results/), summarized in the experiment's **Results** line. These are initial results with one or a few seeds, not completed studies. [E09](#e09---state-in-the-machine-not-the-context) ran against pre-registered predictions: two held (one vacuously) and one failed. Its held-out follow-up met two of three and left the third inconclusive. [E10](#e10---a-machine-layer-inside-the-model) and [E11](#e11---learning-to-use-the-machine-from-outcomes) are pre-registered and not yet run, as are follow-ups to E00, E03, and E09 amended below. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
 
 ## Questions and priorities
 
@@ -184,6 +184,32 @@ An approximate backend must declare a reference, error metric, tolerance, horizo
 
 **Results:** [results/E00](results/E00/README.md). Delta replacement matched the oracle exactly up to 10^6 actions on CPU; the other variants are untested.
 
+#### Amendment 2026-11-25: chunked and fused kernels, pre-registered
+
+> **TL;DR:** The first run checked a recurrent PyTorch update on a CPU. This follow-up checks a chunked form of the same update, larger capacities, and the fused kernels a real Gated DeltaNet layer would use.
+
+**Question:** does delta replacement stay exact when the recurrence is evaluated in chunks, at capacities well above the first run's, and in the fused kernels of [flash-linear-attention](https://github.com/fla-org/flash-linear-attention)?
+
+**Design:** the E00 overwrite, alternate-address, untouched-slot, idle, and capacity workloads with one-hot keys and β = 1, at capacities 64, 512, and 4,096 and up to 10^5 actions. Variants:
+
+- recurrent PyTorch update (the first run's backend), for reference;
+- a pure-PyTorch chunked form of the delta rule (the WY representation, with chunk sizes 4, 16, and 64), in float64, float32, and bfloat16, on CPU;
+- flash-linear-attention's `chunk_gated_delta_rule` and `fused_recurrent_gated_delta_rule` on an `l4x1` job, in float32 and bfloat16, if the package installs there. If it does not, the report says so and records the failure.
+
+A read goes through the same normalization path as in the first run. Mismatches are counted against the integer oracle after decoding, and the pre-canonicalization residue is recorded.
+
+**Predictions:**
+
+1. The chunked PyTorch form has zero mismatches in float64 and float32 at every chunk size and capacity.
+2. The chunked form in bfloat16 has at least one mismatch on some workload at 10^5 actions, because the chunk-level corrections accumulate rounding that one-hot overwrite does not tolerate. If it has none, the report says the bfloat16 chunked form is exact on this suite.
+3. The fused kernels in bfloat16 have at least one mismatch on some workload.
+
+**Outcomes that count against the thesis:** prediction 1 fails: a chunked evaluation of the delta rule does not preserve addressed state exactly, and a layer built on it needs a different update. Predictions 2 and 3 failing support exactness at lower precision, within this suite.
+
+**Cost:** the CPU part runs locally. The kernel check is one `l4x1` job; cap 30 minutes, $0.40.
+
+**Results:** not run.
+
 ### E01 - Exact streaming machines and transition algebras
 
 > **TL;DR:** Can simple exact machines, like counters and parsers, run directly in layers?
@@ -252,6 +278,29 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 **Discriminator:** improvements must survive comparison with an efficient native loop and cannot come solely from providing hidden privileged state.
 
 **Results:** [results/E03](results/E03/README.md). On copy programs that need a read then a write, latent feedback (one trained adaptor vector per tick through a frozen SmolLM2-135M) beat token feedback, head-only feedback, and a native loop by 0.08 to 0.49 task accuracy. A steering control with the same trained positions but no feedback in them matched it up to 32 statements. Latent feedback led only at 64 statements (+0.05), so the gain is mostly trained steering at unmatched model work. Executors had zero mismatches, and mid-copy snapshots resumed identically.
+
+#### Amendment 2026-11-25: reply-only vectors, pre-registered
+
+> **TL;DR:** A control the first run lacked: input vectors that carry the value a read returned, without the action that produced it.
+
+**Question:** the first run's L vector carries the whole feedback code (operation, record, value, and event kind), and S carries none of it. Which part of the code do later ticks need? An arm V that carries only the reply separates feedback content from the trained positions at every length, and from the action echo.
+
+**Design:** the same runner, task, model revision, seeds, splits, and hyperparameters as the first run, with one more arm:
+
+- V, reply-only vectors: L's adaptor, but the operation, record, and value-written fields of the code are replaced by constants, so the vector depends only on the value the machine returned and the event kind.
+
+V and S are run in one new job, on the same programs and seeds as the recorded run; S is rerun so that V is compared with an S from the same code. The recorded L, T, H, and N results are not rerun. If the rerun S differs from the recorded S by more than the recorded seed range, the report says so and does not compare V against L.
+
+**Predictions:**
+
+1. V's task accuracy exceeds S's by more than the conservative two-standard-error bound at 64 statements, in the mean over seeds. The reply content matters at the length where L led S.
+2. V is within the bound of L at 64 statements. The action echo adds nothing beyond the reply.
+
+**Outcomes that count against the reading:** prediction 1 fails: reply content does not help at 64 statements, so L's lead there is not explained by the value fed back. Prediction 2 fails with V behind L: the action echo carries information the reply does not.
+
+**Cost:** two arms of the first run's five; cap 2 hours, $1.60.
+
+**Results:** not run.
 
 ### E04 - Dataflow, specialization, and conditional units
 
@@ -442,31 +491,143 @@ flowchart LR
 
 **Results:** [results/E09](results/E09/README.md#results-unseen-statements). Run 2026-11-25. S chose the right action for 7 of the 8 unseen statements in every seed (0.875) and scored 0.982 on the held-out-pairs split against 0.827 for C. Prediction 1 (at least 0.90) was not met and is inconclusive by its own rule, prediction 2 held (+0.155, bound 0.058), and prediction 3 held (0.875 against 0.250 for the random model). The job cost about $0.22.
 
+#### Amendment 2026-11-25: more unseen statements, pre-registered
+
+> **TL;DR:** The first follow-up tested one set of 8 unseen statements. This one tests 32, in four sets, and records which statements fail.
+
+**Question:** the held-out result rests on 8 statements. Does S read unseen statements in general, or only that set?
+
+**Design:** the held-out run repeated for four disjoint sets of unseen `Set` statements, one record pair times one value range each, together covering all eight records and all 16 values: records g and h with values 12-15 (the first follow-up's set); records a and b with 0-3; records c and d with 4-7; records e and f with 8-11. For each set, S trains on programs that never contain those statements and is tested on the 2-8 split and on a held-out-pairs split built from that set. The action accuracy of S's heads on each unseen statement text and each seen one is recorded per seed, with the statements that fail. Runs: SmolLM2-135M on an `l4x1` job, and the random 2-layer model on CPU, three seeds each.
+
+**Predictions:**
+
+1. SmolLM2's S chooses the correct action for at least 0.90 of the 32 unseen statements, in the mean over sets and seeds.
+2. No single set falls below 0.50 in the mean over seeds.
+3. SmolLM2's S beats the random model's S by more than 0.10 in unseen-statement action accuracy, in the mean over sets and seeds.
+
+**Sanity checks, not predictions:** S's action accuracy on seen statements is at least 0.99 in every set.
+
+**Outcomes that count against the reading thesis:** prediction 2 fails: some kind of statement is memorized, not read. A mean between 0.50 and 0.90 on prediction 1 is inconclusive. Prediction 3 failing means pretraining adds nothing measurable here.
+
+**Cost:** four runs of the first follow-up's job (about $0.22 each); cap 45 minutes, $0.60.
+
+**Results:** not run.
+
 ### E10 - A machine layer inside the model
 
-> **TL;DR:** Proposed: put the memory inside the layer stack, driven by trained projections of the residual stream, and compare it with an outside machine at matched trainable parameters.
+> **TL;DR:** Pre-registered: a delta-rule memory inside a layer of the frozen model, written and read by trained projections of the residual stream, should match an outside machine on copy programs while using one model pass per statement instead of two.
 
-**Status:** proposal; refine and pre-register after E09: state in the machine.
+**Status:** pre-registered 2026-11-25, before any code or run. Changes after a run go in a dated amendment below this section, not in an edit of it.
 
-**Question:** E02: learned interfaces and E03: latent feedback keep the machine outside the model and reach it through heads. Does a machine that lives in a layer, written and read by projections of the residual stream, improve control over the same machine reached through heads?
+**Question:** E02: learned interfaces and E03: latent feedback keep the machine outside the model and reach it through heads. Does a machine that lives in a layer, written and read by projections of the residual stream, match or beat the same machine reached through heads, and can that layer reject commands that are not valid?
 
-**Design sketch:** insert one layer at depth k of the frozen model. Trained projections of the residual stream produce a key, a value, a write gate, and a query for a delta-rule state S. The key is selected by argmax with a straight-through gradient so addressing stays one-hot, and the read is added back to the residual stream. A shadow oracle checks S at every action. Before building a new layer, check whether a small Gated DeltaNet hybrid listed in [RESEARCH.md](RESEARCH.md) lets the memory occupy reserved heads of an existing layer instead.
+**Why copy programs:** E09: state in the machine showed that a controller reading one statement at a time answers E02's record programs perfectly, so those programs cannot separate the arms. `Copy x to y.` ([task](src/latent_machines/tasks/copies.py)) needs a read whose value feeds a write. An outside controller does this in two ticks with feedback to its heads; a layer can do it in one pass. This also tests statements that depend on the machine's state, which E09 did not.
 
-**Discriminator:** E03: latent feedback showed that trained positions inside the model can account for most of a gain. The machine layer must beat arms S and H there, which have the same trained-parameter budget, before any benefit is attributed to the machine living in the layer.
+**Setup:** frozen SmolLM2-135M, copy programs from E03: latent feedback, and E09's windows: the model reads the preamble plus one statement per forward pass, so the machine is the only carrier of state. Splits: 2-8, 32, 64, and 256 statements, and E02's held-out-pairs split. Three training seeds, 2,000 training programs, 30 epochs, as in E02. Every arm drives the delta-rule backend with a shadow integer oracle.
+
+```mermaid
+flowchart LR
+    subgraph O["O: machine outside"]
+    O1["window"] --> O2["frozen model, all layers"] --> O3["heads"] -->|"read, then write"| O4["memory"]
+    O4 -->|"value to heads"| O3
+    end
+    subgraph M["M: machine in layer k"]
+    M1["window"] --> M2["layers 1..k"] --> M3["projections + memory<br/>copy in one pass"] --> M4["layers k+1..end"] --> M5["answer head"]
+    M3 -->|"read added to residual"| M4
+    end
+```
+
+**Arms:**
+
+| Arm | Machine | How a read reaches the answer | Model passes per copy |
+|---|---|---|---|
+| O | Outside; heads read the last layer and issue ticks (E03's H on windows) | Typed value to the heads | 2 |
+| M | Inside layer k = 15 of 30; trained projections of the residual stream give a macro (`set`, `get`, `copy`), the records, and the value; addressing is a straight-through argmax so it stays one-hot; the state is an 8×16 one-hot matrix updated by delta replacement | The read is projected to model width and added to the residual stream, and the answer head reads the last layer | 1 |
+| Mh | As M, but the read goes to the answer head as an embedded value and does not enter the residual stream | Typed value to the head | 1 |
+
+Trainable parameters are matched within 5% across arms by sizing the hidden layers of the heads and projections; the counts are recorded. M and Mh train end to end through the frozen layers above k. Supervision is gold macros and gold answers for every arm, so E11 stays the only experiment about learning from outcomes alone.
+
+**Validity test:** a fourth run of M, `M-reject`, adds a `reject` macro. Training adds invalid statements: records `i` to `k` (`Set i to 3.`, `What is j?`, `Copy a to k.`) and values 16-31 (`Set a to 20.`), each labelled `reject`. Test statements use the unseen record `l` and values 32-47. An outside host check rejects every one of them by construction. The question is whether the layer learns to reject and whether that carries to invalid forms it has not seen.
+
+**Predictions:**
+
+1. M's task accuracy is at least O's minus 0.02, in the mean over seeds, on every length split (2-8, 32, 64, 256).
+2. M and Mh differ by no more than the conservative two-standard-error bound used in E02 on every split. Re-entry through the residual stream does not beat typed feedback; E03 found the same for feedback through the input.
+3. M's in-layer state, decoded after every statement, equals the oracle's state fed the same chosen actions, with zero mismatches over all splits.
+4. `M-reject` rejects at least 0.95 of invalid statements of the trained forms and falsely rejects at most 0.01 of valid ones.
+5. `M-reject` rejects less than 0.95 of the invalid statements with the unseen record and values, so learned validation does not replace the host check.
+
+**Sanity checks, not predictions:** O's accuracy on the 2-8 split is at least 0.95, as H on copy programs is easy once windows remove the length effect; executor mismatches are zero for O and Mh.
+
+**Outcomes that count against the thesis:**
+
+- Prediction 1 fails: a machine in the layer is worse than the outside machine on the same budget, and the one-pass saving costs accuracy.
+- Prediction 2 fails with M ahead: the residual path adds something typed feedback does not, and a control that holds the injection constant would be the next step. M behind Mh: re-entry hurts.
+- Prediction 3 fails: the in-layer state does not implement the machine, whatever the accuracy.
+- Prediction 5 fails with a rejection rate of 0.95 or more: learned validation generalizes on this test, and the host check could be replaced here.
+
+**Measurements:** task, action, and answer accuracy per arm and split; model positions per program and per statement; trainable parameters; in-layer state mismatches; rejection and false-rejection rates; GPU seconds and cost.
+
+**Discriminator:** O versus Mh versus M separates where the machine lives (outside or inside the model) from how the read returns (typed or through the residual). The result does not show a gain from in-layer memory unless M beats O and Mh beyond the bound.
+
+**Cost:** one `l4x1` job; the upper layers run for every question, so expect about an hour. Cap: 90 minutes, $1.20.
 
 **Results:** not run.
 
 ### E11 - Learning to use the machine from outcomes
 
-> **TL;DR:** Proposed: train the controller from answer loss alone, through the machine, to test whether a model can discover how to use it.
+> **TL;DR:** Pre-registered: train heads from answer correctness alone, with gradients passing through a differentiable copy of the machine, and compare with imitation and with reinforcement learning over the real machine.
 
-**Status:** proposal; refine and pre-register after E09: state in the machine.
+**Status:** pre-registered 2026-11-25, before any code or run. Changes after a run go in a dated amendment below this section, not in an edit of it.
 
-**Question:** E02: learned interfaces and E03: latent feedback train heads on gold action traces, so the controller imitates a known procedure. If gradients pass through the machine, can a controller learn to write and read from the answer loss alone, which an external tool cannot support?
+**Question:** E02: learned interfaces and E03: latent feedback train heads on gold actions, so the controller imitates a known procedure. Can a controller learn to write and read when the only training signal is whether its final answers are right? And does it need gradients through the machine, or does reinforcement learning over the real machine do as well?
 
-**Design sketch:** compare imitation of gold actions (arm C of E02: learned interfaces) with outcome-only training using straight-through estimators on the discrete address and value. Both use the same model, heads, and training programs.
+**Setup:** E02's record programs, frozen SmolLM2-135M, E09's windows so that the machine is the only carrier of state, E02's heads, three seeds, 2,000 training programs, 30 epochs, Adam at 1e-3. Test splits: 2-8, 32, and 64 statements and the held-out-pairs split. The features of the 136 distinct statement windows are computed once, so training runs on a CPU.
 
-**Discriminator:** outcome-only training must beat the no-machine arm A and show writes before reads in its action traces; otherwise the answer head may be solving the task without the machine. A failure to learn is a result about discoverability in this setting.
+```mermaid
+flowchart LR
+    S["statement window<br/>feature"] --> H["action head"]
+    H -->|"I: gold action loss"| X1(("imitation"))
+    H -->|"O: straight-through one-hots"| D["differentiable<br/>8×16 memory"]
+    D --> A["answer head"] -->|"answer loss at questions"| H
+    H -->|"R: sampled action"| M["integer oracle<br/>(external tool)"]
+    M -->|"value"| A2["answer head"] -->|"reward 1 if right"| H
+```
+
+**Arms:**
+
+| Arm | Training signal | Machine during training |
+|---|---|---|
+| I | Cross-entropy on the gold action of every statement; the answer head trains on the gold value read | Integer oracle (this is E09's S) |
+| O | Cross-entropy on the answers at questions only; no gold actions and no gold values | Differentiable memory: Gumbel-softmax straight-through one-hots (temperature 1) for the operation, record, and value; state is an 8×16 matrix of one-hot values, initially value 0; a write sets `M ← M + w·y_record ⊗ (y_value − M)`; a read outputs `y_record · M`, and a write outputs the one-hot of 0, as the oracle's typed observation does |
+| R | REINFORCE: reward 1 for a correct answer, the batch mean as baseline; the answer head trains with cross-entropy on its own answers | Integer oracle driven by sampled actions, as an external tool |
+| W | None for actions; the answer head sees only the question window | None (E09's W) |
+
+Only the answer at each question is supervised in O and R. The loss knows which statements are questions, since only they have answers; it never sees which action the statement needs. After training, all arms run free-running on the delta-rule backend with a shadow oracle, with greedy actions.
+
+A consistent relabeling of records or values works as well as the gold one, because the machine stores whatever code it is given and the answer head decodes it. O and R can therefore score well with low agreement to gold records and values. The operation is fixed by the machine, so it cannot be relabeled.
+
+**Predictions:**
+
+1. O's task accuracy at 2-8 statements is at least 0.90, in the mean over seeds.
+2. O's operation accuracy is at least 0.95: it writes at set statements and reads at questions.
+3. O's task accuracy at 2-8 statements exceeds R's by more than the conservative two-standard-error bound used in E02.
+
+**Reported, not predicted:** agreement of O's and R's record and value choices with gold; task accuracy at 32 and 64 statements and on the held-out pairs; training curves.
+
+**Sanity checks, not predictions:** I reaches at least 0.99 task accuracy at 2-8, as E09's S did; W stays at or below 0.55; executor mismatches are zero.
+
+**Outcomes that count against the thesis:**
+
+- Prediction 1 fails below 0.50: this recipe does not discover how to use the machine from outcomes in this setting. That is a result about discoverability, not about whether it is possible.
+- Prediction 2 fails: the answer head is solving the task without the machine, and the arm is not using it.
+- Prediction 3 fails: REINFORCE over the real machine does as well, so gradients through the machine are not needed, and an external tool can be trained from outcomes too.
+
+**Measurements:** task, action, operation, and answer accuracy per arm and split; agreement with gold records and values; the training steps to reach 0.90 where reached; executor mismatches.
+
+**Discriminator:** O against W and R. Beating W shows the machine is used; beating R shows the benefit comes from gradients through it rather than from outcome-only training.
+
+**Cost:** local CPU, no GPU job. The SmolLM2 weights are in the local Hugging Face cache, so nothing is downloaded.
 
 **Results:** not run.
 
