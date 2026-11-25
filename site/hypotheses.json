@@ -1,79 +1,79 @@
 [
   {
-    "claim": "A delta-rule state matrix with gates fixed at 0 or 1 works as exact random-access memory.",
+    "claim": "The delta-rule update can store and replace values exactly.",
     "verdict": "supported",
     "label": "supported",
-    "note": "In the tested CPU formats and workloads. It breaks when a gate is slightly below 1 or the key norm adds an epsilon, as the interactive memory below shows.",
+    "note": "It matched the CPU tests with one-hot keys and gates fixed at 0 or 1. The memory demo shows why those settings matter.",
     "links": [["E00", "results/E00/README.md"]]
   },
   {
-    "claim": "Finite-state transducers and a bounded stack compile into layer arithmetic exactly.",
+    "claim": "Neural layers can run a rule table and a small stack exactly.",
     "verdict": "supported",
     "label": "supported",
-    "note": "ReLU lookup circuits and a delta-rule stack, on the tested workloads.",
+    "note": "The lookup circuits and the stack matched the reference on the tested workloads.",
     "links": [["E01", "results/E01/README.md"]]
   },
   {
     "claim": "A learned controller does better through a typed internal interface than through a text tool.",
     "verdict": "supported",
     "label": "supported",
-    "note": "The margin is small at the training length and clear beyond it. One frozen 135M model, one task.",
+    "note": "The gap was clearest on longer lists and unseen slot-value pairs, on one model and one task.",
     "links": [["E02", "results/E02/README.md"]]
   },
   {
-    "claim": "Running the machine as compiled tensors, instead of native code, changes the controller's accuracy.",
+    "claim": "Replacing integer memory with neural memory changes the answers.",
     "verdict": "null",
     "label": "no effect",
-    "note": "Identical answers, as the executor conformance results predict.",
+    "note": "With the same controller, both versions gave identical answers.",
     "links": [["E02", "results/E02/README.md"]]
   },
   {
-    "claim": "Feeding each machine step back into the model improves control beyond what extra trained input positions give.",
+    "claim": "Sending feedback through the model helps more than adding a trained input alone.",
     "verdict": "refuted",
     "label": "mostly refuted",
-    "note": "A control with the same positions and no feedback matched it, and led on shorter programs. Feedback led only on the longest.",
+    "note": "Feedback through the model led only on the longest lists tested.",
     "links": [["E03", "results/E03/README.md"]]
   },
   {
     "claim": "Tensor implementations of dataflow, graph, and logic machines are faster than conventional code.",
     "verdict": "refuted",
     "label": "refuted",
-    "note": "Slower than plain Python for single inputs and sparse graphs. The compiled SAT verifier was faster than the Python verifier, but search stayed uncompetitive.",
+    "note": "Plain Python led on single dataflow inputs and sparse graphs. The tensor SAT checker was faster than Python, but its search still solved fewer puzzles than WalkSAT.",
     "links": [["E04", "results/E04/README.md"], ["E05", "results/E05/README.md"], ["E08", "results/E08/README.md"]]
   },
   {
     "claim": "The machines keep their exactness in bfloat16.",
     "verdict": "refuted",
     "label": "fails past limits",
-    "note": "Boolean and fixed-pattern machines held. Integers beyond 256, filter poles near 1, and small decay factors did not.",
+    "note": "Bit-based machines held up. Some larger integers rounded, and the filters and optimizer lost precision.",
     "links": [["E04", "results/E04/README.md"], ["E05", "results/E05/README.md"], ["E06", "results/E06/README.md"], ["E07", "results/E07/README.md"], ["E08", "results/E08/README.md"]]
   },
   {
-    "claim": "A memory written by an optimizer behaves as random-access memory.",
+    "claim": "An optimizer step can overwrite a value exactly.",
     "verdict": "partly",
     "label": "one setting",
-    "note": "Only sequential SGD with learning rate 1 and one-hot keys. Every single change departed from RAM in its own way.",
+    "note": "Sequential SGD with one-hot keys and a learning rate of 1 matched in float32 and float64. The other tested settings changed what was stored.",
     "links": [["E07", "results/E07/README.md"]]
   },
   {
-    "claim": "A controller that reads one statement at a time, with the machine holding all state, beats full-context controllers on long programs.",
+    "claim": "The model reads long lists better when it sees one statement at a time.",
     "verdict": "supported",
     "label": "on this task",
-    "note": "No errors up to 256 statements, where full-context controllers fell to about 0.13. It read 7 of 8 unseen statements, a random model read 2. The statements do not depend on each other.",
+    "note": "With the notebook keeping the values, it made no errors on the lists tested. Each statement could be read on its own.",
     "links": [["E09", "results/E09/README.md"]]
   },
   {
-    "claim": "A memory inside a model layer controls better than the same memory reached through heads.",
+    "claim": "Putting memory inside the model helps it choose better commands.",
     "verdict": "untested",
     "label": "proposed",
-    "note": "Must beat the E03: latent feedback arms with the same trained parameters before the placement gets credit.",
+    "note": "Compare with E03 while keeping the number of trained parameters the same.",
     "links": [["E10", "EXPERIMENTS.md#e10---a-machine-layer-inside-the-model"]]
   },
   {
-    "claim": "A controller can learn to use the machine from the answer loss alone.",
+    "claim": "A controller can learn to use the machine without seeing the right commands.",
     "verdict": "untested",
     "label": "proposed",
-    "note": "Needs gradients through the machine, which an external tool cannot offer.",
+    "note": "The proposed test sends a training signal from the answer back through the machine.",
     "links": [["E11", "EXPERIMENTS.md#e11---learning-to-use-the-machine-from-outcomes"]]
   }
 ]

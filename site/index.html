@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Latent Machines</title>
-  <meta name="description" content="Conformance of memory, finite-state transducers, and a bounded stack compiled into neural-layer arithmetic, checked against integer oracles at every action.">
+  <meta name="description" content="What happens when a language model reads the instructions and a small machine keeps the notes? Experiments in model memory, with data and code.">
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,9 +19,8 @@
     <img class="logo" src="assets/logo.gif" alt="Pixel-art brain with a terminal inside" width="112" height="112">
   </picture>
   <h1>Latent Machines</h1>
-  <p class="subtitle">Can a language model keep a reliable notebook?</p>
+  <p class="subtitle">A notebook for a language model</p>
   <p class="byline"><a href="https://github.com/JGalego">João Galego</a></p>
-  <p class="byline">A work in progress. Every result links to the run that produced it.</p>
   <nav class="buttons" aria-label="Project links">
     <a class="button" href="https://github.com/JGalego/latent-machines">Code</a>
     <a class="button" href="https://huggingface.co/datasets/jgalego/latent-machines-runs">Run records</a>
@@ -32,66 +31,87 @@
 
 <main>
   <section id="story" class="story">
-    <h2>A small machine can keep the notes. Can a model learn to use it?</h2>
-    <p>Ask a language model to update a value, then ask for it again. A text tool can do the bookkeeping, but the model has to write a request and read a reply. Here, a small machine keeps the ledger while the model sends typed read and write actions. We also build that machine from neural-network arithmetic, so its memory can run in the same kind of layers as the model.</p>
-    <p>There are two tests. First, does the neural version behave exactly like a simple integer reference? We compare them after every action. Second, does the model do better with this internal interface than with a text tool? The machine tests are encouraging; the controller tests are more mixed, and more interesting.</p>
-
-    <h3>The ledger stayed steady. The reader did not.</h3>
-    <p>The machine kept an exact record, but controllers became less accurate as programs grew. In {{e:E09}}, one controller read a single statement at a time while the machine held the rest of the state, like a reader following a long recipe one line at a time. It made no errors through 256 statements; controllers reading the whole program fell to about 0.13 accuracy. That points to long context as the bottleneck in this task. The task has only 128 distinct statements, so we also held out eight: the controller handled seven, while an untrained random model handled two.</p>
-    {{length_charts}}
-
-    <h3>A control changed the story</h3>
-    <p>In {{e:E03}}, feeding each machine step back into the model as a trained vector first looked like the winning idea. Then we tried a control: keep the trained input positions, but remove the feedback. It did nearly as well. Most of the gain came from giving the model those learned entry points, not from routing the machine's answer back through every layer.</p>
-    {{feedback_grid}}
-
-    <h3>What the evidence says so far</h3>
-    <p>Some experiments check whether a machine matches its specification; others compare competing ways to use it. The ledger keeps these checks separate, so a successful build is not mistaken for a successful controller.</p>
-    {{ledger}}
-
-    <h3>What we are trying next</h3>
-    <p>The machine still sits outside the model, and the controller reaches it through small learned heads. In {{e:E09}}, we wrote down predictions before the run: two held, one was inconclusive because the controller made no errors, and one failed because we set the no-memory controller's ceiling too low. A follow-up on unseen statements met one prediction and left another inconclusive. Next we will test statements that depend on each other, then move the machine into a model layer and see whether the model can learn to use it from answer errors alone.</p>
-  </section>
-
-  <section id="abstract" class="abstract" aria-labelledby="abstract-title">
-    <h2 id="abstract-title">Abstract</h2>
-    <p>Language models that need exact computation usually call external tools and exchange requests and results as text. An alternative is an internal interface: the model issues typed actions to a machine and receives typed observations inside its own computation. Testing this needs machines that run exactly in neural-network arithmetic. We separate the machine specification, its implementation, the controller interface, and the task, and we check every implementation against an independent integer oracle after every action, recording the residue of stored values before they are decoded. We implement a random-access memory in the state matrix of a Gated DeltaNet recurrence, finite-state transducers as two-layer ReLU lookup circuits, and a bounded stack built from delta-rule memory and a one-hot pointer. On CPU, in float32, float64, bfloat16, and float16, {{abstract_result}}. These are finite conformance results, not proofs. With a frozen 135M-parameter language model, a typed internal interface answered more questions correctly than a text tool on programs longer than those seen in training, and compiled and native executors gave identical answers. All controllers got worse on long programs. A controller that read one statement at a time, with the machine holding the state, did not. It also read 7 of 8 statements it had never trained on, but the task is small and its statements are independent. When each machine step re-entered the model as a trained input vector, accuracy on long multi-step programs rose far above text, head, and native-loop feedback. A control whose vectors carried no feedback did nearly as well, so the gain came from trained inputs, not latent feedback. Tensor implementations of dataflow graphs, graph and Datalog fixed points, cellular automata, optimizer-written memory, and a SAT verifier matched their references in float32 and float64 within declared limits. They were rarely faster than conventional algorithms and failed in bfloat16 wherever a value needed more precision than the format has.</p>
+    <h2 id="introduction">Who's bringing dessert?</h2>
+    <p>You're at the grocery store with a cake in your cart. Before you check out, you ask an assistant whether anyone's bringing dessert to the potluck. In the group chat, Maya offered to bring dessert, then wrote, &ldquo;I'll bring bread instead.&rdquo; The assistant misses the update. &ldquo;Maya's bringing dessert,&rdquo; it says. You put the cake back.</p>
+    <p>In a notebook, you'd give Maya one line. Cross out <em>dessert</em>, write <em>bread</em>, and you can check what she's bringing without rereading the chat. We tried giving a model a notebook of its own. It could ask in words or fill in the blanks: which entry, what to do, and what to write. The fill-in-the-blanks version is what we mean by a <em>typed interface</em>.</p>
+    <p id="abstract">We tested this on fixed instructions, not group chats. The notebook, built with either ordinary code or neural-network arithmetic, kept the same record when given the same commands. The model got worse at choosing those commands as the list grew. On this small task, it stopped making mistakes when we gave it one instruction at a time.</p>
   </section>
 
   {{toc}}
 
-  <section id="introduction">
-    <h2>1&ensp;Introduction</h2>
-    <p>Language models that need exact computation are usually paired with external tools. The model writes a request as text, a conventional program runs it, and the result is appended to the context. Recent systems compile whole machines into transformer weights {{cite:qwenputer,percepta}}, building on earlier compilers from programs to transformers {{cite:tracr,alta,looped}}. The model still talks to the compiled machine through tokens, as it would to an external tool.</p>
-    <p>We ask whether a model does better acting on a machine through an internal interface, and if so whether the benefit comes from the interface or from compiling the machine into the network. Both questions need a machine whose neural implementation is exact. Matching final answers is not enough, because an implementation can give correct outputs while its stored state drifts.</p>
-    <p>So we test exactness at every step. The work has four parts. The <em>machine</em> is a transition function with an integer reference implementation, the oracle. The <em>backend</em> implements the machine in conventional code or tensor arithmetic. The <em>interface</em> decides what a controller sees and how it acts. The <em>task</em> supplies inputs and ground truth. Each experiment changes one part and holds the others fixed.</p>
-    <p>This report contributes:</p>
-    <ul>
-      <li>A conformance protocol. It compares a backend with its oracle after every action, records the residue of stored values before decoding, and checks that a snapshot restored through JSON reproduces the live state exactly (Section&nbsp;3.1).</li>
-      <li>Tensor implementations of a random-access memory, finite-state transducers, and a bounded stack, using the Gated DeltaNet recurrence and ReLU lookup circuits (Sections&nbsp;3.2–3.4).</li>
-      <li>Conformance results for these implementations in four floating-point formats on CPU, with up to 10<sup>6</sup> actions per configuration (Section&nbsp;4).</li>
-      <li>Conformance results for dataflow graphs, graph and Datalog fixed points, cellular automata and linear filters, optimizer-defined memories, and a compiled SAT verifier, including the formats and sizes where they fail (Section&nbsp;4).</li>
-      <li>Controller comparisons on a record-update task: interface versus compiled machine, a control that separates latent feedback from trained input vectors, and a pre-registered test of whether long context explains the length loss (Section&nbsp;5).</li>
-    </ul>
-    <p>Code, run records, and per-experiment reports are public.</p>
-  </section>
+  <section id="ongoing">
+    <h2>How the model used the notebook</h2>
 
-  <section id="related">
-    <h2>2&ensp;Related work</h2>
-    <p><strong>Programs compiled into neural networks.</strong> Tracr {{cite:tracr}} compiles RASP programs into transformer weights. ALTA {{cite:alta}} extends compilation to looped transformers with categorical state. Giannou et al. {{cite:looped}} build a looped transformer that executes a simple instruction set and analyze its accumulated approximation error. Qwenputer {{cite:qwenputer}} adds a compiled RISC-V CPU to a pretrained language model and stores its registers and memory in Gated DeltaNet state. QwenFX {{cite:qwenfx}} runs a coding agent on that CPU, which calls the same model. Percepta {{cite:percepta}} compiles a WebAssembly interpreter into attention over an append-only execution trace, and chipformer {{cite:chipformer}} does the same for CHIP-8. Neural Comprehension {{cite:comprehension}} combines compiled modules with a language model's output distribution. Tracr-Injection {{cite:injection}} trains a language model's residual stream to imitate a compiled program. None of these evaluates a learned internal interface against matched text-tool and native baselines.</p>
-    <p><strong>Learned controllers with explicit memory.</strong> Neural Turing Machines {{cite:ntm}} and the Differentiable Neural Computer {{cite:dnc}} learn soft read and write operations over external memory. Neural Programmer-Interpreters {{cite:npi}}, Neural Random-Access Machines {{cite:nram}}, the Neural Harvard Computer {{cite:nhc}}, and differentiable Forth {{cite:forth}} learn to control program or memory operations, usually on algorithmic tasks and without a pretrained language model. ToolkenGPT {{cite:toolken}} learns tool embeddings for a frozen language model, but its arguments stay textual and its tools run externally.</p>
-    <p><strong>Linear recurrences as memory.</strong> Schlag et al. {{cite:fwp}} relate linear attention to fast-weight programmers, which write memory with the delta rule. Gated DeltaNet {{cite:gdn}} adds a decay gate to the delta rule, and our memory backend uses its recurrence. Allowing negative eigenvalues in the state transition {{cite:negeig,deltaproduct}} extends the state-tracking capacity of linear recurrences, which bears on the parity and permutation targets in Section&nbsp;3.3.</p>
+    <h3>The same notebook, two ways to ask</h3>
+    <p>We gave a model a list of updates and asked it what was in the notebook along the way. We used numbers instead of potluck dishes so we could check every answer.</p>
+    {{example:record-updates}}
+    <p>One version of the model read the notebook's replies as text. In the other, the number went straight to the part of the model that answers questions. The direct reply helped on longer lists and with combinations of entries and numbers the model hadn't seen. On short lists, the difference was too small to draw a clear conclusion ({{tab:e02-566e}}).</p>
+    {{example:reply-formats}}
+    <p>The text version actually picked the right commands more often. Its disadvantage showed up when it used the replies. Replacing the notebook's ordinary code with neural arithmetic changed no answers. And as the lists grew, every version got worse.</p>
+    {{anim:e02}}
+    <p>In {{e:E02}}, we left the language model unchanged and trained only small add-ons, called <em>heads</em>, to choose commands and answer questions. We trained on short lists and tested on longer ones too. A wrong command could change the notebook and spoil a later answer.</p>
+    <figure class="figure">
+      <figcaption class="caption"><strong>{{table:e02-arms}}:</strong> B and C use the same notebook. C and D talk to it the same way.</figcaption>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Version</th><th>How It Asks and Answers</th><th>Memory</th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td>Answers from the list alone</td><td>None</td></tr>
+          <tr><td>B</td><td>Reads the request and reply as text</td><td>Ordinary code</td></tr>
+          <tr><td>C</td><td>Passes the reply directly to the answer head</td><td>Ordinary code</td></tr>
+          <tr><td>D</td><td>Uses the same heads and interface as C</td><td>Neural arithmetic</td></tr>
+        </tbody>
+      </table></div>
+    </figure>
+
+    <h3>Look it up, then copy it</h3>
+    <p>Now ask the model to copy a number from one notebook entry to another. The instruction doesn't say what the number is. The model has to look it up before it can write it down.</p>
+    {{example:copy-an-entry}}
+    <p>In {{e:E03}}, we sent each command and reply back through the model as a list of numbers, called a <em>vector</em>, instead of as text. Then we tried giving the model the same trained vector every time. That vector told it nothing about the notebook's reply; the reply went directly to the heads that chose what to do next.</p>
+    {{anim:e03}}
+    <p>The version that got the same vector every time did at least as well as the version that got the reply, except on the longest lists we tested. Both did better than the other approaches.</p>
+    {{feedback_grid}}
+    <p>Most of the gain came from giving the model an extra trained input, even when that input didn't tell it what happened. That extra input also gave the model more to process. The notebook itself matched the reference at every step ({{tab:e03-ff00}}).</p>
+    <figure class="figure">
+      <figcaption class="caption"><strong>{{table:e03-arms}}:</strong> L and S add one trained input per step. Only L's input carries the feedback; S and H send it to the heads.</figcaption>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Version</th><th>Where the Reply Goes</th><th>Model Positions per Step</th></tr></thead>
+        <tbody>
+          <tr><td>T</td><td>Back into the model as text with the request</td><td>Several</td></tr>
+          <tr><td>L</td><td>Back into the model as a learned vector</td><td>1</td></tr>
+          <tr><td>S</td><td>To the heads, with a constant learned vector sent to the model</td><td>1</td></tr>
+          <tr><td>H</td><td>Only to the heads</td><td>0</td></tr>
+          <tr><td>N</td><td>Through ordinary code that passes the read value to the write</td><td>0</td></tr>
+        </tbody>
+      </table></div>
+    </figure>
+
+    <h3>One instruction at a time</h3>
+    <p>The notebook wasn't losing numbers, but the model still made more mistakes on longer lists. In {{e:E09}}, we went back to the first test, without the copy instructions. This time the model saw just the current instruction and a short reminder of the task. The notebook kept the numbers from earlier lines.</p>
+    {{example:one-line-at-a-time}}
+    {{anim:e09}}
+    <p>Reading one line at a time, the model made no mistakes on the lists we tested. The versions that kept earlier instructions in view struggled as the lists grew. The one-line version saw less at once, but read more in total than the version that used the same interface and kept the earlier lines in view.</p>
+    {{length_charts}}
+    <p>We <a href="https://github.com/JGalego/latent-machines/blob/main/EXPERIMENTS.md#e09---state-in-the-machine-not-the-context">wrote down our predictions before the run</a>. Reading one line at a time beat reading the running list, as predicted. But we couldn't test how mistakes add up when there were none. We also underestimated what the model could do without a notebook: guessing the starting value worked whenever an entry hadn't changed.</p>
+    <p>There was a catch: the model had seen every update used in the first test. We left some out of training and <a href="https://github.com/JGalego/latent-machines/blob/main/results/E09/README.md#results-unseen-statements">tried again</a>. The model handled most of the new updates, better than a model with no pretraining but still short of our target. Reading one line at a time also helped on lists that included those updates. Each line still made sense on its own.</p>
+    {{example:unseen-update}}
   </section>
 
   <section id="method">
-    <h2>3&ensp;Method</h2>
+    <h2>How we checked the notebook</h2>
 
-    <h3>3.1&ensp;Machines, backends, and conformance</h3>
-    <p>A machine is a transition function</p>
-    $$ T : (s, a) \mapsto (s', e, w), \tag{{{eqtag:transition}}} $$
-    <p>mapping a state \(s\) and an action \(a\) to a next state \(s'\), an event \(e\) (continue, output with a value, halt, or fault with a reason), and a work count \(w\). Invalid actions produce faults and leave the state unchanged. Values are never clamped or wrapped. Each machine has an integer oracle that implements \(T\) directly. A backend implements the same transitions on its own state \(\sigma\) and provides a decoding \(\mathrm{dec}(\sigma)\) to canonical machine state. The decoding is used for checking only and is never shown to a controller ({{fig:components}}).</p>
-    <p>We step the oracle and the backend together on a sequence of actions. Step \(t\) conforms if the events and work counts are equal and \(\mathrm{dec}(\sigma_t) = s_t\). A run stops at the first step that does not conform. We also record the residue</p>
-    $$ \rho(\sigma) = \max_i \, \min\!\big(|\sigma_i|,\ |\sigma_i - 1|\big), \tag{{{eqtag:residue}}} $$
-    <p>the largest distance of any stored value from 0 or 1. Decoding thresholds each value at 0.5, so a nonzero residue can coexist with correct outputs. Recording \(\rho\) exposes that loss of margin. Halfway through each run, the decoded state is serialized to JSON, restored, and re-encoded, and the result must equal the live backend state exactly. A backend is <em>exact</em> on a run if every step conforms, \(\rho = 0\) throughout, and the snapshot check passes.</p>
+    <h3 id="machines-backends-and-conformance">Check every step, not just the answer</h3>
+    <p>Was the command wrong, or did the notebook get it wrong? We send each command to two notebooks: one built with neural-network arithmetic and one written separately in ordinary integer code. After each command, we check what both notebooks said and what they kept.</p>
+    {{example:wrong-command}}
+    <p>A correct reply can hide a small error. If a stored 1 slips to 0.999, it still reads as 1. We measure that drift, which we call <em>residue</em>. We also check that a saved copy of the notebook restores it exactly.</p>
+    <details>
+      <summary>The exactness checks in equations</summary>
+      <p>The machine's rules specify the next state \(s'\), an event \(e\) (continue, output, halt, or fault), and a work count \(w\) for each state \(s\) and action \(a\):</p>
+      $$ T : (s, a) \mapsto (s', e, w), \tag{{{eqtag:transition}}} $$
+      <p>Invalid actions return a fault and leave the state unchanged. At each step we compare events, work counts, and the decoded state, \(\mathrm{dec}(\sigma_t) = s_t\). We stop at the first mismatch. The controller sees the reply, never the full state used to check it ({{fig:components}}).</p>
+      <p>Residue is the largest distance of any stored bit from the nearer of 0 and 1:</p>
+      $$ \rho(\sigma) = \max_i \, \min\!\big(|\sigma_i|,\ |\sigma_i - 1|\big), \tag{{{eqtag:residue}}} $$
+      <p>Halfway through each run, we save the decoded state as JSON and rebuild the tensor from it. For these bit-based machines, <em>exact</em> means every step matches, no bit drifts, and the rebuilt tensor equals the live one.</p>
+    </details>
     <figure class="figure">
       <pre class="mermaid">
 flowchart LR
@@ -102,18 +122,22 @@ flowchart LR
     B -->|event| I
     B -.->|"decoded state, checks only"| M["Machine<br/>specification, oracle"]
       </pre>
-      <figcaption class="caption"><strong>{{figure:components}}:</strong> Components of an experiment. Solid edges are the execution path. The dotted edge carries decoded backend state to the oracle for conformance checks. The controller never sees it.</figcaption>
+      <figcaption class="caption"><strong>{{figure:components}}:</strong> The model sends a command and the notebook replies. The dotted line shows the separate check against ordinary code, labeled <em>oracle</em> in the diagram.</figcaption>
     </figure>
 
-    <h3>3.2&ensp;Random-access memory in a delta-rule state matrix</h3>
-    <p>The Gated DeltaNet recurrence {{cite:gdn}} updates a state matrix \(S_t\) with a key \(k_t\), value \(v_t\), retention gate \(\alpha_t\), and write strength \(\beta_t\), and reads with a query \(q_t\):</p>
-    $$ S_t = \alpha_t\, S_{t-1}\big(I - \beta_t k_t k_t^\top\big) + \beta_t\, v_t k_t^\top, \qquad o_t = S_t q_t. \tag{{{eqtag:delta}}} $$
-    <p>We store a memory of \(N\) words of \(B\) bits in \(S \in \mathbb{R}^{B \times N}\), one column per slot and one row per bit. A write to slot \(j\) uses \(k_t = e_j\), the bits of the word as \(v_t\), \(\alpha_t = 1\), and \(\beta_t = 1\). A read uses \(\beta_t = 0\) and \(q_t = e_j\). Keys and queries are normalized as \(x / \max(\lVert x \rVert, \epsilon)\), which leaves one-hot vectors unchanged. We evaluate \(\alpha(S - \beta (S k) k^\top) + \beta v k^\top\) without forming the \(N \times N\) transition matrix.</p>
-    <p>Under these settings every entry of \(S\) stays in \(\{0, 1\}\). Each product in Equation&nbsp;{{eq:delta}} then involves only 0 and 1, each sum has at most one nonzero term, and the subtraction that clears column \(j\) computes \(x - x = 0\). Every operation is exact in any binary floating-point format, so the update replaces column \(j\) and leaves the others unchanged. The argument needs the gates to be exactly 0 or 1 and the normalization to leave one-hot keys unchanged. A retention gate slightly below 1, or a normalization that adds \(\epsilon\) inside the square root, breaks it, as {{fig:playground}} shows. Host code checks addresses and values before the tensor update, and invalid actions do not modify \(S\).</p>
+    <h3 id="random-access-memory-in-a-delta-rule-state-matrix">One column per slot</h3>
+    <p>Think of the notebook as a row of drawers. To replace a number, open just its drawer, take out the old number, and put the new one in. In the neural version, each drawer is a column in a grid of bits. A key with one 1 and the rest 0s selects a single column. That's <em>one-hot addressing</em>.</p>
+    <p>The arithmetic clears that column by subtracting it from itself, then puts the new bits in its place. The other columns stay untouched. That only works exactly if the arithmetic keeps those 0s and 1s intact. The demo shows how a tiny change can make a number fade away.</p>
+    <details>
+      <summary>The memory update in equations</summary>
+      <p>We use the state update from Gated DeltaNet {{cite:gdn}}. The key \(k_t\) selects where to write \(v_t\), and the query \(q_t\) selects what to read. The gate \(\alpha_t\) controls how much old state survives, and \(\beta_t\) controls the write:</p>
+      $$ S_t = \alpha_t\, S_{t-1}\big(I - \beta_t k_t k_t^\top\big) + \beta_t\, v_t k_t^\top, \qquad o_t = S_t q_t. \tag{{{eqtag:delta}}} $$
+      <p>For \(N\) slots of \(B\) bits each, \(S\) has shape \(B \times N\). We keep \(\alpha_t = 1\), set \(\beta_t = 1\) to write and \(\beta_t = 0\) to read, and use \(x / \max(\lVert x \rVert, \epsilon)\) to leave one-hot selectors unchanged. We evaluate the update without building the full \(N \times N\) matrix. No sum combines two nonzero terms, so an update starting from bits stays exact in binary floating point.</p>
+    </details>
 
     <figure class="playground" id="playground">
       <div class="pg-head">
-        <strong>Interactive</strong>
+        <strong>Notebook demo</strong>
         <span>8 slots × 8 bits, float32 arithmetic</span>
       </div>
       <div class="pg-controls">
@@ -126,7 +150,7 @@ flowchart LR
         <button id="pg-reset" class="quiet">Reset</button>
       </div>
       <div class="pg-toggles">
-        <label><input id="pg-alpha" type="checkbox"> retention gate α = 0.999 instead of 1</label>
+        <label><input id="pg-alpha" type="checkbox"> retention α = 0.999 instead of 1</label>
         <label><input id="pg-norm" type="checkbox"> kernel-style key norm (ε inside the square root)</label>
       </div>
       <div class="pg-grid" id="pg-grid" aria-label="State matrix S"></div>
@@ -135,87 +159,52 @@ flowchart LR
         <span id="pg-match">matches the oracle</span>
       </div>
       <ol class="pg-log" id="pg-log" reversed></ol>
-      <figcaption class="caption"><strong>{{figure:playground}}:</strong> Equation&nbsp;{{eq:delta}} evaluated in float32 beside an integer oracle. Each cell is an entry of \(S\), and the bottom rows compare decoded words with the oracle. With \(\alpha = 0.999\), 1,000 idle steps scale stored values by about 0.37 and the decoded words become wrong. With \(\epsilon\) inside the square root, each written value is off from 1 by about \(5 \times 10^{-7}\). The decoded words stay correct, and only the residue shows the error.</figcaption>
+      <figcaption class="caption"><strong>{{figure:playground}}:</strong> The bottom rows compare each decoded value with the integer reference. At retention 0.999, a stored 1 shrinks to about 0.37 after 1,000 idle steps, then reads as 0. The alternate key normalization makes a written 1 miss by only about \(5 \times 10^{-7}\). The reply still reads correctly; the residue shows the drift.</figcaption>
     </figure>
 
-    <h3>3.3&ensp;Finite-state transducers as ReLU lookup circuits</h3>
-    <p>A deterministic transducer with states \(Q\), input alphabet \(\Sigma\), transition table \(\delta\), and output table \(\lambda\) compiles into a two-layer ReLU network with feedback. The state is a one-hot vector \(s \in \{0,1\}^{|Q|}\) and the input symbol a one-hot vector \(x \in \{0,1\}^{|\Sigma|}\):</p>
+    <h3 id="finite-state-transducers-as-relu-lookup-circuits">A switchboard for rules</h3>
+    <p>A <em>finite-state transducer</em> remembers which of a fixed set of states it's in. One that tracks whether a count is even or odd has just two. Think of its rule table as a switchboard: the current state and the new input light up one row, which tells the machine what to output and which state to enter next.</p>
+    <p>In the two-layer circuit, the state \(s\) and input \(x\) are both one-hot. ReLU clips a negative number to zero; the active pair adds to 2 before subtracting 1, so only its row survives:</p>
     $$ z = \mathrm{ReLU}\big(W_{\mathrm{in}} [s; x] - \mathbf{1}\big), \qquad s' = W_{\mathrm{next}}\, z, \qquad y = W_{\mathrm{out}}\, z. \tag{{{eqtag:lookup}}} $$
-    <p>The hidden layer has one unit for each pair \((q, \sigma)\), with weight 1 on \(s_q\) and on \(x_\sigma\), so the unit is 1 exactly when both inputs are active. Its outgoing weights select \(\delta(q, \sigma)\) in \(W_{\mathrm{next}}\) and \(\lambda(q, \sigma)\) in \(W_{\mathrm{out}}\). The circuit has width \(|Q||\Sigma|\), depth 2, and four nonzero weights per hidden unit, and every intermediate value is an integer from \(-1\) to 2. We compile three targets: running parity, a counter modulo 5 over increments 0–2, and tracking a permutation of three items under adjacent transpositions, where input order matters.</p>
+    <p>There is one hidden unit for every state and input pair, with four nonzero weights per unit. The largest intermediate value is 2. We test even/odd parity, a counter that wraps at five, and a machine that tracks the order of three items as neighbors swap places.</p>
 
-    <h3>3.4&ensp;A bounded stack</h3>
-    <p>A stack of capacity \(N\) stores its items in a delta-rule matrix as in Section&nbsp;3.2 and its depth in a one-hot pointer \(p \in \{0,1\}^{N+1}\). With the shift matrix \(U\) defined by \(U_{d+1,d} = 1\),</p>
+    <h3 id="a-bounded-stack">A stack of plates</h3>
+    <p>A <em>stack</em> works like a pile of plates: add to the top, take from the top. That is useful for matching brackets because the last bracket opened is the first one that must close. We store up to \(N\) items in the same memory matrix. A one-hot pointer \(p \in \{0,1\}^{N+1}\) records the depth; the shift matrix \(U\), with \(U_{d+1,d} = 1\), moves the pointer up a slot:</p>
     $$ \begin{aligned} \textsf{push}(v)&:\quad S \leftarrow S + (v - S p_{1:N})\, p_{1:N}^\top,\quad p \leftarrow U p, \\ \textsf{pop}&:\quad p \leftarrow U^\top p,\quad o = S p_{1:N},\quad S \leftarrow S - (S p_{1:N})\, p_{1:N}^\top. \end{aligned} \tag{{{eqtag:stack}}} $$
-    <p>Pop clears the freed slot, so the tensors always equal the encoding of the canonical stack. Overflow and underflow are read from the pointer entries \(p_{N+1}\) and \(p_1\).</p>
+    <p>Taking an item clears its slot. The pointer's end positions mark a full or empty stack, where pushing or popping, respectively, returns a fault.</p>
+    {{example:bracket-stack}}
   </section>
 
   <section id="experiments">
-    <h2>4&ensp;Experiments</h2>
+    <h2>Where the arithmetic holds up</h2>
 
-    <h3>4.1&ensp;Setup</h3>
-    <p><strong>{{e:E00}}.</strong> A memory of 16 words of 8 bits runs eight workloads: repeated overwrites of one slot, alternating addresses, writes confined to half of memory, long idle stretches, clearing of contiguous regions, cycles that fill and read every slot, interleaved invalid addresses and values, and random mixtures.</p>
+    <h3 id="setup">Small machines, long runs</h3>
+    <p>In {{e:E00}}, we overwrite the same slot, leave memory idle, fill and empty it, and send invalid addresses and values. The neural notebook matches the integer reference at every step in the number formats we tested.</p>
     {{anim:e00}}
-    <p><strong>{{e:E01}}.</strong> The three transducers of Section&nbsp;3.3 receive random symbols, about 5% of them outside the alphabet. A stack of capacity 8 with 8-bit words runs a bracket-matching parser, random pushes and pops, and cycles that push past capacity and pop past empty.</p>
+    <p>In {{e:E01}}, the switchboard circuits and the stack match the reference too, even when we send an invalid symbol, try to add to a full stack, or take from an empty one.</p>
     {{anim:e01}}
-    <p><strong>{{e:E04}}.</strong> Integer programs over 16-bit signed words (random expression graphs of 30 operations, a 64-element dot product, and a gather/map/reduce/scatter pipeline) run four ways: with Python integers; with int64 tensors; on a scalar machine that executes one node per instruction with its operands in delta-rule memory; and as tensor programs that compute one graph level per step, using gathered operands, program-specialized weight matrices, or expert dispatch with a fixed capacity per round. Overflow faults at the first out-of-range node. Before the runs, bfloat16 and float16 were declared precision probes, outside the acceptance.</p>
-    {{anim:e04}}
-    <p><strong>{{e:E05}}.</strong> Transitive closure, all-pairs shortest paths with nonnegative integer weights and a declared distance bound, and a recursive Datalog program run as fixed-point machines, one synchronous round per step. Dense Boolean and min-plus tensor rounds are compared with integer oracles after every round, on random graphs with disconnected vertices, equal-length paths, and long chains.</p>
-    {{anim:e05}}
-    <p><strong>{{e:E06}}.</strong> The exact branch implements three outer-totalistic cellular rules on 32×32 grids, with zero and toroidal boundaries, as a 3×3 convolution that counts neighbors followed by a ReLU lookup. The numerical branch runs three linear filters as dense and diagonal state-space recurrences, sequentially and in chunks, against a float64 reference. Tolerances on the maximum error relative to the reference's RMS were fixed before the recorded runs: 10<sup>−9</sup> for float64, 10<sup>−4</sup> for float32, and 10<sup>−2</sup> for bfloat16.</p>
-    {{anim:e06}}
-    <p><strong>{{e:E07}}.</strong> A 16×8 linear memory is written by one optimizer step per action on ½‖<em>Wk</em> − <em>v</em>‖². We start from sequential SGD with learning rate 1 and change one feature at a time: the learning rate, gradients frozen at the start of a chunk, momentum, decay, gradient normalization, or an MLP in place of the matrix. Each implementation must match an independent float64 reference at every step. Agreement with the memory oracle is reported as a finding, not required.</p>
-    {{anim:e07}}
-    <p><strong>{{e:E08}}.</strong> Random 3-SAT instances with 20 to 100 variables, planted or uniform, some unsatisfiable. A verifier compiled from clause–literal incidence matrices is compared with an integer verifier on 60,000 candidate assignments. Four search procedures get 20,000 steps per instance: a complete DPLL solver, WalkSAT, random proposals, and Langevin descent on a relaxed clause energy. Both the integer and the compiled verifier check the descent proposals.</p>
-    {{anim:e08}}
-    <p><strong>Protocol.</strong> The {{e:E00}} and {{e:E01}} workloads run in float32, float64, bfloat16, and float16. Sweeps of 10<sup>3</sup> actions per configuration use three seeds, and sweeps of 10<sup>5</sup> and 10<sup>6</sup> actions use one. The dataflow, graph, grid, optimizer, and search experiments use one or two seeds and the formats in their tables. All runs use eager PyTorch 2.15 on CPU, either on an Intel i7-1365U or on Hugging Face Jobs (AMD EPYC 7R13, 8 CPUs), from committed source revisions recorded with each run. Timings come from a shared CPU and show orders of magnitude only.</p>
+    <p>These checks ran on CPUs. We repeated the shorter runs with different starting conditions; the longest runs used one seed. The linked reports give the full settings.</p>
 
-    <h3>4.2&ensp;Results</h3>
-    <p>The tables below are generated from the committed run records. {{conformance_summary}} The workloads triggered every specified fault: invalid addresses and values, invalid symbols, stack overflow, and stack underflow. The bracket-matching workload underflowed but never overflowed at capacity 8. The other stack workloads exercise overflow.</p>
-    <p><strong>{{e:E04}}.</strong> In float32 and float64, every tensor lowering matched the oracle on outputs, the faulting node, work, and every intermediate value. It replaced 123–605 scalar-machine instructions with 3–9 level steps. The compiled graphs were no faster than the same schedule in int64 tensors and slower than Python on single inputs, so we claim no speed advantage. The half-precision probes mismatched on 37–100% of evaluations with zero residue. A value rounded to the wrong integer is still an integer, so only comparison with the oracle exposes the error.</p>
-    <p><strong>{{e:E05}}.</strong> Fifty-three of 55 configurations matched their oracles exactly in both runs, including unreachable entries, distance-bound faults, and the round that confirms the fixed point. The two failures were bfloat16 shortest paths, which broke whenever distances exceeded 256, the largest integer bfloat16 represents exactly. On sparse graphs of up to 4,096 vertices, dense tensor rounds were 20 to 100 times slower than breadth-first search and Dijkstra's algorithm.</p>
-    <p><strong>{{e:E06}}.</strong> The convolution and lookup circuit matched all three cellular rules cell for cell in all four formats over 720,000 actions. The filters stayed within tolerance in float64 and float32 over 10<sup>5</sup> samples, and the largest float32 error came close to its limit. In bfloat16, 17 of 18 filter configurations exceeded their tolerance, the conventional dense recurrence included, because rounding moves a pole radius from 0.999 to 0.998.</p>
-    <p><strong>{{e:E07}}.</strong> Sequential SGD with learning rate 1 and one-hot keys matched the memory oracle exactly on all eight memory workloads in float32 and float64, as the delta-rule identity predicts. Every single change departed from replacement: lower learning rates, stale chunk gradients, momentum, decay, gradient normalization, and the MLP memory. In float32 and float64 the implementations still matched their float64 reference at every step. In bfloat16, momentum steps exceeded the reference tolerance and the decay factor rounded to 1, so decay never happened. A snapshot of the decoded memory words cannot resume momentum, which also needs its optimizer buffers.</p>
-    <p><strong>{{e:E08}}.</strong> Within its declared integer limits, the compiled verifier agreed with the integer verifier on every candidate and never accepted an invalid assignment. Past bfloat16's limit, a variant with folded weights rejected 119 valid assignments, and the residue did not show it. Energy-based proposals were far better than random ones and solved 23 of 28 known-satisfiable instances, against 28 for WalkSAT. Only DPLL proved unsatisfiability. With identical decisions the compiled verifier was 11 to 18 times faster than the Python verifier, but faster verification did not make energy search competitive.</p>
-    <div id="results-tables">{{results}}</div>
+    <h3>When a number won't fit</h3>
+    <p>Bits are easy to store exactly. Larger integers and small changes can be harder. With bfloat16, every whole number through 256 is representable; above 256, some are skipped. <code>257</code> can round to <code>256</code> and look like a perfectly good integer. That's why we check the result against an independent reference as well as measuring residue.</p>
+    <p><strong>{{e:E04}}.</strong> Picture a worksheet: some calculations can start right away, while others need earlier answers. Doing the ready calculations together took fewer rounds, but ordinary Python was still faster on single inputs. It helped to process inputs in batches, though the tensor versions didn't consistently beat the integer tensor baseline. The higher-precision versions matched the reference; some lower-precision results rounded to the wrong integer without showing any drift.</p>
+    {{anim:e04}}
+    <p><strong>{{e:E05}}.</strong> To find which places are connected, start with direct links and add routes built from the links you already know. Most versions matched the reference, but bfloat16 rounded some longer distances. On maps with relatively few links, conventional graph algorithms were faster.</p>
+    {{example:linked-roads}}
+    {{anim:e05}}
+    <p><strong>{{e:E06}}.</strong> Grid rules like the Game of Life matched cell for cell. Filters that reshape a signal stayed within the allowed error at higher precision, but most bfloat16 versions didn't. A small rounding error can make a filter forget a signal much sooner than it should.</p>
+    {{anim:e06}}
+    <p><strong>{{e:E07}}.</strong> An optimizer usually nudges numbers toward a target. In this test, a single gradient step with one-hot addressing and a learning rate of 1 replaces the old value exactly in float32 and float64. Smaller steps leave some of the old value behind. Momentum carries history across steps, so a snapshot of the slots alone can't restart it. In bfloat16, momentum exceeds the error tolerance, and the decay factor rounds to 1, so stored values never fade.</p>
+    {{anim:e07}}
+    <p><strong>{{e:E08}}.</strong> Within the stated bounds, the tensor checker agreed with the reference and was faster than the Python checker. Outside those bounds, a low-precision version rejected some valid answers. A faster checker didn't make our search better than WalkSAT, and only the complete solver proved that some puzzles had no solution.</p>
+    {{anim:e08}}
+
+    <p>The <a href="#results">run tables</a> show which settings passed and where each check failed.</p>
   </section>
 
-  <section id="ongoing">
-    <h2>5&ensp;Learned controllers</h2>
-    <p>{{e:E02}} compares learned controllers on a record-update task. Programs such as “Set c to 7. What is c?” assign values from 0 to 15 to eight records and ask for their current values. A frozen SmolLM2-135M model reads each program. Only small heads on its hidden states are trained: an action head that chooses an operation, a record, and a value, and an answer head. The four arms in {{tab:e02-arms}} share the task, the frozen features, and the head architecture.</p>
-    {{anim:e02}}
-    <figure class="figure">
-      <figcaption class="caption"><strong>{{table:e02-arms}}:</strong> Arms of the {{e:E02}} comparison. B and C differ only in how requests and replies are carried. C and D differ only in the executor.</figcaption>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Arm</th><th>Interface</th><th>Executor</th></tr></thead>
-        <tbody>
-          <tr><td>A</td><td>None; the answer head reads the question's hidden state</td><td>None</td></tr>
-          <tr><td>B</td><td>Request and reply appended to the context as text</td><td>Integer oracle</td></tr>
-          <tr><td>C</td><td>Typed action; the reply is embedded and given to the answer head</td><td>Integer oracle</td></tr>
-          <tr><td>D</td><td>As C, with C's trained heads</td><td>Delta-rule memory, with a shadow oracle</td></tr>
-        </tbody>
-      </table></div>
-    </figure>
-    <p>Controllers train on programs of 2 to 8 statements and are evaluated without teacher forcing, so a wrong write affects later answers. The test programs have the training length, 32 statements, or 64 statements, or use record-value pairs withheld from training. Every arm is trained with three seeds and evaluated on the same programs. {{tab:e02-566e}} gives the results. The typed interface (C) answered more questions correctly than the text tool (B) on every split and seed. Beyond the training length and on held-out pairs the mean difference was 0.06 to 0.10, above a conservative two-standard-error bound. At the training length it was 0.02, within the bound. B chose actions more accurately than C, so C's advantage arises after the action is chosen. Replacing the integer oracle with the delta-rule memory (D) changed no answer, and the delta-rule executor matched its shadow oracle on every action. All arms got worse on longer programs, and so did the accuracy of their chosen actions. The controller, not the machine, limits accuracy.</p>
-    <p>{{e:E03}} asks whether feedback that enters the model, rather than text or the heads, improves control. Its programs add statements such as “Copy c to e.”, which take two machine steps: read c, then write the value read to e. The value is not in the text, so the controller must route the read's reply into its next decision. At each step the controller chooses a write, a read, or the end of the statement, with at most three steps per statement, and the step's action and reply form a small feedback code. The arms in {{tab:e03-arms}} differ only in where that code goes ({{fig:roadmap}} places this experiment after {{e:E02}}). All arms drive the delta-rule memory with a shadow oracle.</p>
-    {{anim:e03}}
-    <figure class="figure">
-      <figcaption class="caption"><strong>{{table:e03-arms}}:</strong> Arms of the {{e:E03}} comparison. L and S add the same trained input positions, and only L's carry the feedback. S and H give the heads the same information.</figcaption>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Arm</th><th>Feedback path</th><th>Model positions per step</th></tr></thead>
-        <tbody>
-          <tr><td>T</td><td>Request and reply appended to the context as text</td><td>Several tokens</td></tr>
-          <tr><td>L</td><td>Code embedded as one trained input vector that passes through every layer</td><td>1</td></tr>
-          <tr><td>S</td><td>Constant trained input vector at L's positions; the code goes to the heads</td><td>1</td></tr>
-          <tr><td>H</td><td>Code embedded and given to the heads only</td><td>0</td></tr>
-          <tr><td>N</td><td>One command per statement; a conventional loop passes the read value to the write</td><td>0</td></tr>
-        </tbody>
-      </table></div>
-    </figure>
-    <p>{{tab:e03-ff00}} gives the results on the same test splits as {{e:E02}}. L and S beat T, H, and N on every split and seed, by 0.08 to 0.17 at the training length and by 0.31 to 0.53 at 32 and 64 statements (seed means), so the gain survives comparison with the native loop. But S, whose vectors carry no feedback, matched or beat L up to 32 statements. L led only at 64 statements, by 0.05. Most of the improvement therefore comes from trained vectors in the model's input, not from feedback through the model. L and S also use more model computation than H and N and train through the frozen model, so the comparison is not matched for work. Typed feedback to the heads (H) again beat text (T), by 0.04 to 0.07. The delta-rule memory matched its oracle on every action of every arm, and runs interrupted between the read and the write of a copy resumed through JSON identically.</p>
-    <p>{{e:E09}} asks whether the length loss comes from reading a long context. It reuses the task, frozen model, and heads of {{e:E02}} and changes only what each forward pass reads. Arm S reads the preamble and one statement per pass, so the machine holds all state. C reads the whole program. B is the text tool. W reads one statement and has no machine. S+delta runs S's heads on the delta-rule memory. We added a 256-statement split. The <a href="https://github.com/JGalego/latent-machines/blob/main/EXPERIMENTS.md#e09---state-in-the-machine-not-the-context">predictions and a compounding baseline</a> were fixed before the run.</p>
-    {{anim:e09}}
-    <p>S answered every question correctly at every length, with zero executor mismatches, while C and B fell to 0.13 and 0.11 at 256 statements. Prediction 1 held: S beat C by more than a conservative bound at 64 and 256 statements, by 0.71 and 0.87. Prediction 2 held only vacuously: S made no errors, so the compounding baseline was 1.000 at every length and constrained nothing. Prediction 3 failed: W scored 0.50 on programs of 2 to 8 statements against a ceiling of 0.15. W answers 0 to every question, which is right whenever the record was never written, and short programs have many such questions. We count the prediction as failed and read it as a ceiling set too low, not as leaked state.</p>
-    <p>The task has 128 distinct statements and S trained on all of them, so the perfect score could be a lookup. A follow-up, with its predictions again fixed first, tested the 8 statements held out of training (record g or h with a value from 12 to 15). S chose the right action for 7 of the 8 in every seed and answered 0.98 of the questions on programs containing them, against 0.83 for C. The prediction of at least 0.90 on the unseen statements was not met (0.875), so we report it as inconclusive, not as support. A random model with no pretraining got 2 of 8, so S is more than a lookup. Together: long context causes the loss, and S reads most unseen statements. The task is still small, and its statements do not depend on each other.</p>
+  <section id="predictions">
+    <h2>What held up</h2>
+    {{ledger}}
     <figure class="figure">
       <pre class="mermaid">
 flowchart LR
@@ -225,18 +214,33 @@ flowchart LR
     E01 --> E04["E04: dataflow<br/>E05: graphs and logic<br/>E06: grids and filters<br/>E07: optimizer memory<br/>E08: search with a verifier"]
     E02 --> E09["E09: state in the machine"]
       </pre>
-      <figcaption class="caption"><strong>{{figure:roadmap}}:</strong> Experiment dependencies. {{experiment_status}}</figcaption>
+      <figcaption class="caption"><strong>{{figure:roadmap}}:</strong> How the recorded experiments build on one another. {{experiment_status}}</figcaption>
     </figure>
   </section>
 
   <section id="limitations">
-    <h2>6&ensp;Limitations</h2>
-    <p>The results are conformance tests on finite workloads and do not prove exactness for other inputs, sizes, or horizons. All conformance runs use eager PyTorch on CPU. GPUs, fused or chunked kernels, and the output normalization and gating of a complete Gated DeltaNet layer are untested, and Section&nbsp;3.2 shows that such details can matter. The machines are small: 16 memory words, transducers with at most six states, a stack of depth 8, 32×32 grids, graphs of up to 4,096 vertices, and SAT instances of up to 100 variables. Timings come from shared machines and show orders of magnitude only. Host code validates arguments before the tensor update, so the results cover storage, readout, and transitions, not validation. The sweeps of 10<sup>5</sup> and 10<sup>6</sup> actions use one seed. The controller studies use one frozen 135M-parameter model with trained heads, one task family, and three seeds. In {{e:E03}}, the latent arms use more model positions than the head and native arms, observation-only feedback was not tested, and the steering control was added after a pilot. In {{e:E09}}, the unseen-statement result is a count out of 8 per seed, the statements do not depend on each other, one prediction held only vacuously, and another had a ceiling set too low.</p>
+    <h2>What we haven't tested</h2>
+    <p>The exactness checks cover small machines on finite workloads. They don't tell us how the machines behave at larger sizes, in a full Gated DeltaNet layer, or in its fused or chunked GPU kernels. Ordinary code checks addresses and values before the tensor update. The checks cover what happens once the machine receives a command, not whether a neural layer could validate it. Timings from shared CPUs are rough comparisons.</p>
+    <p>The controller experiments use one model and one family of tasks. We added E03's control after a pilot and didn't test input vectors that carry the reply without the action. E09 reused the same small set of unseen instructions across runs, so the repeated scores don't tell us how many other instructions the model could handle.</p>
   </section>
 
   <section id="conclusion">
-    <h2>7&ensp;Conclusion</h2>
-    <p>With gates fixed at 0 or 1 and one-hot addressing, the Gated DeltaNet recurrence implements random-access memory and, with a one-hot pointer, a bounded stack. Two-layer ReLU circuits implement finite-state transducers. In the tested configurations, each implementation matched its integer oracle at every action with zero residue. With these executors, a controller on a frozen language model answered more questions correctly through a typed internal interface than through a text tool on programs longer than those seen in training, and the compiled executor gave the same answers as the native one. On long programs the controller's actions limit accuracy. Reading the program one statement at a time, with the machine holding the state, removed that limit on a task whose statements are independent. Trained input vectors in the frozen model improved the actions substantially, with or without the machine's feedback, so the evidence favors trained steering over latent feedback. The other machines show that exact tensor execution is achievable in float32 and float64 within declared limits, but it is rarely faster than conventional code. Whether it pays off by being differentiable or composable with a model remains to be shown.</p>
+    <h2>The next instruction</h2>
+    <p>Back in the potluck chat, &ldquo;I'll bring bread&rdquo; makes sense on its own. &ldquo;I'll bring that instead&rdquo; only makes sense if you know what someone just suggested. That's our next test: can the model still read a short stretch at a time when one line depends on another?</p>
+    <p>For now, a small controller talks to memory that sits outside the model. We plan to <a href="https://github.com/JGalego/latent-machines/blob/main/EXPERIMENTS.md#e10---a-machine-layer-inside-the-model">put memory inside a model layer</a>, then test whether the controller can <a href="https://github.com/JGalego/latent-machines/blob/main/EXPERIMENTS.md#e11---learning-to-use-the-machine-from-outcomes">learn from feedback on its answers</a> without being shown the right commands. The notebook works on the tests so far; we don't yet know whether building it into the model will help.</p>
+  </section>
+
+  <section id="results">
+    <h2>Run tables</h2>
+    <p>{{conformance_summary}}</p>
+    <div id="results-tables">{{results}}</div>
+  </section>
+
+  <section id="related">
+    <h2>Where the idea comes from</h2>
+    <p>Other projects have turned programs into neural-network weights {{cite:tracr,alta,looped}}. Qwenputer puts a RISC-V CPU in a language model's layers; QwenFX uses it to run a coding agent {{cite:qwenputer,qwenfx}}. Percepta and chipformer use attention over an execution log for WebAssembly and CHIP-8 {{cite:percepta,chipformer}}. Neural Comprehension and Tracr-Injection explore other ways to connect compiled programs to a language model {{cite:comprehension,injection}}.</p>
+    <p>Earlier learned controllers use explicit memory or learn to drive program instructions {{cite:ntm,dnc,npi,nram,nhc,forth}}. ToolkenGPT teaches a frozen model which tool to call, with arguments passed as text {{cite:toolken}}. We compare typed and textual interfaces on the same task, then swap the machine beneath the typed interface to see what changes.</p>
+    <p>The memory update here comes from work on fast weights and linear attention {{cite:fwp}}. Other linear recurrences extend what state a network can track, including tasks such as parity and permutations {{cite:negeig,deltaproduct}}.</p>
   </section>
 
   <section id="references">

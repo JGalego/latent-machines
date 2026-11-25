@@ -1,0 +1,54 @@
+{
+  "record-updates": [
+    "Set c to 7.",
+    "Set e to 3.",
+    "What is c?",
+    "",
+    "Expected answer: 7"
+  ],
+  "reply-formats": [
+    "Read entry c, which holds 7:",
+    "",
+    "As text:     [read c] [7]",
+    "As a number: 7"
+  ],
+  "copy-an-entry": [
+    "Set c to 7.",
+    "Set e to 3.",
+    "Copy c to e.",
+    "",
+    "Read c: 7",
+    "Write 7 to e (replacing 3)"
+  ],
+  "one-line-at-a-time": [
+    "Earlier (out of view): Set c to 7.",
+    "Current instruction:   What is c?",
+    "Notebook reply:        7"
+  ],
+  "unseen-update": [
+    "Allowed in training: Set g to 3.",
+    "Allowed in training: Set c to 12.",
+    "Held out:            Set g to 12."
+  ],
+  "wrong-command": [
+    "Notebook: c = 7, e = 3",
+    "",
+    "Question:       What is c?",
+    "Model asks for: e",
+    "Both notebooks: 3",
+    "Expected:       7"
+  ],
+  "bracket-stack": [
+    "Input: ([])",
+    "",
+    "Read   Stack (top on the right)",
+    "(      (",
+    "[      ([",
+    "]      (",
+    ")      empty"
+  ],
+  "linked-roads": [
+    "Known roads: A -> B, B -> C",
+    "New route:   A -> B -> C"
+  ]
+}

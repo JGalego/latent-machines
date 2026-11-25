@@ -15,6 +15,7 @@ static HTML, so every number on the page comes from a source file:
     {{ledger}}                     hypothesis table from site/hypotheses.json
     {{e:E02}}                      "E02: learned interfaces", linked to its report
     {{anim:e02}}                   site/animations/e02.svg, captioned from its <desc>
+    {{example:name}}               literal code block from site/examples.json
 
 Figures, tables, and equations are numbered in page order after results are
 expanded. Run records are rendered by kind: lockstep conformance runs (E00,
@@ -453,9 +454,9 @@ ARM_NAMES = {
     "E03": {
         "T": "text feedback",
         "L": "latent feedback",
-        "S": "steering control",
+        "S": "constant input",
         "H": "heads only",
-        "N": "native loop",
+        "N": "conventional loop",
     },
     "E09": {
         "B": "text tool, full context",
@@ -466,9 +467,9 @@ ARM_NAMES = {
     },
 }
 CHART_TITLES = {
-    "E02": "E02: learned interfaces",
-    "E03": "E03: latent feedback",
-    "E09": "E09: state in the machine, up to 256 statements",
+    "E02": "E02: Text tool or typed interface",
+    "E03": "E03: Where the reply goes",
+    "E09": "E09: Reading one statement at a time",
 }
 LENGTH_SPLITS = {
     "test_in_distribution": "2–8",
@@ -596,8 +597,8 @@ def story_length_figure(experiments: dict[str, list[dict]]) -> str:
             )
     if not charts:
         return ""
-    cause = (
-        " The delta-rule executor matched its oracle on every action of every arm, so the drop comes from the controller's chosen actions, not from the machine."
+    memory_check = (
+        " The delta-rule memory matched its oracle on every action it received."
         if all(m == 0 for m in mismatches)
         else ""
     )
@@ -605,8 +606,10 @@ def story_length_figure(experiments: dict[str, list[dict]]) -> str:
         '<figure class="figure story-figure">'
         + "".join(charts)
         + '<figcaption class="caption"><strong>{{figure:story-length}}:</strong> '
-        f"Task accuracy by program length, mean over {seeds} training seeds with the seed range as a whisker. "
-        "Arms with identical results share a line." + cause + "</figcaption></figure>"
+        f"Share of questions answered correctly by program length, averaged over {seeds} training starts. "
+        "Vertical bars show the range. Versions with identical scores share a line."
+        + memory_check
+        + "</figcaption></figure>"
     )
 
 
@@ -634,18 +637,17 @@ def feedback_grid(experiments: dict[str, list[dict]]) -> str:
             f'<span class="small">64 statements: {value(arm, "test_length_64"):.3f}</span></td>'
         )
 
-    row_effect = (value("S") + value("L") - value("H") - value("T")) / 2
-    column_effect = (value("T") + value("L") - value("H") - value("S")) / 2
-    names = ARM_NAMES["E03"]
+    trained_input = 100 * (value("S") - value("H"))
+    feedback_path = 100 * (value("L") - value("S"))
     return f"""<figure class="figure story-figure">
       <div class="table-wrap"><table class="matrix2">
-        <thead><tr><th></th><th>Feedback stays outside the model</th><th>Feedback re-enters the model</th></tr></thead>
+                <thead><tr><th></th><th>Feedback to the heads</th><th>Feedback through the model</th></tr></thead>
         <tbody>
           <tr><th scope="row">Trained input positions</th>{cell("S")}{cell("L")}</tr>
           <tr><th scope="row">No trained positions</th>{cell("H")}{cell("T")}</tr>
         </tbody>
       </table></div>
-      <figcaption class="caption"><strong>{{{{figure:story-grid}}}}:</strong> Task accuracy in {esc(experiment_label("E03"))} at 32 statements, mean over seeds. Averaging the cells, trained positions change accuracy by {row_effect:+.2f} and feedback re-entering the model by {column_effect:+.2f}. In {esc(names["T"])} the feedback is text tokens. In {esc(names["L"])} it is one trained vector per step. The latent arms use more model positions than the others, so the work is not matched. One frozen 135M model, one task.</figcaption>
+            <figcaption class="caption"><strong>{{{{figure:story-grid}}}}:</strong> Average answer accuracy at 32 statements. Adding trained inputs while keeping feedback at the heads (S vs. H): {trained_input:+.1f} percentage points. Routing feedback through those inputs (L vs. S): {feedback_path:+.1f} points. S and L do more model work than H.</figcaption>
     </figure>"""
 
 
@@ -676,7 +678,7 @@ def render_ledger(root: Path) -> str:
         <thead><tr><th>Hypothesis</th><th>Verdict</th><th>Evidence</th></tr></thead>
         <tbody>{"".join(rows)}</tbody>
       </table></div>
-      <figcaption class="caption"><strong>{{{{figure:story-ledger}}}}:</strong> Each hypothesis with its current verdict. Supported and refuted mean on the tested workloads and models only, with one to three seeds. Untested rows have no result.</figcaption>
+    <figcaption class="caption"><strong>{{{{figure:story-ledger}}}}:</strong> These verdicts apply to the models and workloads we tested. The proposed experiments have no results yet.</figcaption>
     </figure>"""
 
 
@@ -995,10 +997,20 @@ def render_page(root: Path) -> str:
     if "{{toc}}" in page:
         page = table_of_contents(page)
     page = wrap_equations(page)
-    leftover = MARKER.search(page)
-    if leftover:
-        raise BuildError(f"unresolved marker {leftover.group(0)}")
-    return page
+
+    examples_path = root / "site" / "examples.json"
+    examples = json.loads(examples_path.read_text()) if examples_path.exists() else {}
+
+    def finish(match: re.Match) -> str:
+        marker, name = match.groups()
+        if marker != "example":
+            raise BuildError(f"unresolved marker {match.group(0)}")
+        if name not in examples:
+            raise BuildError(f"unknown example {name!r}")
+        code = "\n".join(examples[name])
+        return f'<pre class="example"><code>{esc(code)}</code></pre>'
+
+    return MARKER.sub(finish, page)
 
 
 def build(root: Path, out: Path) -> None:

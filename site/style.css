@@ -104,6 +104,8 @@ button:hover, .button:hover { opacity: 0.85; }
 .caption, .note, .muted { color: var(--muted); font-size: 0.9rem; }
 .figure { margin: 24px 0; overflow-x: auto; }
 .mermaid { background: transparent; text-align: center; }
+.example { overflow-x: auto; padding: 10px 14px; background: var(--surface); border-radius: 6px; }
+.example code { font-size: inherit; }
 
 table { border-collapse: collapse; width: 100%; font-size: 0.88rem; margin: 12px 0 4px; }
 th, td { border-bottom: 1px solid var(--rule); padding: 6px 8px; text-align: left; }

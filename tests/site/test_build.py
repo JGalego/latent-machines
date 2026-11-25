@@ -75,6 +75,7 @@ def test_numbering_and_citations_follow_page_order(tmp_path: Path) -> None:
         ("{{references}}", {"a": "Entry A"}, "never cited"),
         ("{{fig:nowhere}}", {}, "unknown fig"),
         ("{{table:t}} {{table:t}}", {}, "duplicate"),
+        ("{{example:missing}}", {}, "unknown example"),
         ("{{mystery}}", {}, "unresolved"),
     ],
 )
@@ -84,6 +85,17 @@ def test_bad_markers_fail_the_build(
     root = make_root(tmp_path, template, references)
     with pytest.raises(build.BuildError, match=message):
         build.render_page(root)
+
+
+def test_examples_render_as_literal_code(tmp_path: Path) -> None:
+    root = make_root(tmp_path, "<p>Story.</p> {{example:sample}}", {})
+    (root / "site" / "examples.json").write_text(
+        json.dumps({"sample": ["1 < 2", "{{literal}}", "$$literal$$"]})
+    )
+    assert build.render_page(root) == (
+        '<p>Story.</p> <pre class="example"><code>1 &lt; 2\n'
+        "{{literal}}\n$$literal$$</code></pre>"
+    )
 
 
 def test_each_record_kind_renders(tmp_path: Path) -> None:
@@ -274,7 +286,7 @@ def test_length_chart_omits_the_executor_claim_after_a_mismatch(tmp_path: Path) 
     assert "matched its oracle" not in build.render_page(root)
 
 
-def test_feedback_grid_reports_row_and_column_effects(tmp_path: Path) -> None:
+def test_feedback_grid_reports_the_control_comparisons(tmp_path: Path) -> None:
     root = make_root(tmp_path, "{{feedback_grid}}", {})
     arms = {
         "H": [0.9, 0.4, 0.3], "S": [0.99, 0.8, 0.6],
@@ -282,8 +294,8 @@ def test_feedback_grid_reports_row_and_column_effects(tmp_path: Path) -> None:
     }  # fmt: skip
     add_run(root, "E03", "e03-x-abc1234-0001", learned_run(arms), {"arms": list(arms)})
     page = build.render_page(root)
-    assert "trained positions change accuracy by +0.50" in page
-    assert "re-entering the model by -0.10" in page
+    assert "(S vs. H): +40.0 percentage points" in page
+    assert "(L vs. S): +0.0 points" in page
 
 
 def test_story_figures_are_empty_without_records(tmp_path: Path) -> None:
