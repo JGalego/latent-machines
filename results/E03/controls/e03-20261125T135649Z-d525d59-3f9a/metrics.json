@@ -1,0 +1,662 @@
+{
+  "schema_version": 1,
+  "experiment": "E03",
+  "status": "completed",
+  "finished_at": "2026-11-25T15:34:59+00:00",
+  "acceptance": "bounded stepping (at most 3 machine actions per statement), deterministic events, zero executor mismatches, and snapshot/resume between the ticks of a copy identical to uninterrupted execution",
+  "executor_mismatches": 0,
+  "snapshots": [
+    {
+      "arm": "S",
+      "programs": 20,
+      "agree": 20,
+      "differ": 0,
+      "max_feature_difference": 0.0,
+      "example": {
+        "machine": {
+          "version": "memory/v1",
+          "capacity": 8,
+          "word_bits": 4,
+          "words": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "halted": false
+        },
+        "controller": {
+          "history": [
+            [
+              "text",
+              "Records a to h start at 0."
+            ],
+            [
+              "text",
+              " What is c?"
+            ],
+            [
+              "code",
+              [
+                1,
+                2,
+                16,
+                0
+              ]
+            ],
+            [
+              "text",
+              " Copy b to e."
+            ],
+            [
+              "code",
+              [
+                1,
+                1,
+                16,
+                0
+              ]
+            ]
+          ]
+        },
+        "statement": 1,
+        "ticks_done": 1
+      }
+    },
+    {
+      "arm": "V",
+      "programs": 20,
+      "agree": 20,
+      "differ": 0,
+      "max_feature_difference": 0.0,
+      "example": {
+        "machine": {
+          "version": "memory/v1",
+          "capacity": 8,
+          "word_bits": 4,
+          "words": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "halted": false
+        },
+        "controller": {
+          "history": [
+            [
+              "text",
+              "Records a to h start at 0."
+            ],
+            [
+              "text",
+              " What is c?"
+            ],
+            [
+              "code",
+              [
+                1,
+                2,
+                16,
+                0
+              ]
+            ],
+            [
+              "text",
+              " Copy b to e."
+            ],
+            [
+              "code",
+              [
+                1,
+                1,
+                16,
+                0
+              ]
+            ]
+          ]
+        },
+        "statement": 1,
+        "ticks_done": 1
+      }
+    }
+  ],
+  "peak_rss_mb": 2323.1,
+  "peak_gpu_mb": 2958.9,
+  "summary": [
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.9978768577494691,
+        "min": 0.9936305732484076,
+        "max": 1.0
+      },
+      "action_accuracy": {
+        "mean": 0.9950886184070041,
+        "min": 0.9910313901345291,
+        "max": 0.9987187700192185
+      },
+      "copy_fidelity": {
+        "mean": 0.997046869926857,
+        "min": 0.9933481152993349,
+        "max": 1.0
+      }
+    },
+    {
+      "arm": "S",
+      "split": "test_length_32",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.8665955176093917,
+        "min": 0.816435432230523,
+        "max": 0.9327641408751334
+      },
+      "action_accuracy": {
+        "mean": 0.8311458333333334,
+        "min": 0.76875,
+        "max": 0.8884375
+      },
+      "copy_fidelity": {
+        "mean": 0.9800241689877552,
+        "min": 0.9673518742442564,
+        "max": 0.9876237623762376
+      }
+    },
+    {
+      "arm": "S",
+      "split": "test_length_64",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.5661458333333332,
+        "min": 0.47291666666666665,
+        "max": 0.6875
+      },
+      "action_accuracy": {
+        "mean": 0.6071875000000001,
+        "min": 0.5159375,
+        "max": 0.7225
+      },
+      "copy_fidelity": {
+        "mean": 0.9746592197806642,
+        "min": 0.9594202898550724,
+        "max": 0.9832893579595426
+      }
+    },
+    {
+      "arm": "V",
+      "split": "test_in_distribution",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.9985845718329794,
+        "min": 0.9978768577494692,
+        "max": 1.0
+      },
+      "action_accuracy": {
+        "mean": 0.9908178518043989,
+        "min": 0.988468930172966,
+        "max": 0.9929532351057014
+      },
+      "copy_fidelity": {
+        "mean": 0.9992526158445441,
+        "min": 0.9977578475336323,
+        "max": 1.0
+      }
+    },
+    {
+      "arm": "V",
+      "split": "test_length_32",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.8256848096762718,
+        "min": 0.7427961579509071,
+        "max": 0.9146211312700107
+      },
+      "action_accuracy": {
+        "mean": 0.8047916666666666,
+        "min": 0.720625,
+        "max": 0.88625
+      },
+      "copy_fidelity": {
+        "mean": 0.9756965363966207,
+        "min": 0.9568221070811744,
+        "max": 0.9935233160621761
+      }
+    },
+    {
+      "arm": "V",
+      "split": "test_length_64",
+      "seeds": 3,
+      "task_accuracy": {
+        "mean": 0.5661458333333333,
+        "min": 0.4421875,
+        "max": 0.7057291666666666
+      },
+      "action_accuracy": {
+        "mean": 0.6069270833333333,
+        "min": 0.49109375,
+        "max": 0.749375
+      },
+      "copy_fidelity": {
+        "mean": 0.9598490447402348,
+        "min": 0.9382303839732888,
+        "max": 0.9860594795539034
+      }
+    }
+  ],
+  "runs": [
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seed": 0,
+      "training_seconds": 337.0,
+      "questions": 471,
+      "task_accuracy": 0.9936305732484076,
+      "statements": 1561,
+      "action_accuracy": 0.9910313901345291,
+      "copies": 454,
+      "copy_reads_and_targets_right": 451,
+      "copy_fidelity": 0.9933481152993349,
+      "budget_exhausted": 0,
+      "controller_decisions": 3576,
+      "machine_work": 2015,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 13209,
+      "feedback_positions": 2015,
+      "eval_seconds": 94.843,
+      "executor_seconds": 0.318
+    },
+    {
+      "arm": "S",
+      "split": "test_length_32",
+      "seed": 0,
+      "training_seconds": 337.0,
+      "questions": 937,
+      "task_accuracy": 0.8505869797225186,
+      "statements": 3200,
+      "action_accuracy": 0.83625,
+      "copies": 980,
+      "copy_reads_and_targets_right": 827,
+      "copy_fidelity": 0.9673518742442564,
+      "budget_exhausted": 0,
+      "controller_decisions": 7374,
+      "machine_work": 4174,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 22004,
+      "feedback_positions": 4174,
+      "eval_seconds": 183.42,
+      "executor_seconds": 0.668
+    },
+    {
+      "arm": "S",
+      "split": "test_length_64",
+      "seed": 0,
+      "training_seconds": 337.0,
+      "questions": 1920,
+      "task_accuracy": 0.5380208333333333,
+      "statements": 6400,
+      "action_accuracy": 0.583125,
+      "copies": 1902,
+      "copy_reads_and_targets_right": 1035,
+      "copy_fidelity": 0.9594202898550724,
+      "budget_exhausted": 0,
+      "controller_decisions": 14685,
+      "machine_work": 8285,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 42910,
+      "feedback_positions": 8285,
+      "eval_seconds": 361.544,
+      "executor_seconds": 1.316
+    },
+    {
+      "arm": "V",
+      "split": "test_in_distribution",
+      "seed": 0,
+      "training_seconds": 342.9,
+      "questions": 471,
+      "task_accuracy": 1.0,
+      "statements": 1561,
+      "action_accuracy": 0.9910313901345291,
+      "copies": 454,
+      "copy_reads_and_targets_right": 446,
+      "copy_fidelity": 0.9977578475336323,
+      "budget_exhausted": 0,
+      "controller_decisions": 3576,
+      "machine_work": 2015,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 13209,
+      "feedback_positions": 2015,
+      "eval_seconds": 94.354,
+      "executor_seconds": 0.316
+    },
+    {
+      "arm": "V",
+      "split": "test_length_32",
+      "seed": 0,
+      "training_seconds": 342.9,
+      "questions": 937,
+      "task_accuracy": 0.8196371398078975,
+      "statements": 3200,
+      "action_accuracy": 0.8075,
+      "copies": 980,
+      "copy_reads_and_targets_right": 688,
+      "copy_fidelity": 0.9767441860465116,
+      "budget_exhausted": 2,
+      "controller_decisions": 7368,
+      "machine_work": 4170,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 22000,
+      "feedback_positions": 4170,
+      "eval_seconds": 182.702,
+      "executor_seconds": 0.661
+    },
+    {
+      "arm": "V",
+      "split": "test_length_64",
+      "seed": 0,
+      "training_seconds": 342.9,
+      "questions": 1920,
+      "task_accuracy": 0.5505208333333333,
+      "statements": 6400,
+      "action_accuracy": 0.5803125,
+      "copies": 1902,
+      "copy_reads_and_targets_right": 894,
+      "copy_fidelity": 0.9552572706935123,
+      "budget_exhausted": 4,
+      "controller_decisions": 14540,
+      "machine_work": 8144,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 42769,
+      "feedback_positions": 8144,
+      "eval_seconds": 357.176,
+      "executor_seconds": 1.296
+    },
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seed": 1,
+      "training_seconds": 343.1,
+      "questions": 471,
+      "task_accuracy": 1.0,
+      "statements": 1561,
+      "action_accuracy": 0.9955156950672646,
+      "copies": 454,
+      "copy_reads_and_targets_right": 449,
+      "copy_fidelity": 1.0,
+      "budget_exhausted": 0,
+      "controller_decisions": 3576,
+      "machine_work": 2015,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 13209,
+      "feedback_positions": 2015,
+      "eval_seconds": 95.091,
+      "executor_seconds": 0.322
+    },
+    {
+      "arm": "S",
+      "split": "test_length_32",
+      "seed": 1,
+      "training_seconds": 343.1,
+      "questions": 937,
+      "task_accuracy": 0.9327641408751334,
+      "statements": 3200,
+      "action_accuracy": 0.8884375,
+      "copies": 980,
+      "copy_reads_and_targets_right": 808,
+      "copy_fidelity": 0.9876237623762376,
+      "budget_exhausted": 0,
+      "controller_decisions": 7262,
+      "machine_work": 4062,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 21892,
+      "feedback_positions": 4062,
+      "eval_seconds": 181.0,
+      "executor_seconds": 0.653
+    },
+    {
+      "arm": "S",
+      "split": "test_length_64",
+      "seed": 1,
+      "training_seconds": 343.1,
+      "questions": 1920,
+      "task_accuracy": 0.6875,
+      "statements": 6400,
+      "action_accuracy": 0.7225,
+      "copies": 1902,
+      "copy_reads_and_targets_right": 1137,
+      "copy_fidelity": 0.9832893579595426,
+      "budget_exhausted": 0,
+      "controller_decisions": 14230,
+      "machine_work": 7830,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 42455,
+      "feedback_positions": 7830,
+      "eval_seconds": 352.267,
+      "executor_seconds": 1.261
+    },
+    {
+      "arm": "V",
+      "split": "test_in_distribution",
+      "seed": 1,
+      "training_seconds": 343.5,
+      "questions": 471,
+      "task_accuracy": 0.9978768577494692,
+      "statements": 1561,
+      "action_accuracy": 0.9929532351057014,
+      "copies": 454,
+      "copy_reads_and_targets_right": 446,
+      "copy_fidelity": 1.0,
+      "budget_exhausted": 0,
+      "controller_decisions": 3576,
+      "machine_work": 2015,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 13209,
+      "feedback_positions": 2015,
+      "eval_seconds": 94.486,
+      "executor_seconds": 0.316
+    },
+    {
+      "arm": "V",
+      "split": "test_length_32",
+      "seed": 1,
+      "training_seconds": 343.5,
+      "questions": 937,
+      "task_accuracy": 0.9146211312700107,
+      "statements": 3200,
+      "action_accuracy": 0.88625,
+      "copies": 980,
+      "copy_reads_and_targets_right": 772,
+      "copy_fidelity": 0.9935233160621761,
+      "budget_exhausted": 0,
+      "controller_decisions": 7390,
+      "machine_work": 4190,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 22020,
+      "feedback_positions": 4190,
+      "eval_seconds": 182.24,
+      "executor_seconds": 0.659
+    },
+    {
+      "arm": "V",
+      "split": "test_length_64",
+      "seed": 1,
+      "training_seconds": 343.5,
+      "questions": 1920,
+      "task_accuracy": 0.7057291666666666,
+      "statements": 6400,
+      "action_accuracy": 0.749375,
+      "copies": 1902,
+      "copy_reads_and_targets_right": 1076,
+      "copy_fidelity": 0.9860594795539034,
+      "budget_exhausted": 0,
+      "controller_decisions": 14734,
+      "machine_work": 8334,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 42959,
+      "feedback_positions": 8334,
+      "eval_seconds": 361.574,
+      "executor_seconds": 1.315
+    },
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "training_seconds": 344.4,
+      "questions": 471,
+      "task_accuracy": 1.0,
+      "statements": 1561,
+      "action_accuracy": 0.9987187700192185,
+      "copies": 454,
+      "copy_reads_and_targets_right": 453,
+      "copy_fidelity": 0.9977924944812362,
+      "budget_exhausted": 0,
+      "controller_decisions": 3576,
+      "machine_work": 2015,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 13209,
+      "feedback_positions": 2015,
+      "eval_seconds": 95.098,
+      "executor_seconds": 0.318
+    },
+    {
+      "arm": "S",
+      "split": "test_length_32",
+      "seed": 2,
+      "training_seconds": 344.4,
+      "questions": 937,
+      "task_accuracy": 0.816435432230523,
+      "statements": 3200,
+      "action_accuracy": 0.76875,
+      "copies": 980,
+      "copy_reads_and_targets_right": 671,
+      "copy_fidelity": 0.9850968703427719,
+      "budget_exhausted": 0,
+      "controller_decisions": 7332,
+      "machine_work": 4132,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 21962,
+      "feedback_positions": 4132,
+      "eval_seconds": 182.327,
+      "executor_seconds": 0.656
+    },
+    {
+      "arm": "S",
+      "split": "test_length_64",
+      "seed": 2,
+      "training_seconds": 344.4,
+      "questions": 1920,
+      "task_accuracy": 0.47291666666666665,
+      "statements": 6400,
+      "action_accuracy": 0.5159375,
+      "copies": 1902,
+      "copy_reads_and_targets_right": 694,
+      "copy_fidelity": 0.9812680115273775,
+      "budget_exhausted": 0,
+      "controller_decisions": 14266,
+      "machine_work": 7866,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 42491,
+      "feedback_positions": 7866,
+      "eval_seconds": 352.5,
+      "executor_seconds": 1.24
+    },
+    {
+      "arm": "V",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "training_seconds": 342.8,
+      "questions": 471,
+      "task_accuracy": 0.9978768577494692,
+      "statements": 1561,
+      "action_accuracy": 0.988468930172966,
+      "copies": 454,
+      "copy_reads_and_targets_right": 443,
+      "copy_fidelity": 1.0,
+      "budget_exhausted": 0,
+      "controller_decisions": 3576,
+      "machine_work": 2015,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 13209,
+      "feedback_positions": 2015,
+      "eval_seconds": 94.401,
+      "executor_seconds": 0.318
+    },
+    {
+      "arm": "V",
+      "split": "test_length_32",
+      "seed": 2,
+      "training_seconds": 342.8,
+      "questions": 937,
+      "task_accuracy": 0.7427961579509071,
+      "statements": 3200,
+      "action_accuracy": 0.720625,
+      "copies": 980,
+      "copy_reads_and_targets_right": 579,
+      "copy_fidelity": 0.9568221070811744,
+      "budget_exhausted": 0,
+      "controller_decisions": 7145,
+      "machine_work": 3945,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 21775,
+      "feedback_positions": 3945,
+      "eval_seconds": 176.531,
+      "executor_seconds": 0.627
+    },
+    {
+      "arm": "V",
+      "split": "test_length_64",
+      "seed": 2,
+      "training_seconds": 342.8,
+      "questions": 1920,
+      "task_accuracy": 0.4421875,
+      "statements": 6400,
+      "action_accuracy": 0.49109375,
+      "copies": 1902,
+      "copy_reads_and_targets_right": 599,
+      "copy_fidelity": 0.9382303839732888,
+      "budget_exhausted": 0,
+      "controller_decisions": 13630,
+      "machine_work": 7230,
+      "faults": 0,
+      "executor_mismatches": 0,
+      "lm_positions": 41855,
+      "feedback_positions": 7230,
+      "eval_seconds": 336.058,
+      "executor_seconds": 1.186
+    }
+  ],
+  "not_measured": [
+    "unfrozen or fine-tuned models; only heads and the adaptor train",
+    "latent feedback without the action fields (observation only): arm V, available since the 2026-11-25 amendment",
+    "arm S's adaptor receives only the constant code, so only one sum of its table rows is used; its parameter count includes the rest",
+    "per-tick latency on matched hardware: T and L run the model on the GPU while H and N reuse features computed once",
+    "faults from invalid actions: the heads can only emit valid addresses and values"
+  ],
+  "error": null
+}

@@ -2,7 +2,7 @@
 
 > **TL;DR:** Trained vectors passed through the frozen model raised accuracy far above the other arms, but a control with no feedback in those vectors did about as well, so most of the gain comes from the trained vectors, not the feedback.
 
-A frozen language model with small trained heads ran programs whose copy statements need two memory steps: a read, then a write of the value read. Feeding each step's result back into the model as one trained vector (L) gave the best accuracy on long programs. It beat feeding the result back as text (T), giving it only to the heads (H), and running the copy in a conventional loop (N). The control S inserts the same kind of trained vector but carries no feedback in it. S matched L on short and 32-statement programs and trailed it only at 64 statements. Most of L's advantage therefore comes from the extra trained positions in the model, not from the feedback. Every arm drove the delta-rule memory with no mismatch against its oracle, and mid-copy snapshots resumed identically.
+A frozen language model with small trained heads ran programs whose copy statements need two memory steps: a read, then a write of the value read. Feeding each step's result back into the model as one trained vector (L) gave the best accuracy on long programs. It beat feeding the result back as text (T), giving it only to the heads (H), and running the copy in a conventional loop (N). The control S inserts the same kind of trained vector but carries no feedback in it. S matched L on short and 32-statement programs and trailed it only at 64 statements. Most of L's advantage therefore comes from the extra trained positions in the model, not from the feedback. Every arm drove the delta-rule memory with no mismatch against its oracle, and mid-copy snapshots resumed identically. A later control, V, whose vector carries only the value read, matched S and trailed L at 64 statements; see [reply-only vectors](#e03-latent-feedback-reply-only-vectors).
 
 ## Question and design
 
@@ -118,6 +118,77 @@ Execution and acceptance checks, all splits and seeds:
 
 The [discriminator](../../EXPERIMENTS.md#e03---latent-ticks-and-explicit-events) asks that improvements survive an efficient native loop and not come from hidden privileged state. L's gain survives N, and L sees only the feedback code that the other arms see. But L and S spend extra model positions and train through the model, so the work budget is not matched with H and N. The S control shows that this extra trained computation, not latent feedback, is the main effect.
 
+## E03: latent feedback, reply-only vectors
+
+> **TL;DR:** A vector that carries only the value a read returned did no better than the constant-vector control S and fell below L at 64 statements, so the reply alone does not explain L's lead there.
+
+The [amendment of 2026-11-25](../../EXPERIMENTS.md#e03---latent-ticks-and-explicit-events) added arm V. It uses L's adaptor, but the operation, record, and value-written fields of the feedback code are constants. Its vector depends only on the value the machine returned, or on its absence for a write. S was rerun in the same job so that V is compared with an S from the same code.
+
+```mermaid
+flowchart LR
+    C["feedback code<br/>operation, record, value written, value returned"]
+    C -->|"L: all four fields"| L["adaptor vector"]
+    C -->|"V: value returned only"| V["adaptor vector"]
+    C -->|"S: none, constant"| S["adaptor vector"]
+```
+
+### Setup
+
+> **TL;DR:** The recorded run's configuration, one `l4x1` job, arms V and S only.
+
+The command was `python -m latent_machines.experiments.e03 --arms V,S --device cuda` with every other setting at its default, which is the recorded run's configuration: SmolLM2-135M at revision `93efa2f`, seeds 0-2, data seed 0, the same 2,000 training programs and 300, 100, and 100 test programs, 30 epochs. The source was commit [`d525d59`](https://github.com/JGalego/latent-machines/commit/d525d5929fda092d7389093b3a463362fbafce6c), clean tree. The arm code is in [`bfb0867`](https://github.com/JGalego/latent-machines/commit/bfb08677d46cea951ddab6f6c0ed3cb7f600c67a); the commits between them do not touch E03. The tiny-model results of arms L and S were identical before and after adding V.
+
+The rerun S matched the recorded S exactly: every one of its nine task accuracies equals the recorded value, and so do its trainable parameters (354,731) and example counts. The comparisons with the recorded L below are therefore on the same programs, seeds, and code path.
+
+### Results
+
+> **TL;DR:** V and S are indistinguishable at every length; V trails the recorded L by 0.049 at 64 statements.
+
+Task accuracy, mean over three seeds with the range in brackets. L and S rows are from the recorded run:
+
+| Arm | 2-8 statements | 32 statements | 64 statements |
+|---|---|---|---|
+| V (reply only) | 0.999 [0.998, 1.000] | 0.826 [0.743, 0.915] | 0.566 [0.442, 0.706] |
+| S (rerun) | 0.998 [0.994, 1.000] | 0.867 [0.816, 0.933] | 0.566 [0.473, 0.688] |
+| S (recorded) | 0.998 [0.994, 1.000] | 0.867 [0.816, 0.933] | 0.566 [0.473, 0.688] |
+| L (recorded) | 0.981 [0.972, 0.987] | 0.824 [0.784, 0.902] | 0.615 [0.556, 0.732] |
+
+Paired differences in task accuracy, per seed, with the same conservative two-standard-error bound as above:
+
+| Comparison | Split | Seeds 0, 1, 2 | Mean | Bound |
+|---|---|---|---|---|
+| V − S (reply content) | 2-8 | +0.006, −0.002, −0.002 | +0.001 | 0.065 |
+| V − S | 32 | −0.031, −0.018, −0.074 | −0.041 | 0.046 |
+| V − S | 64 | +0.013, +0.018, −0.031 | 0.000 | 0.032 |
+| V − L (action echo) | 2-8 | +0.028, +0.015, +0.011 | +0.018 | 0.065 |
+| V − L | 32 | +0.035, +0.013, −0.043 | +0.002 | 0.046 |
+| V − L | 64 | −0.007, −0.026, −0.114 | −0.049 | 0.032 |
+
+Action accuracy at 64 statements, mean over seeds: V 0.607, S 0.607, L 0.670. Copy fidelity at 64 statements: V 0.960, S 0.974, L 0.932. `budget_exhausted` occurred 4 times for V, all in seed 0 at 64 statements, and never for S. Executors had zero mismatches, and 20 of 20 mid-copy snapshots per arm resumed identically.
+
+### Predictions
+
+> **TL;DR:** Neither prediction was met.
+
+1. **V beats S at 64 statements by more than the bound: not met.** The mean difference was 0.000 against a bound of 0.032. The reply content did not help beyond the constant vector.
+2. **V is within the bound of L at 64 statements: not met.** V was 0.049 below L, against a bound of 0.032. The comparison was made, since the rerun S matched the recorded S. V was within the bound of L at 2-8 and 32 statements.
+
+### Interpretation
+
+> **TL;DR:** The value returned by a read does not carry L's gain over S at 64 statements. Whether L's gain comes from the action fields, or is seed noise, is untested.
+
+- **No reply effect.** V tracks S at every length, in every seed within 0.074. Feeding the returned value into the model's input as a vector gave no measurable benefit over a constant vector at 2-8, 32, or 64 statements.
+- **L's lead.** The recorded L − S difference at 64 statements was +0.049. V − L is −0.049, so V recovers none of it. Two readings fit: the lead depends on the action fields (the operation, record, and value written), or it is smaller than seed variation. Per-seed L − V was +0.007, +0.026, and +0.114, and the ranges of V and L overlap (0.442 to 0.706 against 0.556 to 0.732). Three seeds and a conservative bound cannot separate the two.
+- **Consequence for the earlier reading.** E03's main finding is unchanged and stronger: most of the gain comes from trained vectors in the model's input, and a vector with no action and the reply only does as well as one with no feedback. The remaining feedback effect, L at 64 statements, is the only one left to explain.
+
+### Costs
+
+> **TL;DR:** The V and S job cost about $1.32 on an `l4x1`.
+
+- HF job [`6b06e8fd…`](https://huggingface.co/jobs/jgalego/6b06e8fdb6a90bbe997d6e56): 5,930 s running on `l4x1` at $0.80/h, about $1.32, under the 2 h timeout and its $1.60 worst case. Training took about 343 s per arm per seed.
+- Peak memory: 2,323 MB RSS and 2,959 MB GPU.
+- The run manifest is in [controls/e03-20261125T135649Z-d525d59-3f9a](controls/e03-20261125T135649Z-d525d59-3f9a/), with the prediction evaluation in `predictions.json`. It sits under `controls/` so that the project page's tables keep showing the recorded five-arm run. The full run directory is in the Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs) under `runs/`, at commit `cde62397`.
+
 ## Costs
 
 > **TL;DR:** The recorded run cost about $2.11. L and S used less than half of T's model positions and took about 65 times as long as H to evaluate.
@@ -144,7 +215,7 @@ Seed 0, 64-statement split, 100 programs:
 
 - **Controller:** a frozen 135M-parameter model; only heads and a small adaptor train. No fine-tuning and no other model sizes.
 - **Matched work:** L and S use more model positions than H and N and train through the model. No arm gives H or N the same extra positions without trained vectors.
-- **Feedback ablations:** latent feedback without the action fields (observation only) was not run. S's adaptor sees one constant code, so most of its parameters are unused.
+- **Feedback ablations:** S's adaptor sees one constant code, so most of its parameters are unused. Latent feedback without the action fields was run later as arm V; see [reply-only vectors](#e03-latent-feedback-reply-only-vectors).
 - **Task:** one record task with copies, 8 records, and 4-bit values; programs need at most two actions per statement.
 - **Timing:** per-tick latency on matched hardware was not measured; evaluation times mix GPU model calls with reuse of cached features.
 - **Statistics:** three seeds and a conservative unpaired bound; L and S have wide seed ranges on long programs.
@@ -168,4 +239,4 @@ uv run --locked python -m latent_machines.experiments.e03 --device cuda
 E03: latent feedback meets its acceptance criteria: bounded stepping, deterministic events, zero executor mismatches, and exact snapshot/resume between the ticks of a copy. In this setting, trained vectors in the model's input improve control, and latent feedback does not. Next steps, not run:
 
 - A matched-work control that gives H and N the same extra positions with untrained or fixed vectors, to separate trained readout from added positions.
-- Observation-only latent feedback, and an unfrozen or larger model, before claiming any benefit of feedback through the model.
+- An unfrozen or larger model, before claiming any benefit of feedback through the model. Observation-only latent feedback has since been run; see [reply-only vectors](#e03-latent-feedback-reply-only-vectors).
