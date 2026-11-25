@@ -2,7 +2,7 @@
 
 > **TL;DR:** Validate executors before comparing learned interfaces; E00-E08 all have initial results.
 
-Status, 2026-11-18: every experiment, E00-E08, has a first recorded run and report under [results/](results/); each experiment's **Results** line summarizes it. These are initial results with one or a few seeds, not completed studies. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
+Status, 2026-11-18: every experiment, E00-E08, has a first recorded run and report under [results/](results/); each experiment's **Results** line summarizes it. These are initial results with one or a few seeds, not completed studies. [E09](#e09---state-in-the-machine-not-the-context) is pre-registered and not run; [E10](#e10---a-machine-layer-inside-the-model) and [E11](#e11---learning-to-use-the-machine-from-outcomes) are proposals. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
 
 ## Questions and priorities
 
@@ -350,6 +350,79 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 **Discriminator:** separate better proposals from faster verification, and do not infer efficient global optimization from associative-memory convergence.
 
 **Results:** [results/E08](results/E08/README.md). A compiled CNF verifier matched its oracle on 60,000 candidates within its declared limits and accepted no invalid assignment; past bfloat16's limit, a folded lowering rejected 119 valid ones. At a fixed step budget, energy-based proposals solved 23 of 28 known-satisfiable random 3-SAT instances, against 0 for random proposals and 28 for WalkSAT. Only DPLL proved unsatisfiability.
+
+### E09 - State in the machine, not the context
+
+> **TL;DR:** Pre-registered: a controller that sees one statement at a time, with the machine holding all state, should beat full-context controllers on long programs and fall only as fast as its own errors compound.
+
+**Status:** pre-registered 2026-11-25, before any code or run. After the first run, changes go in a dated amendment below this section, not in an edit of it.
+
+**Question:** E02 found that every controller loses accuracy on programs longer than its training programs, and that the executors are exact, so the loss is in the chosen actions. Is that a position effect of reading a long context, or the compounding of ordinary per-statement errors?
+
+**Prerequisite:** E02's task, frozen SmolLM2-135M, heads, and test-program generator.
+
+**Arms:** all arms use E02's task, model, head architecture, training data, three training seeds, and the same paired test programs. Splits are E02's 2-8, 32, and 64 statements plus a new 256-statement split. B and C are rerun in the same job, so every arm sees the new split.
+
+| Arm | Context the model reads | Machine |
+|---|---|---|
+| B | Full program, with text requests and replies (E02 B) | Integer oracle |
+| C | Full program (E02 C) | Integer oracle, typed interface |
+| S | One statement per forward pass, fresh window each time | Integer oracle, typed interface; the machine is the only carrier of state |
+| W | One statement per forward pass | None; the answer head sees only the current question |
+
+W is a floor, not a competitor: with no memory it cannot answer about earlier writes. S trains on features computed from single-statement windows. If S works, repeat with the delta-rule executor as a conformance check, as E02 did for D.
+
+**Compounding baseline** (fixed before the run, computed from the oracle alone): let ε be S's action error rate on the 2-8 split for a seed, and a its task accuracy on questions whose actions were all correct on that split. Replay each test program through the oracle machine, replacing each statement's action with probability ε by a uniformly random write target and value, or read target. The baseline accuracy at a length is a times the fraction of questions the replay answers correctly.
+
+**Predictions:**
+
+1. S's task accuracy at 64 and 256 statements exceeds C's by more than the conservative two-standard-error bound used in the E02 report.
+2. S's task accuracy at every length is within 0.05 of the compounding baseline, in the mean over seeds.
+3. W's task accuracy stays at or below 0.15 on every split, so the machine, not the window, carries the information.
+
+**Sanity checks, not predictions:** S's action accuracy matches its 2-8 value at every length, since its inputs do not depend on position; a difference points to a bug. Executor mismatches are zero.
+
+**Outcomes that count against the thesis:**
+
+- Prediction 1 fails: S does not beat C beyond the bound at 64 statements. Then the context position is not what limits C, and the controller's own errors are the cause.
+- Prediction 2 fails by falling more than 0.05 below the baseline: S's errors are correlated or state-dependent, which per-statement independence does not capture.
+- Prediction 3 fails: the answer head recovers state from the question alone, so the task leaks and the comparison is not valid.
+
+**Measurements:** task, action, and answer accuracy per arm and split; the compounding baseline per seed and length; maximum and total model positions per forward pass and per program; executor mismatches; GPU seconds and cost.
+
+**Discriminator:** C versus S at the same task and heads isolates context handling from the machine. The baseline separates an effect of the window from errors that would compound in any controller. An S win says nothing about E03's question of whether feedback should re-enter the model.
+
+**Cost:** E02's one job cost about $0.73 on an `l4x1`; expect the same order. Stay under the $5 limit in [AGENTS.md](AGENTS.md).
+
+**Results:** not run.
+
+### E10 - A machine layer inside the model
+
+> **TL;DR:** Proposed: put the memory inside the layer stack, driven by trained projections of the residual stream, and compare it with an outside machine at matched trainable parameters.
+
+**Status:** proposal; refine and pre-register after E09.
+
+**Question:** E02 and E03 keep the machine outside the model and reach it through heads. Does a machine that lives in a layer, written and read by projections of the residual stream, improve control over the same machine reached through heads?
+
+**Design sketch:** insert one layer at depth k of the frozen model. Trained projections of the residual stream produce a key, a value, a write gate, and a query for a delta-rule state S. The key is selected by argmax with a straight-through gradient so addressing stays one-hot, and the read is added back to the residual stream. A shadow oracle checks S at every action. Before building a new layer, check whether a small Gated DeltaNet hybrid listed in [RESEARCH.md](RESEARCH.md) lets the memory occupy reserved heads of an existing layer instead.
+
+**Discriminator:** E03 showed that trained positions inside the model can account for most of a gain. The machine layer must beat arm S and arm H of E03, which have the same trained-parameter budget, before any benefit is attributed to the machine living in the layer.
+
+**Results:** not run.
+
+### E11 - Learning to use the machine from outcomes
+
+> **TL;DR:** Proposed: train the controller from answer loss alone, through the machine, to test whether a model can discover how to use it.
+
+**Status:** proposal; refine and pre-register after E09.
+
+**Question:** E02 and E03 train heads on gold action traces, so the controller imitates a known procedure. If gradients pass through the machine, can a controller learn to write and read from the answer loss alone, which an external tool cannot support?
+
+**Design sketch:** compare imitation of gold actions (E02 arm C) with outcome-only training using straight-through estimators on the discrete address and value. Both use the same model, heads, and training programs.
+
+**Discriminator:** outcome-only training must beat the no-machine arm A and show writes before reads in its action traces; otherwise the answer head may be solving the task without the machine. A failure to learn is a result about discoverability in this setting.
+
+**Results:** not run.
 
 ## Research coverage
 
