@@ -2,7 +2,7 @@
 
 > **TL;DR:** Validate executors before comparing learned interfaces; E00-E08 all have initial results.
 
-Status, 2026-11-18: every experiment, E00-E08, has a first recorded run and report under [results/](results/); each experiment's **Results** line summarizes it. These are initial results with one or a few seeds, not completed studies. [E09](#e09---state-in-the-machine-not-the-context) is pre-registered and not run; [E10](#e10---a-machine-layer-inside-the-model) and [E11](#e11---learning-to-use-the-machine-from-outcomes) are proposals. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
+Status, 2026-11-25: every experiment, E00-E09, has a first recorded run and report under [results/](results/); each experiment's **Results** line summarizes it. These are initial results with one or a few seeds, not completed studies. [E09](#e09---state-in-the-machine-not-the-context) ran against pre-registered predictions: two held (one vacuously) and one failed; [E10](#e10---a-machine-layer-inside-the-model) and [E11](#e11---learning-to-use-the-machine-from-outcomes) are proposals. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
 
 ## Questions and priorities
 
@@ -355,7 +355,7 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 > **TL;DR:** Pre-registered: a controller that sees one statement at a time, with the machine holding all state, should beat full-context controllers on long programs and fall only as fast as its own errors compound.
 
-**Status:** pre-registered 2026-11-25, before any code or run. After the first run, changes go in a dated amendment below this section, not in an edit of it.
+**Status:** pre-registered 2026-11-25, before any code or run; first run 2026-11-25. Changes after that run go in a dated amendment below this section, not in an edit of it.
 
 **Question:** E02 found that every controller loses accuracy on programs longer than its training programs, and that the executors are exact, so the loss is in the chosen actions. Is that a position effect of reading a long context, or the compounding of ordinary per-statement errors?
 
@@ -394,7 +394,19 @@ W is a floor, not a competitor: with no memory it cannot answer about earlier wr
 
 **Cost:** E02's one job cost about $0.73 on an `l4x1`; expect the same order. Stay under the $5 limit in [AGENTS.md](AGENTS.md).
 
-**Results:** not run.
+**Results:** [results/E09](results/E09/README.md). Run 2026-11-25 on an `l4x1` job, three seeds. S, reading one statement per forward pass, answered every question correctly at 2-8, 32, 64, and 256 statements, with zero executor mismatches for the delta-rule executor, while C and B fell to 0.134 and 0.111 at 256 statements. Prediction 1 held (S − C +0.71 at 64, +0.87 at 256). Prediction 2 held vacuously, since S made no errors and the baseline is 1.000. Prediction 3 failed as written: W scored 0.501 on 2-8 statements and 0.205 on 32, equal to the share of questions on never-written records, so the 0.15 ceiling was set too low rather than the task leaking. S's job is a 128-string lookup, so the result does not show that the language model contributes: a post-hoc control with a random 2-layer model reached 0.94 at 2-8 statements and made prediction 2 informative (S within 0.035 of the baseline).
+
+#### Amendment 2026-11-25: first run
+
+> **TL;DR:** Implementation choices made before the run that the pre-registration left open or stated differently.
+
+Recorded after the run, with the code that made each choice committed before it (`c7d252a`):
+
+- **Window:** S's and W's window is the preamble plus the statement, not the statement alone.
+- **`a`:** computed as the answer head's accuracy given the gold observation on the 2-8 questions, rather than task accuracy on questions whose actions were all correct. With S's actions all correct the two coincide.
+- **Delta-rule arm:** S+delta ran unconditionally instead of after S succeeded.
+- **Splits:** the held-out-pairs split was dropped, and the 256-statement split has 100 programs (12,935 questions).
+- **Prediction 3:** a ceiling of 0.15 ignored that a controller with no memory answers 0 for every unwritten record, and half the questions on 2-8 statement programs are of that kind. The result stands as not met; the reason is in the [report](results/E09/README.md).
 
 ### E10 - A machine layer inside the model
 

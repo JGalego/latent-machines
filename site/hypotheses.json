@@ -57,10 +57,10 @@
   },
   {
     "claim": "A controller that reads one statement at a time, with the machine holding all state, beats full-context controllers on long programs.",
-    "verdict": "untested",
-    "label": "pre-registered",
-    "note": "Predictions and the outcomes that would count against it are fixed before the run.",
-    "links": [["E09", "EXPERIMENTS.md#e09---state-in-the-machine-not-the-context"]]
+    "verdict": "partly",
+    "label": "lookup only",
+    "note": "No errors up to 256 statements, where full-context controllers fell to about 0.13. The task has 128 distinct statements, and a random untrained model reached 0.94 on the shortest programs, so this shows long context is the cause, not that the model reads statements.",
+    "links": [["E09", "results/E09/README.md"]]
   },
   {
     "claim": "A memory inside a model layer controls better than the same memory reached through heads.",

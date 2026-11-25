@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "experiment": "E09",
+  "run_id": "e09-20261125T093316Z-c7d252a-28de",
+  "command": [
+    "python",
+    "-m",
+    "latent_machines.experiments.e09",
+    "--model",
+    "tiny-random",
+    "--seeds",
+    "0",
+    "--train",
+    "2000",
+    "--test",
+    "300",
+    "--long-test",
+    "20",
+    "--epochs",
+    "30"
+  ],
+  "started_at": "2026-11-25T09:33:16+00:00",
+  "source": {
+    "revision": "c7d252ac4ad26b7ffb8a407fd0a113e79bd28ea8",
+    "dirty": false,
+    "dirty_fingerprint": null,
+    "untracked": []
+  },
+  "config": {
+    "model": "tiny-random",
+    "revision": null,
+    "seeds": [
+      0
+    ],
+    "data_seed": 0,
+    "train": 2000,
+    "test": 300,
+    "long_test": 20,
+    "epochs": 30,
+    "hidden": 256,
+    "learning_rate": 0.001,
+    "batch_size": 256,
+    "arms": [
+      "B",
+      "C",
+      "S",
+      "S+delta",
+      "W"
+    ]
+  },
+  "environment": {
+    "python": "3.13.13",
+    "implementation": "CPython",
+    "platform": "Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1365U",
+    "cpu_count": 6,
+    "cpu_quota": null,
+    "hf_job": null,
+    "launch": {},
+    "torch": "2.15.0+cpu",
+    "torch_threads_per_variant": 1,
+    "deterministic": false,
+    "device": "cpu",
+    "uv_lock_sha256": "ca3bf7296e19440f7703271d050f5b259db3a9a80eb7eb8d20f9359dbfd8dedb"
+  },
+  "seeds": {
+    "heads": [
+      0
+    ],
+    "data": 0
+  },
+  "model": {
+    "name": "tiny-random",
+    "revision": null,
+    "parameters": 28832,
+    "hidden_size": 32,
+    "frozen": true,
+    "features": "last-layer hidden state at each chunk's last token"
+  },
+  "task": {
+    "machine": "memory/v1, capacity 8, 4-bit words",
+    "records": "abcdefgh",
+    "held_out_pairs": [
+      [
+        6,
+        12
+      ],
+      [
+        6,
+        13
+      ],
+      [
+        6,
+        14
+      ],
+      [
+        6,
+        15
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        7,
+        15
+      ]
+    ],
+    "splits": {
+      "train": {
+        "name": "train",
+        "count": 2000,
+        "min_statements": 2,
+        "max_statements": 8,
+        "held_out": [
+          [
+            6,
+            12
+          ],
+          [
+            6,
+            13
+          ],
+          [
+            6,
+            14
+          ],
+          [
+            6,
+            15
+          ],
+          [
+            7,
+            12
+          ],
+          [
+            7,
+            13
+          ],
+          [
+            7,
+            14
+          ],
+          [
+            7,
+            15
+          ]
+        ],
+        "exclude_held_out": true,
+        "sha256": "b054d3299fddef4b11bd3930c6423c27eed70f5f9489e6f7a19c8e1aba1f9f4a"
+      },
+      "test_in_distribution": {
+        "name": "test_in_distribution",
+        "count": 300,
+        "min_statements": 2,
+        "max_statements": 8,
+        "held_out": [
+          [
+            6,
+            12
+          ],
+          [
+            6,
+            13
+          ],
+          [
+            6,
+            14
+          ],
+          [
+            6,
+            15
+          ],
+          [
+            7,
+            12
+          ],
+          [
+            7,
+            13
+          ],
+          [
+            7,
+            14
+          ],
+          [
+            7,
+            15
+          ]
+        ],
+        "exclude_held_out": true,
+        "sha256": "082f3d680d5147efa1dd7ed55b44081df0506927e84c6f1e014386e271fd3eff"
+      },
+      "test_length_32": {
+        "name": "test_length_32",
+        "count": 20,
+        "min_statements": 32,
+        "max_statements": 32,
+        "held_out": [
+          [
+            6,
+            12
+          ],
+          [
+            6,
+            13
+          ],
+          [
+            6,
+            14
+          ],
+          [
+            6,
+            15
+          ],
+          [
+            7,
+            12
+          ],
+          [
+            7,
+            13
+          ],
+          [
+            7,
+            14
+          ],
+          [
+            7,
+            15
+          ]
+        ],
+        "exclude_held_out": true,
+        "sha256": "d4556af40bd5762ff7ca1920f84bb75a5e295d8d753c65a14dc649fdda3502eb"
+      },
+      "test_length_64": {
+        "name": "test_length_64",
+        "count": 20,
+        "min_statements": 64,
+        "max_statements": 64,
+        "held_out": [
+          [
+            6,
+            12
+          ],
+          [
+            6,
+            13
+          ],
+          [
+            6,
+            14
+          ],
+          [
+            6,
+            15
+          ],
+          [
+            7,
+            12
+          ],
+          [
+            7,
+            13
+          ],
+          [
+            7,
+            14
+          ],
+          [
+            7,
+            15
+          ]
+        ],
+        "exclude_held_out": true,
+        "sha256": "b9c310e3b98151df99fe910e506707990b05618137ffb0242ef14f42eb0311bc"
+      },
+      "test_length_256": {
+        "name": "test_length_256",
+        "count": 20,
+        "min_statements": 256,
+        "max_statements": 256,
+        "held_out": [
+          [
+            6,
+            12
+          ],
+          [
+            6,
+            13
+          ],
+          [
+            6,
+            14
+          ],
+          [
+            6,
+            15
+          ],
+          [
+            7,
+            12
+          ],
+          [
+            7,
+            13
+          ],
+          [
+            7,
+            14
+          ],
+          [
+            7,
+            15
+          ]
+        ],
+        "exclude_held_out": true,
+        "sha256": "5e7ae02e55a8bb295f38548b53f51ec7ed67265c7819907567dcfcb39c5dcba0"
+      }
+    }
+  },
+  "arms": {
+    "B": "text tool, full context; oracle executor (E02 arm B)",
+    "C": "typed interface, full context; oracle executor (E02 arm C)",
+    "S": "typed interface; one statement per forward pass (preamble plus statement); oracle executor",
+    "S+delta": "S's heads with the delta-rule executor and shadow oracle",
+    "W": "no machine; one statement per forward pass"
+  },
+  "windows": "the preamble followed by one statement; features are cached by statement text because they do not depend on position",
+  "trained": {
+    "B": {
+      "trainable_parameters": 27818,
+      "training_steps": 1200,
+      "action_examples": 10037,
+      "answer_examples": 5022
+    },
+    "C": {
+      "trainable_parameters": 36586,
+      "training_steps": 1200,
+      "action_examples": 10037,
+      "answer_examples": 5022
+    },
+    "S": {
+      "trainable_parameters": 36586,
+      "training_steps": 1200,
+      "action_examples": 10037,
+      "answer_examples": 5022
+    },
+    "S+delta": {
+      "trainable_parameters": 36586,
+      "training_steps": 1200,
+      "action_examples": 10037,
+      "answer_examples": 5022
+    },
+    "W": {
+      "trainable_parameters": 12624,
+      "training_steps": 1200,
+      "action_examples": 0,
+      "answer_examples": 5022
+    }
+  }
+}
