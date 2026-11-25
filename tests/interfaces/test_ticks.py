@@ -59,3 +59,13 @@ def test_macro_targets() -> None:
     assert ticks.macro_target([Read(1)]) == ticks.Macro(1, 1)
     with pytest.raises(ValueError):
         ticks.macro_target([Write(1, 3), Read(1)])
+
+
+def test_reply_only_keeps_the_observation_and_drops_the_action() -> None:
+    read = ticks.feedback(Read(3), Event(EventKind.OUTPUT, value=9))
+    write = ticks.feedback(Write(1, 5), Event(EventKind.CONTINUE))
+    fields = ticks.START.indices()[:3]
+    assert ticks.reply_only(read).indices() == (*fields, 9)
+    assert ticks.reply_only(write).indices() == (*fields, ticks.NONE_VALUE)
+    other = ticks.feedback(Read(6), Event(EventKind.OUTPUT, value=9))
+    assert ticks.reply_only(other) == ticks.reply_only(read)

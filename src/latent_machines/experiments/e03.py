@@ -22,6 +22,15 @@ action and reply (its feedback code) reach the next decision:
   ``read``, or ``copy``) and a conventional in-process loop runs its ticks,
   passing the value read to the write itself.
 
+A sixth arm, V, was added after the first run (see the amendment in
+EXPERIMENTS.md). It is not in the default arm list, so the default run is
+unchanged:
+
+- V, reply-only vectors: L's adaptor, but the operation, record, and
+  value-written fields of the code are replaced by constants, so the vector
+  depends only on the value the machine returned and on whether it returned
+  one.
+
 Every arm executes on E00's delta-rule memory with a shadow oracle that
 counts executor mismatches. Evaluation is free-running. For a sample of
 programs, each arm is also snapshotted between the two ticks of a copy:
@@ -67,14 +76,17 @@ EXPERIMENT = "E03"
 MODULE = "latent_machines.experiments.e03"
 MODEL = "HuggingFaceTB/SmolLM2-135M"
 REVISION = "93efa2f097d58c2a74874c7e644dbc9b0cee75a2"
-ARMS = ("T", "L", "S", "H", "N")
-LATENT_ARMS = ("L", "S")  # trained end to end through the frozen model
-SESSION_ARMS = ("T", "L", "S")  # the model reads each tick incrementally
+ARMS = ("T", "L", "S", "H", "N")  # the recorded run's arms, the default
+EXTRA_ARMS = ("V",)  # added later; run only when named in --arms
+ALL_ARMS = (*ARMS, *EXTRA_ARMS)
+LATENT_ARMS = ("L", "S", "V")  # trained end to end through the frozen model
+SESSION_ARMS = ("T", "L", "S", "V")  # the model reads each tick incrementally
 HEAD_CODE_ARMS = ("S", "H")  # the heads read the feedback code
 ARM_NAMES = {
     "T": "token feedback",
     "L": "latent feedback",
     "S": "steering control",
+    "V": "reply-only vectors",
     "H": "head feedback",
     "N": "native loop",
 }
@@ -368,6 +380,23 @@ def train_cached(c: Controller, data: Cached, config: Config) -> None:
     c.seconds = time.perf_counter() - started
 
 
+def slot_code(arm: str, code: ticks.FeedbackCode) -> ticks.FeedbackCode:
+    """The code that arm ``arm`` puts into its adaptor vector."""
+    if arm == "S":
+        return ticks.START
+    return ticks.reply_only(code) if arm == "V" else code
+
+
+def slot_codes(arm: str, codes: torch.Tensor) -> torch.Tensor:
+    """``slot_code`` for a ``(slots, 4)`` tensor of code indices."""
+    if arm == "L":
+        return codes
+    start = torch.tensor(ticks.START.indices(), device=codes.device)
+    if arm == "S":
+        return start.expand_as(codes)
+    return torch.cat([start[:3].expand(len(codes), 3), codes[:, 3:]], dim=1)
+
+
 def train_latent(
     c: Controller, lm: FrozenLM, data: list[LatentProgram], config: Config
 ) -> None:
@@ -379,7 +408,6 @@ def train_latent(
     optimizer = torch.optim.Adam(params, lr=config.learning_rate)
     started = time.perf_counter()
     steer = c.arm == "S"
-    start = torch.tensor(ticks.START.indices(), device=lm.device)
     for _ in range(config.epochs):
         order = torch.randperm(len(data)).tolist()
         for b in range(0, len(order), config.latent_batch):
@@ -387,7 +415,7 @@ def train_latent(
             width = max(len(p.base) for p in batch)
             embeds, mask = [], []
             for p in batch:
-                slots = start.expand_as(p.codes) if steer else p.codes
+                slots = slot_codes(c.arm, p.codes)
                 filled = p.base.index_put((p.code_positions,), c.adaptor(slots))
                 pad = width - len(p.base)
                 embeds.append(F.pad(filled, (0, 0, 0, pad)))
@@ -498,7 +526,7 @@ class TickController:
     def _feed_slot(self, code: ticks.FeedbackCode) -> None:
         """Arms L and S: one adaptor vector at the model's next position."""
         assert self.session is not None and self.c.adaptor is not None
-        slot = code if self.c.arm == "L" else ticks.START
+        slot = slot_code(self.c.arm, code)
         vector = self.c.adaptor(torch.tensor(slot.indices()))
         self.features = self.session.feed_vector(vector)
 
@@ -878,8 +906,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     args = parser.parse_args(argv)
     if min(args.train, args.test, args.long_test, args.epochs) < 1:
         parser.error("sizes and epochs must be positive")
-    if not set(args.arms.split(",")) <= set(ARMS):
-        parser.error(f"arms must be among {','.join(ARMS)}")
+    if not set(args.arms.split(",")) <= set(ALL_ARMS):
+        parser.error(f"arms must be among {','.join(ALL_ARMS)}")
     return args
 
 
@@ -890,7 +918,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--device cuda requested but CUDA is not available")
     if args.threads:
         torch.set_num_threads(args.threads)
-    arms = tuple(a for a in ARMS if a in args.arms.split(","))
+    arms = tuple(a for a in ALL_ARMS if a in args.arms.split(","))
     config = Config(
         model=args.model,
         revision=None if args.model == "tiny-random" else args.revision,
@@ -1059,6 +1087,8 @@ def main(argv: list[str] | None = None) -> int:
                 "passes through every layer and stays in the key-value cache",
                 "S": "a constant adaptor vector per tick at the next input position "
                 "(no feedback content); the embedded code goes to the heads as in H",
+                "V": "L's adaptor vector, but the operation, record, and value-written "
+                "fields are constants; only the value returned (or none) varies",
                 "H": "embedded code concatenated to the heads' input; the model "
                 "and its cache never see it",
                 "N": "no controller feedback within a statement; the loop passes "
@@ -1097,7 +1127,8 @@ def main(argv: list[str] | None = None) -> int:
             "runs": rows,
             "not_measured": [
                 "unfrozen or fine-tuned models; only heads and the adaptor train",
-                "latent feedback without the action fields (observation only)",
+                "latent feedback without the action fields (observation only): "
+                "arm V, available since the 2026-11-25 amendment",
                 "arm S's adaptor receives only the constant code, so only one sum "
                 "of its table rows is used; its parameter count includes the rest",
                 "per-tick latency on matched hardware: T and L run the model on "

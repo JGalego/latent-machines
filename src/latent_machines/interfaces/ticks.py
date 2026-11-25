@@ -71,6 +71,13 @@ def feedback(action: Action, event: Event) -> FeedbackCode:
     raise ValueError(f"no feedback code for {action!r}")
 
 
+def reply_only(code: FeedbackCode) -> FeedbackCode:
+    """``code`` without its action: constants for the operation, record, and
+    value written, and the observation unchanged. The observation is the value
+    a read returned, or ``NONE_VALUE`` when the event carried none."""
+    return FeedbackCode(NONE_OP, NONE_RECORD, NONE_VALUE, code.observation)
+
+
 def to_action(operation: int, record: int, value: int) -> Action | None:
     """The machine action for head outputs, or ``None`` for ``end``."""
     name = OPERATIONS[operation]
