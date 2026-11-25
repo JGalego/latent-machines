@@ -408,6 +408,38 @@ Recorded after the run, with the code that made each choice committed before it 
 - **Splits:** the held-out-pairs split was dropped, and the 256-statement split has 100 programs (12,935 questions).
 - **Prediction 3:** a ceiling of 0.15 ignored that a controller with no memory answers 0 for every unwritten record, and half the questions on 2-8 statement programs are of that kind. The result stands as not met; the reason is in the [report](results/E09/README.md).
 
+#### Amendment 2026-11-25: held-out pairs, pre-registered
+
+> **TL;DR:** A follow-up run on the eight statements never seen in training, to separate reading statements from looking them up; predictions fixed before the code or run.
+
+**Question:** the first run's S saw all 128 statement texts in training, and a random 2-layer model reached 0.94 with the same pipeline. Does S read a statement it has not seen, and does pretraining contribute?
+
+```mermaid
+flowchart LR
+    U["unseen statement<br/>Set g to 12."] --> W["window: preamble + statement"]
+    W --> F["frozen model<br/>SmolLM2 or random"]
+    F --> H["trained heads"]
+    H --> A["action: write g 12?"]
+```
+
+**Design:** the same runner with `--held-out`. Training is unchanged: 2,000 programs that never contain the pairs (record g or h with value 12-15). Test splits are the 2-8 split and E02's held-out-pairs split (300 programs, each containing at least one such pair), with all five arms. Two extra measurements need no program: the action accuracy of S's heads on each of the 8 unseen statement texts, and on the 128 seen ones, from the window feature of the text alone. Runs: SmolLM2-135M on an `l4x1` job and the random 2-layer `tiny-random` model on CPU, three seeds each.
+
+**Predictions:**
+
+1. SmolLM2's S chooses the correct action for at least 0.90 of the 8 unseen statements, in the mean over seeds.
+2. On the held-out-pairs split, S's task accuracy beats C's by more than the conservative two-standard-error bound, for SmolLM2.
+3. SmolLM2's S beats the random model's S by more than 0.10 in unseen-statement action accuracy, in the mean over seeds.
+
+**Sanity checks, not predictions:** S's action accuracy on the 128 seen statements is at least 0.99 for SmolLM2; executor mismatches are zero.
+
+**Outcomes that count against the reading thesis:**
+
+- Prediction 1 fails below 0.50: S memorizes strings, and the first run's result holds only for statements seen in training.
+- Prediction 3 fails: pretraining adds nothing measurable to reading unseen statements here.
+- Eight statements per seed is a small set; a result between 0.50 and 0.90 on prediction 1 is reported as inconclusive, not as support.
+
+**Cost:** SmolLM2 evaluation is on 2-8 statement programs only, so the job should take well under an hour on an `l4x1`, under $1.
+
 ### E10 - A machine layer inside the model
 
 > **TL;DR:** Proposed: put the memory inside the layer stack, driven by trained projections of the residual stream, and compare it with an outside machine at matched trainable parameters.
