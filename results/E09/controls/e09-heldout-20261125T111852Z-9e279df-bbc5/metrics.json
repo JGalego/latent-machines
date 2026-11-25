@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "experiment": "E09",
+  "status": "completed",
+  "finished_at": "2026-11-25T11:26:05+00:00",
+  "acceptance": "pre-registered predictions in EXPERIMENTS.md evaluated as written (the held-out follow-up amendment, with --held-out); zero executor mismatches for the delta-rule arm",
+  "executor_mismatches": 0,
+  "peak_rss_mb": 377.4,
+  "summary": [
+    {
+      "arm": "B",
+      "split": "test_held_out_pairs",
+      "seeds": 1,
+      "task_accuracy": {
+        "mean": 0.37748344370860926,
+        "min": 0.37748344370860926,
+        "max": 0.37748344370860926
+      },
+      "action_accuracy": {
+        "mean": 0.229126213592233,
+        "min": 0.229126213592233,
+        "max": 0.229126213592233
+      }
+    },
+    {
+      "arm": "B",
+      "split": "test_in_distribution",
+      "seeds": 1,
+      "task_accuracy": {
+        "mean": 0.49934980494148246,
+        "min": 0.49934980494148246,
+        "max": 0.49934980494148246
+      },
+      "action_accuracy": {
+        "mean": 0.28784925276153345,
+        "min": 0.28784925276153345,
+        "max": 0.28784925276153345
+      }
+    },
+    {
+      "arm": "C",
+      "split": "test_held_out_pairs",
+      "seeds": 1,
+      "task_accuracy": {
+        "mean": 0.44867549668874174,
+        "min": 0.44867549668874174,
+        "max": 0.44867549668874174
+      },
+      "action_accuracy": {
+        "mean": 0.37346278317152104,
+        "min": 0.37346278317152104,
+        "max": 0.37346278317152104
+      }
+    },
+    {
+      "arm": "C",
+      "split": "test_in_distribution",
+      "seeds": 1,
+      "task_accuracy": {
+        "mean": 0.5864759427828349,
+        "min": 0.5864759427828349,
+        "max": 0.5864759427828349
+      },
+      "action_accuracy": {
+        "mean": 0.4619883040935672,
+        "min": 0.4619883040935672,
+        "max": 0.4619883040935672
+      }
+    },
+    {
+      "arm": "S",
+      "split": "test_held_out_pairs",
+      "seeds": 1,
+      "task_accuracy": {
+        "mean": 0.6937086092715232,
+        "min": 0.6937086092715232,
+        "max": 0.6937086092715232
+      },
+      "action_accuracy": {
+        "mean": 0.7423948220064724,
+        "min": 0.7423948220064724,
+        "max": 0.7423948220064724
+      }
+    },
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seeds": 1,
+      "task_accuracy": {
+        "mean": 0.9219765929778934,
+        "min": 0.9219765929778934,
+        "max": 0.9219765929778934
+      },
+      "action_accuracy": {
+        "mean": 0.917478882391163,
+        "min": 0.917478882391163,
+        "max": 0.917478882391163
+      }
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_held_out_pairs",
+      "seeds": 1,
+      "task_accuracy": {
+        "mean": 0.6937086092715232,
+        "min": 0.6937086092715232,
+        "max": 0.6937086092715232
+      },
+      "action_accuracy": {
+        "mean": 0.7423948220064724,
+        "min": 0.7423948220064724,
+        "max": 0.7423948220064724
+      }
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_in_distribution",
+      "seeds": 1,
+      "task_accuracy": {
+        "mean": 0.9219765929778934,
+        "min": 0.9219765929778934,
+        "max": 0.9219765929778934
+      },
+      "action_accuracy": {
+        "mean": 0.917478882391163,
+        "min": 0.917478882391163,
+        "max": 0.917478882391163
+      }
+    },
+    {
+      "arm": "W",
+      "split": "test_held_out_pairs",
+      "seeds": 1,
+      "task_accuracy": {
+        "mean": 0.41225165562913907,
+        "min": 0.41225165562913907,
+        "max": 0.41225165562913907
+      }
+    },
+    {
+      "arm": "W",
+      "split": "test_in_distribution",
+      "seeds": 1,
+      "task_accuracy": {
+        "mean": 0.5006501950585176,
+        "min": 0.5006501950585176,
+        "max": 0.5006501950585176
+      }
+    }
+  ],
+  "runs": [
+    {
+      "arm": "B",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "questions": 769,
+      "task_accuracy": 0.49934980494148246,
+      "actions": 1539,
+      "action_accuracy": 0.28784925276153345,
+      "executor_mismatches": null,
+      "machine_work": 1539,
+      "lm_tokens": 49194,
+      "transcript_tokens": 23455,
+      "eval_seconds": 72.417
+    },
+    {
+      "arm": "B",
+      "split": "test_held_out_pairs",
+      "seed": 2,
+      "questions": 604,
+      "task_accuracy": 0.37748344370860926,
+      "actions": 1545,
+      "action_accuracy": 0.229126213592233,
+      "executor_mismatches": null,
+      "machine_work": 1545,
+      "lm_tokens": 50472,
+      "transcript_tokens": 24215,
+      "eval_seconds": 58.442
+    },
+    {
+      "arm": "C",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "questions": 769,
+      "task_accuracy": 0.5864759427828349,
+      "actions": 1539,
+      "action_accuracy": 0.4619883040935672,
+      "executor_mismatches": null,
+      "machine_work": 1539,
+      "lm_tokens": 25739,
+      "transcript_tokens": 0,
+      "eval_seconds": 1.617
+    },
+    {
+      "arm": "C",
+      "split": "test_held_out_pairs",
+      "seed": 2,
+      "questions": 604,
+      "task_accuracy": 0.44867549668874174,
+      "actions": 1545,
+      "action_accuracy": 0.37346278317152104,
+      "executor_mismatches": null,
+      "machine_work": 1545,
+      "lm_tokens": 26257,
+      "transcript_tokens": 0,
+      "eval_seconds": 2.302
+    },
+    {
+      "arm": "S",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "questions": 769,
+      "task_accuracy": 0.9219765929778934,
+      "actions": 1539,
+      "action_accuracy": 0.917478882391163,
+      "executor_mismatches": null,
+      "machine_work": 1539,
+      "lm_tokens": 57953,
+      "transcript_tokens": 0,
+      "eval_seconds": 2.084
+    },
+    {
+      "arm": "S",
+      "split": "test_held_out_pairs",
+      "seed": 2,
+      "questions": 604,
+      "task_accuracy": 0.6937086092715232,
+      "actions": 1545,
+      "action_accuracy": 0.7423948220064724,
+      "executor_mismatches": null,
+      "machine_work": 1545,
+      "lm_tokens": 58627,
+      "transcript_tokens": 0,
+      "eval_seconds": 2.126
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "questions": 769,
+      "task_accuracy": 0.9219765929778934,
+      "actions": 1539,
+      "action_accuracy": 0.917478882391163,
+      "executor_mismatches": 0,
+      "machine_work": 1539,
+      "lm_tokens": 57953,
+      "transcript_tokens": 0,
+      "eval_seconds": 3.663
+    },
+    {
+      "arm": "S+delta",
+      "split": "test_held_out_pairs",
+      "seed": 2,
+      "questions": 604,
+      "task_accuracy": 0.6937086092715232,
+      "actions": 1545,
+      "action_accuracy": 0.7423948220064724,
+      "executor_mismatches": 0,
+      "machine_work": 1545,
+      "lm_tokens": 58627,
+      "transcript_tokens": 0,
+      "eval_seconds": 4.224
+    },
+    {
+      "arm": "W",
+      "split": "test_in_distribution",
+      "seed": 2,
+      "questions": 769,
+      "task_accuracy": 0.5006501950585176,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 57953,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.342
+    },
+    {
+      "arm": "W",
+      "split": "test_held_out_pairs",
+      "seed": 2,
+      "questions": 604,
+      "task_accuracy": 0.41225165562913907,
+      "actions": 0,
+      "action_accuracy": null,
+      "executor_mismatches": null,
+      "machine_work": 0,
+      "lm_tokens": 58627,
+      "transcript_tokens": 0,
+      "eval_seconds": 0.266
+    }
+  ],
+  "compounding_baseline": [
+    {
+      "seed": 2,
+      "epsilon": 0.08252111760883696,
+      "a": 1.0,
+      "accuracy": {
+        "test_in_distribution": 0.9183355006501951,
+        "test_held_out_pairs": 0.9051324503311259
+      }
+    }
+  ],
+  "statement_accuracy": [
+    {
+      "seed": 2,
+      "unseen": 0.125,
+      "seen": 0.8359375
+    }
+  ],
+  "predictions": {
+    "1_s_reads_unseen_statements": {
+      "unseen_action_accuracy": 0.125,
+      "minimum": 0.9,
+      "met": false,
+      "counts_against_reading": true,
+      "inconclusive": false
+    },
+    "2_s_beats_c_on_held_out_pairs": {
+      "mean_s_minus_c": 0.2450331125827815,
+      "bound": 0.0575435337648436,
+      "met": true
+    },
+    "3_pretraining_adds_over_random": "needs the random-model run; see report",
+    "sanity_s_seen_statements": {
+      "seen_action_accuracy": 0.8359375,
+      "minimum": 0.99,
+      "ok": false
+    }
+  },
+  "context_positions": {
+    "B": {
+      "test_in_distribution": {
+        "max_positions": 258,
+        "mean_positions_per_program": 163.95666666666668
+      },
+      "test_held_out_pairs": {
+        "max_positions": 263,
+        "mean_positions_per_program": 169.54
+      }
+    },
+    "C": {
+      "test_in_distribution": {
+        "max_positions": 125,
+        "mean_positions_per_program": 85.79666666666667
+      },
+      "test_held_out_pairs": {
+        "max_positions": 126,
+        "mean_positions_per_program": 87.52333333333333
+      }
+    },
+    "S": {
+      "test_in_distribution": {
+        "max_positions": 39,
+        "mean_positions_per_program": 193.17666666666668
+      },
+      "test_held_out_pairs": {
+        "max_positions": 39,
+        "mean_positions_per_program": 195.42333333333335
+      }
+    },
+    "S+delta": {
+      "test_in_distribution": {
+        "max_positions": 39,
+        "mean_positions_per_program": 193.17666666666668
+      },
+      "test_held_out_pairs": {
+        "max_positions": 39,
+        "mean_positions_per_program": 195.42333333333335
+      }
+    },
+    "W": {
+      "test_in_distribution": {
+        "max_positions": 39,
+        "mean_positions_per_program": 193.17666666666668
+      },
+      "test_held_out_pairs": {
+        "max_positions": 39,
+        "mean_positions_per_program": 195.42333333333335
+      }
+    }
+  },
+  "not_measured": [
+    "tasks whose statements need earlier statements to be read",
+    "other model sizes, fine-tuned or unfrozen baselines",
+    "free-running context length for B (positions use the gold transcript)"
+  ],
+  "error": null
+}

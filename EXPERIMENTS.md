@@ -2,7 +2,7 @@
 
 > **TL;DR:** Validate executors before comparing learned interfaces; E00-E08 all have initial results.
 
-Status, 2026-11-25: every experiment, E00-E09, has a first recorded run and report under [results/](results/); each experiment's **Results** line summarizes it. These are initial results with one or a few seeds, not completed studies. [E09](#e09---state-in-the-machine-not-the-context) ran against pre-registered predictions: two held (one vacuously) and one failed; [E10](#e10---a-machine-layer-inside-the-model) and [E11](#e11---learning-to-use-the-machine-from-outcomes) are proposals. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
+Status, 2026-11-25: every experiment, E00-E09, has a first recorded run and report under [results/](results/); each experiment's **Results** line summarizes it. These are initial results with one or a few seeds, not completed studies. [E09](#e09---state-in-the-machine-not-the-context) ran against pre-registered predictions: two held (one vacuously) and one failed, and its held-out follow-up met one of three and left one inconclusive; [E10](#e10---a-machine-layer-inside-the-model) and [E11](#e11---learning-to-use-the-machine-from-outcomes) are proposals. [RESEARCH.md](RESEARCH.md) records sources and evidence boundaries. [CONTRIBUTING.md](CONTRIBUTING.md) defines code style, tooling, integration, and verification standards.
 
 ## Questions and priorities
 
@@ -355,7 +355,7 @@ Use the same small memory or bounded stack in B-D. Do not penalize B with unnece
 
 > **TL;DR:** Pre-registered: a controller that sees one statement at a time, with the machine holding all state, should beat full-context controllers on long programs and fall only as fast as its own errors compound.
 
-**Status:** pre-registered 2026-11-25, before any code or run; first run 2026-11-25. Changes after that run go in a dated amendment below this section, not in an edit of it.
+**Status:** pre-registered 2026-11-25, before any code or run; first run 2026-11-25, held-out follow-up 2026-11-25. Changes after those runs go in a dated amendment below this section, not in an edit of it.
 
 **Question:** E02 found that every controller loses accuracy on programs longer than its training programs, and that the executors are exact, so the loss is in the chosen actions. Is that a position effect of reading a long context, or the compounding of ordinary per-statement errors?
 
@@ -394,7 +394,7 @@ W is a floor, not a competitor: with no memory it cannot answer about earlier wr
 
 **Cost:** E02's one job cost about $0.73 on an `l4x1`; expect the same order. Stay under the $5 limit in [AGENTS.md](AGENTS.md).
 
-**Results:** [results/E09](results/E09/README.md). Run 2026-11-25 on an `l4x1` job, three seeds. S, reading one statement per forward pass, answered every question correctly at 2-8, 32, 64, and 256 statements, with zero executor mismatches for the delta-rule executor, while C and B fell to 0.134 and 0.111 at 256 statements. Prediction 1 held (S − C +0.71 at 64, +0.87 at 256). Prediction 2 held vacuously, since S made no errors and the baseline is 1.000. Prediction 3 failed as written: W scored 0.501 on 2-8 statements and 0.205 on 32, equal to the share of questions on never-written records, so the 0.15 ceiling was set too low rather than the task leaking. S's job is a 128-string lookup, so the result does not show that the language model contributes: a post-hoc control with a random 2-layer model reached 0.94 at 2-8 statements and made prediction 2 informative (S within 0.035 of the baseline).
+**Results:** [results/E09](results/E09/README.md). Run 2026-11-25 on an `l4x1` job, three seeds. S, reading one statement per forward pass, answered every question correctly at 2-8, 32, 64, and 256 statements, with zero executor mismatches for the delta-rule executor, while C and B fell to 0.134 and 0.111 at 256 statements. Prediction 1 held (S minus C +0.71 at 64, +0.87 at 256). Prediction 2 held vacuously, since S made no errors and the baseline is 1.000. Prediction 3 failed as written: W scored 0.501 on 2-8 statements and 0.205 on 32, equal to the share of questions about never-written records, so the 0.15 ceiling was set too low and the task does not leak. The held-out-pairs follow-up (see the amendment below) is also reported there.
 
 #### Amendment 2026-11-25: first run
 
@@ -439,6 +439,8 @@ flowchart LR
 - Eight statements per seed is a small set; a result between 0.50 and 0.90 on prediction 1 is reported as inconclusive, not as support.
 
 **Cost:** SmolLM2 evaluation is on 2-8 statement programs only, so the job should take well under an hour on an `l4x1`, under $1.
+
+**Results:** [results/E09](results/E09/README.md#results-unseen-statements). Run 2026-11-25. S chose the right action for 7 of the 8 unseen statements in every seed (0.875) and scored 0.982 on the held-out-pairs split against 0.827 for C. Prediction 1 (at least 0.90) was not met and is inconclusive by its own rule, prediction 2 held (+0.155, bound 0.058), and prediction 3 held (0.875 against 0.250 for the random model). The job cost about $0.22.
 
 ### E10 - A machine layer inside the model
 

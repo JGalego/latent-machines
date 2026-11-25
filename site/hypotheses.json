@@ -57,16 +57,16 @@
   },
   {
     "claim": "A controller that reads one statement at a time, with the machine holding all state, beats full-context controllers on long programs.",
-    "verdict": "partly",
-    "label": "lookup only",
-    "note": "No errors up to 256 statements, where full-context controllers fell to about 0.13. The task has 128 distinct statements, and a random untrained model reached 0.94 on the shortest programs, so this shows long context is the cause, not that the model reads statements.",
+    "verdict": "supported",
+    "label": "on this task",
+    "note": "No errors up to 256 statements, where full-context controllers fell to about 0.13. It read 7 of 8 unseen statements, a random model read 2. The statements do not depend on each other.",
     "links": [["E09", "results/E09/README.md"]]
   },
   {
     "claim": "A memory inside a model layer controls better than the same memory reached through heads.",
     "verdict": "untested",
     "label": "proposed",
-    "note": "Must beat the E03 arms with the same trained parameters before the placement gets credit.",
+    "note": "Must beat the E03: latent feedback arms with the same trained parameters before the placement gets credit.",
     "links": [["E10", "EXPERIMENTS.md#e10---a-machine-layer-inside-the-model"]]
   },
   {
