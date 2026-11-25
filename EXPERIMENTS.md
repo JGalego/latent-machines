@@ -208,7 +208,7 @@ A read goes through the same normalization path as in the first run. Mismatches 
 
 **Cost:** the CPU part runs locally. The kernel check is one `l4x1` job; cap 30 minutes, $0.40.
 
-**Results:** not run.
+**Results:** [results/E00](results/E00/README.md). Run 2026-11-25. A pure-PyTorch chunked delta rule (WY form, chunk sizes 4, 16, 64) matched the oracle exactly in float64, float32, and bfloat16 at 64 and 512 slots over 100,000 actions per workload, and at 4,096 slots over 10,000. Prediction 1 held. Prediction 2 did not: bfloat16 was exact on this suite. On two `l4x1` jobs, flash-linear-attention 0.6.0 installed and ran, but its chunk kernel failed above 256 slots (head dimension limit), and the variants that completed (chunk at 64 and 128 slots, fused recurrent at up to 4,096 slots in float32 and at 64 slots in bfloat16) had no mismatch. Prediction 3 was not met on those, and is untested for the rest: the main job timed out after 113 of 192 planned variants, so its evidence is the job log, and the fused recurrent kernel in bfloat16 ran only 3,000 actions in a smoke job. Normalization inside the kernels left state residue of up to about 0.004. Cost about $0.27.
 
 ### E01 - Exact streaming machines and transition algebras
 
