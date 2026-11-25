@@ -243,6 +243,28 @@ def test_length_chart_merges_arms_with_identical_results(tmp_path: Path) -> None
     assert "Figure 1:" in page
 
 
+def test_length_chart_extends_to_256_statements_when_every_arm_has_it(
+    tmp_path: Path,
+) -> None:
+    root = make_root(tmp_path, "{{length_charts}}", {})
+    arms = {"B": [0.9, 0.4, 0.2, 0.1], "S": [1.0, 1.0, 1.0, 1.0]}
+    run = learned_run({a: m[:3] for a, m in arms.items()})
+    run["summary"] += [
+        {
+            "arm": arm,
+            "split": "test_length_256",
+            "seeds": 3,
+            "task_accuracy": {"mean": means[3], "min": means[3], "max": means[3]},
+        }
+        for arm, means in arms.items()
+    ]
+    add_run(root, "E09", "e09-x-abc1234-0001", run, {"arms": list(arms)})
+    page = build.render_page(root)
+    assert ">256</text>" in page
+    assert "B text tool, full context 0.100" in page
+    assert "S one statement 1.000" in page
+
+
 def test_length_chart_omits_the_executor_claim_after_a_mismatch(tmp_path: Path) -> None:
     root = make_root(tmp_path, "{{length_charts}}", {})
     arms = {"A": [0.7, 0.3, 0.2], "C": [0.9, 0.5, 0.3]}

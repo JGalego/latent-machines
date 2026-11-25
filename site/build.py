@@ -11,7 +11,7 @@ static HTML, so every number on the page comes from a source file:
     {{results}}                    tables generated from results/<EXP>/<run>/
     {{toc}}                        contents list of the h2 and h3 headings after it
     {{abstract_result}}, {{conformance_summary}}, {{experiment_status}}
-    {{length_charts}}, {{feedback_grid}}  figures drawn from E02 and E03 run records
+    {{length_charts}}, {{feedback_grid}}  figures drawn from E02, E03, and E09 run records
     {{ledger}}                     hypothesis table from site/hypotheses.json
 
 Figures, tables, and equations are numbered in page order after results are
@@ -443,12 +443,24 @@ ARM_NAMES = {
         "H": "heads only",
         "N": "native loop",
     },
+    "E09": {
+        "B": "text tool, full context",
+        "C": "typed, full context",
+        "S": "one statement",
+        "S+delta": "delta-rule",
+        "W": "no machine",
+    },
 }
-CHART_TITLES = {"E02": "E02: record updates", "E03": "E03: record updates with copies"}
+CHART_TITLES = {
+    "E02": "E02: record updates",
+    "E03": "E03: record updates with copies",
+    "E09": "E09: one statement at a time, up to 256 statements",
+}
 LENGTH_SPLITS = {
     "test_in_distribution": "2–8",
     "test_length_32": "32",
     "test_length_64": "64",
+    "test_length_256": "256",
 }
 VERDICTS = ("supported", "partly", "refuted", "null", "untested")
 
@@ -543,7 +555,7 @@ def length_chart(exp_id: str, run: dict) -> str:
 
 def story_length_figure(experiments: dict[str, list[dict]]) -> str:
     charts, mismatches, seeds = [], [], 0
-    for exp_id in ("E02", "E03"):
+    for exp_id in ("E02", "E03", "E09"):
         run = latest_learned(experiments, exp_id)
         svg = length_chart(exp_id, run) if run else ""
         if svg:
