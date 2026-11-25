@@ -1,14 +1,14 @@
 # E07 results: optimizer-defined state updates
 
-> **TL;DR:** Plain one-hot SGD with learning rate 1 is exact memory; every other optimizer setting tested drifts away from RAM in its own predictable way.
+> **TL;DR:** Plain one-hot SGD with learning rate 1 is exact memory; every other optimizer setting tested deviates from RAM in a specific, repeatable way.
 
-A memory written by gradient steps is exact random-access memory in one configuration: sequential updates, one-hot keys, learning rate 1, and nothing else. Changing any single feature produced a specific, reproducible departure from RAM. Lower learning rates left margin or landed values on the decoding threshold, stale chunk gradients summed repeated writes, momentum kept moving stored values, decay forgot during idle stretches, gradient normalization took unit steps, and an MLP made writes interfere. In float32 and float64 the tensor backend agreed with an independent float64 reference at every step. In bfloat16 it did not, and the bfloat16 decay factor rounded to 1.
+E07: optimizer memory tested memory written by gradient steps. It is exact random-access memory in one configuration only: sequential updates, one-hot keys, and learning rate 1. Changing any single feature made it deviate from RAM in a specific, repeatable way. Lower learning rates shrank the decoding margin or landed values on the decoding threshold. Stale chunk gradients summed repeated writes. Momentum kept moving stored values. Decay forgot during idle stretches. Gradient normalization took unit steps. An MLP made writes interfere. In float32 and float64 the tensor backend agreed with an independent float64 reference at every step. In bfloat16 it did not, and the decay factor rounded to 1.
 
 ## Question and hypothesis
 
 > **TL;DR:** Which optimizer settings keep exact memory semantics, and which turn memory into an approximate learner?
 
-[E07](../../EXPERIMENTS.md#e07---optimization-defined-state-updates) asks which optimizer settings preserve useful specified memory semantics. The delta rule is one SGD step on `½‖W k − v‖²`; this run tests that identity and then changes one optimizer feature at a time:
+[E07: optimizer memory](../../EXPERIMENTS.md#e07---optimization-defined-state-updates) asks which optimizer settings preserve useful specified memory semantics. The delta rule is one SGD step on `½‖W k − v‖²`; this run tests that identity and then changes one optimizer feature at a time:
 
 > With one-hot keys, learning rate 1, and sequential updates, an SGD-written linear memory implements [`memory/v1`](../../src/latent_machines/machines/README.md#memoryv1) exactly. Each other setting deviates in the way recorded before the run in `run.json` (`expected_ram_behavior`), and its tensor implementation matches its own float64 reference.
 
@@ -46,9 +46,9 @@ Three comparisons run at every action:
 | Item | Value |
 |---|---|
 | Source | [`3dc3812`](https://github.com/JGalego/latent-machines/commit/3dc3812f6a5198dfc35ac0a04c1372a43a66a11e), clean tree |
-| Memory | 16 keys (slots) × 8 values (bits), the E00 default; one optimizer step per action, faults change nothing |
+| Memory | 16 keys (slots) × 8 values (bits), the default from E00: memory; one optimizer step per action, faults change nothing |
 | Settings | `sgd` (lr 1, sequential, linear); one change each: `lr-0.9`, `lr-0.5`, `chunk-4` (gradients at the chunk-start parameters), `momentum-0.5`, `decay-0.001` (every step, including reads and idles), `grad-norm` (`g / max(‖g‖, 1e-12)`), `mlp` (16 ReLU hidden units, N(0, 1/16) initialization) |
-| Workloads | E00's eight `memory/v1` streams ([generators](../../src/latent_machines/tasks/memory_workloads.py)), plus online linear regression with dense keys `x ~ N(0, I/16)` and `y = A x + 0.01 ε` ([generator](../../src/latent_machines/tasks/regression.py)) |
+| Workloads | The eight `memory/v1` streams from E00: memory ([generators](../../src/latent_machines/tasks/memory_workloads.py)), plus online linear regression with dense keys `x ~ N(0, I/16)` and `y = A x + 0.01 ε` ([generator](../../src/latent_machines/tasks/regression.py)) |
 | Runs | float32 and float64 (144 variants); bfloat16 (72 variants); 1,000 actions per variant, seed 0 |
 | Snapshot | At action 500, the full optimizer state (parameters, momentum, chunk-start copy, step count) through JSON must equal the live state; linear settings also restart from the decoded `memory/v1` words alone |
 | Hardware | local, Intel i7-1365U, eager PyTorch 2.15.0+cpu, 4 worker processes |
@@ -88,7 +88,7 @@ Trajectory agreement in float32 and float64 failed in four variants, all with ze
 
 Momentum in float32 also produced 25 threshold ties along its trajectories: reads whose float64 value was within 1e-4 of 0.5.
 
-**bfloat16.** Local mismatches occurred in `momentum-0.5` on `clear_region` (31), `invalid` (2), and regression (158), and in one step of `mlp` on `clear_region`. In each case, large operands such as momentum near 28 or MLP parameters near 450 cancel to a smaller result. Their bfloat16 rounding then exceeds a tolerance scaled to that result. `decay-0.001` passed every local check and matched `memory/v1` exactly, because `0.999` rounds to `1.0` in bfloat16 and decay never happens. Only the trajectory comparison exposed it, with mismatches on six of nine workloads. The declared bfloat16 tolerance is too loose to catch a disabled decay one step at a time.
+**bfloat16.** Local mismatches occurred in `momentum-0.5` on `clear_region` (31), `invalid` (2), and regression (158), and in one step of `mlp` on `clear_region`. In each case, large operands such as momentum near 28 or MLP parameters near 450 cancel to a smaller result. Their bfloat16 rounding then exceeds a tolerance scaled to that result. `decay-0.001` passed every local check and matched `memory/v1` exactly, because `0.999` rounds to `1.0` in bfloat16 and decay never happens. Only the trajectory comparison exposed it, with mismatches on six of nine workloads.
 
 ## Measurements
 
@@ -123,7 +123,7 @@ Online regression (float64; float32 agrees to three significant figures): mean o
 
 > **TL;DR:** Exact memory is a single point in optimizer space; elsewhere, the same rule is an adaptive learner with a measurable error.
 
-- **Exact primitive versus learner.** Only `sgd` with one-hot keys implements `memory/v1` exactly. The settings that help regression work by damping or averaging updates, and these are exactly the settings that break replacement. `lr-0.5` has the lowest final regression loss and fails RAM at the first write. Decay trades idle retention for faster adaptation. An optimizer-written memory is an exact primitive only at the delta-rule point; elsewhere it is an approximate learner whose deviation has to be declared, not assumed away.
+- **Exact primitive versus learner.** Only `sgd` with one-hot keys implements `memory/v1` exactly. The settings that help regression damp or average updates. The same settings break replacement. `lr-0.5` has the lowest final regression loss and fails RAM at the first write. Decay trades idle retention for faster adaptation. An optimizer-written memory is an exact primitive only at the delta-rule point. Elsewhere it is an approximate learner, and its deviation must be declared.
 - **Graceful versus abrupt.** `lr-0.9` and short-horizon decay keep decoding correct with a shrinking margin, which residue measures. `lr-0.5`, chunking, normalization, and the MLP fail at specific, predictable actions. For every setting, the observed behavior matched the mechanism recorded before the runs.
 - **Stale chunks.** Chunk-start gradients are exact whenever no slot is written twice within a chunk. A chunked kernel that skips intra-chunk correction is therefore exact only under that access pattern.
 - **Reproducibility.** Implementations of discontinuous or unstable rules, such as gradient normalization near zero and divergent momentum, can agree at every step and still disagree along a trajectory. Exact agreement on such settings needs a declared policy for the discontinuity, for example an epsilon or threshold, not just a tolerance.
@@ -155,7 +155,7 @@ uv run --locked python -m latent_machines.experiments.e07 --jobs 4 --dtypes bflo
 
 > **TL;DR:** Treat only sequential one-hot SGD at learning rate 1 as exact memory; report every other optimizer setting under its own contract.
 
-Optimizer-defined updates count as an exact memory primitive only at the delta-rule point, which matches [E00](../E00/README.md). Every other setting is an adaptive learner. It must be reported against its own update reference, with its RAM deviation stated, never under an exact-RAM label. Next steps:
+Optimizer-defined updates count as an exact memory primitive only at the delta-rule point, which matches [E00: memory](../E00/README.md). Every other setting is an adaptive learner. Report it against its own update reference, with its RAM deviation stated, and never under an exact-RAM label. Next steps:
 
 - **Chunked kernels:** test a chunked delta-rule kernel with intra-chunk correction (the WY or UT form) against `chunk-4`'s failure cases.
 - **Checkpoints:** include optimizer buffers in joint snapshots wherever a backend carries them.

@@ -2,13 +2,13 @@
 
 > **TL;DR:** The compiled verifier matched the oracle on every in-range check, and energy proposals beat random guessing, but WalkSAT solved more instances in fewer steps.
 
-In plain terms: a checker built from matrix multiplications gave the same verdict as plain code on 60,000 candidate solutions to logic puzzles, apart from one lowering pushed past its documented number-format limit, where it rejected some valid solutions. It never accepted an invalid one. A search that slides downhill on a smooth version of the puzzle proposed far better candidates than random guessing, and the matrix checker verified them 11 to 18 times faster than the plain-code checker. A standard local search, WalkSAT, still solved more puzzles with fewer steps. Only the complete solver, DPLL, ever declared a puzzle unsolvable.
+E08: search with a verifier compared a checker built from matrix multiplications with plain code on 60,000 candidate solutions to logic puzzles. The two gave the same verdict, except for one lowering pushed past its documented number-format limit, where the matrix checker rejected some valid solutions. It never accepted an invalid one. A search that descends the gradient of a smooth version of the puzzle proposed far better candidates than random guessing, and the matrix checker verified them 11 to 18 times faster than the plain-code checker. WalkSAT, a standard local search, still solved more puzzles in fewer steps. Only DPLL, a complete solver, declared any puzzle unsolvable.
 
 ## Question and hypothesis
 
 > **TL;DR:** Does energy-based proposal generation, checked by an exact verifier, raise verified yield at a fixed budget?
 
-[E08](../../EXPERIMENTS.md#e08---heuristic-search-with-an-exact-verifier) asks whether neural or energy-based candidate generation improves verified solution yield at a fixed budget. This run tests:
+[E08: search with a verifier](../../EXPERIMENTS.md#e08---heuristic-search-with-an-exact-verifier) asks whether neural or energy-based candidate generation improves verified solution yield at a fixed budget. This run tests:
 
 > A tensor verifier compiled from clause-literal incidence matrices implements [`cnf/v1`](../../src/latent_machines/machines/README.md#cnfv1) exactly within declared exact-integer limits; and gradient-descent proposals on a continuous relaxation of the clause energy, verified exactly, solve more random 3-SAT instances within a fixed step budget than random proposals and conventional search.
 
@@ -110,9 +110,9 @@ With the tensor verifier, proposal generation, not verification, dominates the e
 
 > **TL;DR:** Better proposals and faster verification are separate effects; neither made energy descent competitive with WalkSAT here.
 
-- **Better proposals.** Energy descent produced candidates with 3 to 8 times fewer unsatisfied clauses than random guessing, enough to solve 23 instances where random proposals solved none. That is a proposal effect, measured with the same verifier.
-- **Faster verification.** At identical decisions, the compiled verifier was 11 to 18 times faster than the Python oracle in float32. That is a verification effect, and it does not change which instances are solved within a step budget.
-- **Against conventional search.** WalkSAT solved all 28 known-satisfiable instances, in fewer median steps than the energy proposer, and DPLL also proved the unsatisfiable ones. Energy descent converging to low-energy candidates did not translate into global search efficiency at these sizes; harder or larger instances, learned proposers, or hybrid proposals were not tested.
+- **Better proposals.** Energy descent produced candidates with 3 to 8 times fewer unsatisfied clauses than random guessing, enough to solve 23 instances where random proposals solved none. This is a proposal effect, measured with the same verifier.
+- **Faster verification.** At identical decisions, the compiled verifier was 11 to 18 times faster than the Python oracle in float32. This is a verification effect. It does not change which instances are solved within a step budget.
+- **Against conventional search.** WalkSAT solved all 28 known-satisfiable instances, in fewer median steps than the energy proposer, and DPLL also proved the unsatisfiable ones. Energy descent reached low-energy candidates, but this did not make the search efficient at these sizes. Harder or larger instances, learned proposers, and hybrid proposals were not tested.
 - **Lowering matters.** Two algebraically equal lowerings diverged beyond the declared limit. The one without subtraction failed safe; the folded one failed by rejecting valid solutions, which would silently cost yield in search, though never soundness on these workloads.
 
 ## Limits

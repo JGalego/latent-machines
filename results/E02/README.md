@@ -2,13 +2,13 @@
 
 > **TL;DR:** A typed internal interface beat a text tool on longer and held-out programs; compiled and native executors gave identical results.
 
-In plain terms: a small frozen language model, with small trained heads, tracked record updates by using a memory machine. Handing the machine's replies back as typed values worked better than appending them to the text, most clearly on programs longer than those seen in training. Replacing the plain-code memory with the neural delta-rule memory changed no answer. All controllers degraded sharply on long programs, so the controller, not the machine, limits accuracy.
+A small frozen language model with small trained heads tracked record updates using a memory machine. Giving the machine's replies back as typed values beat appending them to the text, most clearly on programs longer than those seen in training. Replacing the plain-code memory with the neural delta-rule memory changed no answer. All controllers degraded sharply on long programs. The controller, not the machine, limits accuracy.
 
 ## Question and design
 
 > **TL;DR:** Same task, features, and heads; only the interface or the executor changes between arms.
 
-[E02](../../EXPERIMENTS.md#e02---learned-interface-comparison) asks whether an internal interface helps a learned controller, and whether compiling the machine adds anything beyond native integration. Programs assign values from 0 to 15 to records a to h and ask for current values, for example "Set c to 7. What is c?". Each `set` maps to a write and each question to a read on [`memory/v1`](../../src/latent_machines/machines/README.md#memoryv1) with 8 slots of 4 bits.
+[E02: learned interfaces](../../EXPERIMENTS.md#e02---learned-interface-comparison) asks whether an internal interface helps a learned controller, and whether compiling the machine adds anything beyond native integration. Programs assign values from 0 to 15 to records a to h and ask for current values, for example "Set c to 7. What is c?". Each `set` maps to a write and each question to a read on [`memory/v1`](../../src/latent_machines/machines/README.md#memoryv1) with 8 slots of 4 bits.
 
 A frozen [SmolLM2-135M](https://huggingface.co/HuggingFaceTB/SmolLM2-135M) (revision `93efa2f`) reads each program. Only small MLP heads on its last-layer hidden states are trained:
 
@@ -17,7 +17,7 @@ A frozen [SmolLM2-135M](https://huggingface.co/HuggingFaceTB/SmolLM2-135M) (revi
 | A | None; the answer head reads the question's features | None | 152,976 |
 | B | Request and reply appended to the context as text, e.g. `[read c] [7]` | Integer oracle | 308,522 |
 | C | Typed action; the reply value is embedded and given to the answer head | Integer oracle | 317,290 |
-| D | C's trained heads | Delta-rule memory ([E00](../E00/README.md)), with a shadow oracle | 317,290 (shared with C) |
+| D | C's trained heads | Delta-rule memory ([E00: memory](../E00/README.md)), with a shadow oracle | 317,290 (shared with C) |
 
 C versus B tests the interface; D versus C tests the implementation.
 
@@ -76,9 +76,9 @@ D's delta-rule executor matched its shadow oracle on every action: zero executor
 
 > **TL;DR:** The typed interface helps after the action is chosen; long programs fail because the controller's actions degrade.
 
-- **Interface.** C beat B on every split in every seed. Beyond the training length and on held-out pairs the gap exceeds the conservative bound; at the training length (+0.022) it does not. B chose actions more accurately than C, likely because B's action head also sees its own earlier requests and replies, yet C answered more questions correctly. C's advantage therefore arises after the action: a typed observation is easier for the answer head to use than a reply that the frozen model must read back from text. This explanation is a hypothesis; the experiment does not isolate it.
-- **Implementation.** Replacing the oracle with the delta-rule memory changed no answer on any program or seed, as expected from E00's conformance results. Compiling the machine adds no accuracy here.
-- **Length.** Every arm degraded with program length, and so did action accuracy. The machines execute exactly, so the loss comes from the controller: heads trained on short programs choose worse actions later in long programs. Why, for example because frozen features shift with position, is untested.
+- **Interface.** C beat B on every split in every seed. Beyond the training length and on held-out pairs, the gap exceeds the conservative bound. At the training length (+0.022) it does not. B chose actions more accurately than C, likely because B's action head also sees its own earlier requests and replies. Yet C answered more questions correctly. So C's advantage arises after the action: the answer head finds a typed observation easier to use than a reply the frozen model must read back from text. This is a hypothesis; the experiment does not isolate it.
+- **Implementation.** Replacing the oracle with the delta-rule memory changed no answer on any program or seed, as expected from the conformance results of E00: memory. Compiling the machine adds no accuracy here.
+- **Length.** Every arm degraded with program length, and so did action accuracy. The machines execute exactly, so the loss comes from the controller: heads trained on short programs choose worse actions later in long programs. The cause is untested; one possibility is that frozen features shift with position.
 
 ## Costs
 
@@ -93,7 +93,7 @@ D's delta-rule executor matched its shadow oracle on every action: zero executor
 > **TL;DR:** One small frozen model, one task, heads only, and no feedback into the model.
 
 - **Controller:** a frozen 135M-parameter model with trained heads; no fine-tuning, no other model sizes. Unfreezing the model is a separate ablation, not run.
-- **Interface:** in C and D the typed observation reaches only the answer head, not later layers of the model; latent feedback is E03.
+- **Interface:** in C and D the typed observation reaches only the answer head, not later layers of the model; E03: latent feedback covers that.
 - **Task:** one record-update task with 8 records and 4-bit values. Capacity changes, unseen operation compositions, and the validity-constraint ablation were not tested.
 - **Statistics:** three training seeds, paired test programs, and a conservative unpaired bound; no formal paired test.
 - **Exploration:** before this run, a one-seed pilot with 300 training programs, on uncommitted code, looked at the same test splits. The method and settings were not changed after it.
@@ -111,8 +111,8 @@ uv run --locked python -m latent_machines.experiments.e02 --device cuda
 
 ## Decision
 
-> **TL;DR:** Record the interface result; next, make the controller hold up on long programs.
+> **TL;DR:** The interface result is recorded; the next step is a controller that holds up on long programs.
 
-This is the program's first scientific milestone: an interface-versus-implementation result. For this task and controller, the typed internal interface outperforms the text tool beyond the training distribution, and the compiled executor matches the native one exactly. Next steps:
-- A pre-registered E02 variant aimed at length generalization of the controller, evaluated on a validation split rather than these test splits.
+This is the program's first scientific milestone: an interface-versus-implementation result. For this task and controller, the typed internal interface beat the text tool beyond the training distribution, and the compiled executor matched the native one exactly. Next steps:
+- A pre-registered variant of E02: learned interfaces aimed at length generalization of the controller, evaluated on a validation split rather than these test splits.
 - E03: latent feedback, so typed observations can reach later model computation.

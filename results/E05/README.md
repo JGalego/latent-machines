@@ -1,16 +1,16 @@
 # E05 results: graph, semiring, and logic execution
 
-> **TL;DR:** Dense tensor kernels reproduced reachability, shortest paths, and Datalog round for round, except bfloat16 shortest paths, which broke above 256; on sparse graphs every tensor path was slower than Python BFS or Dijkstra.
+> **TL;DR:** Dense tensor kernels reproduced reachability, shortest paths, and Datalog round for round, except bfloat16 shortest paths above 256. On sparse graphs every tensor path was slower than Python BFS or Dijkstra.
 
-Matrix products and min-plus broadcasts computed transitive closure, all-pairs shortest paths, and a recursive Datalog program in lockstep with integer oracles, one synchronous round at a time. In float32, float64, and float16, and for the Boolean machines also in bfloat16, every round matched. In bfloat16, shortest-path distances above 256 rounded to the wrong integer in every long-path problem. On larger sparse graphs, conventional BFS and Dijkstra in plain Python beat dense tensor iteration by 20 to 100 times at 4,096 vertices; a sparse tensor product came within a factor of about 2 of BFS.
+Matrix products and min-plus broadcasts computed transitive closure, all-pairs shortest paths, and a recursive Datalog program. Each ran in lockstep with an integer oracle, one synchronous round at a time. In float32, float64, and float16, and for the Boolean machines also in bfloat16, every round matched. In bfloat16, shortest-path distances above 256 rounded to the wrong integer in every long-path problem. On larger sparse graphs, conventional BFS and Dijkstra in plain Python beat dense tensor iteration by 20 to 100 times at 4,096 vertices. A sparse tensor product came within a factor of about 2 of BFS.
 
 ## Question and hypothesis
 
-> **TL;DR:** Test whether dense Boolean and min-plus reductions execute exact fixed-point graph and logic machines.
+> **TL;DR:** Do dense Boolean and min-plus reductions execute exact fixed-point graph and logic machines?
 
-[E05](../../EXPERIMENTS.md#e05---graph-semiring-and-logic-execution) asks whether a small exact relational or message-passing machine can replace scalar instruction dispatch for suitable workloads. This run tests:
+[E05: graphs and logic](../../EXPERIMENTS.md#e05---graph-semiring-and-logic-execution) asks whether a small exact relational or message-passing machine can replace scalar instruction dispatch for suitable workloads. This run tests:
 
-> Dense tensor rounds (Boolean products clamped to 1, min-plus by broadcast and minimum) implement [`reach/v1`, `minplus/v1`, and `chain-datalog/v1`](../../src/latent_machines/machines/README.md#reachv1-minplusv1-chain-datalogv1) exactly in float32, float64, bfloat16, and float16 on CPU, including unreachable entries, bound faults, and the fixed-point round; and they are competitive with conventional sparse algorithms on sparse graphs.
+> Dense tensor rounds (Boolean products clamped to 1, min-plus by broadcast and minimum) implement [`reach/v1`, `minplus/v1`, and `chain-datalog/v1`](../../src/latent_machines/machines/README.md#reachv1-minplusv1-chain-datalogv1) exactly in float32, float64, bfloat16, and float16 on CPU, including unreachable entries, bound faults, and the fixed-point round. They are also competitive with conventional sparse algorithms on sparse graphs.
 
 ```mermaid
 flowchart LR
@@ -24,13 +24,13 @@ flowchart LR
 
 ## Evidence class
 
-> **TL;DR:** Project-run conformance tests on finite seeded workloads, plus one CPU timing benchmark; not proof or independent validation.
+> **TL;DR:** Project-run conformance tests on finite seeded workloads and one CPU timing benchmark, with no proof or independent validation.
 
 Local conformance on finite, declared workloads, run by this project and not independently checked. Each tensor round is compared with the oracle through the shared [lockstep check](../../src/latent_machines/experiments/README.md#e05-graph-semiring-and-logic-execution): event, work, and the full decoded relation or distance table, with residue recorded before decoding. Conventional algorithms are an independent check of the oracles' fixed points. Timings come from one laptop CPU and are indicative only.
 
 ## Setup
 
-> **TL;DR:** Three machines, eleven workloads, four number formats, 40 or 200 problems per variant.
+> **TL;DR:** Three machines, eleven workloads, four number formats, and 40 or 200 problems per variant.
 
 | Item | Value |
 |---|---|
@@ -46,7 +46,7 @@ A variant is one machine, workload, and number format, plus one conventional (`p
 
 ## Results
 
-> **TL;DR:** 53 of 55 variants were exact; bfloat16 shortest paths failed in every long-path problem.
+> **TL;DR:** 53 of 55 variants were exact. bfloat16 shortest paths failed in every long-path problem.
 
 | Problems per variant | Seed | Rounds checked | Problems with a mismatch | Max residue | Snapshots | Status | Record |
 |---|---|---|---|---|---|---|---|
@@ -63,10 +63,10 @@ Classification by machine, workload, and number format (both runs agree):
 | minplus · bound | exact | exact | **mismatch** | exact | exact |
 | chain-datalog · forest, lineage, cyclic | exact | exact | exact | exact | exact |
 
-- **bfloat16 distances.** bfloat16 represents every integer only up to 256. In the seed-0 run, the first wrong entry appeared at round 8 (`long`) and round 4 (`bound`) of the first problem: for example, an expected distance of 257 decoded as 256, and 267 as 268. All 40 problems of both workloads failed, and all 200 in the seed-1 run (first wrong entry at rounds 6 and 4); snapshots were not reached because the snapshot problem failed first. The backend makes no format-specific range check, so it neither rejected nor flagged the configuration; a conforming backend would have to declare this limit and refuse it.
+- **bfloat16 distances.** bfloat16 represents every integer only up to 256. In the seed-0 run, the first wrong entry appeared at round 8 (`long`) and round 4 (`bound`) of the first problem. For example, an expected distance of 257 decoded as 256, and 267 as 268. All 40 problems of both workloads failed, and all 200 in the seed-1 run (first wrong entry at rounds 6 and 4). Snapshots were not reached because the snapshot problem failed first. The backend has no format-specific range check, so it neither rejected nor flagged the configuration. A conforming backend would have to declare this limit and refuse it.
 - **float16** was exact on the same workloads, as expected from its exact integer range of 2048, which covers `max_distance` 2047. In the `bound` workload it raised the distance-bound fault in the same round as the oracle in all 240 problems across the two runs.
 - **Boolean machines** were exact in every format. Clamping a count of witnesses to 1 needs only "zero or not zero", which every format represents exactly at these sizes.
-- **Fixed points and boundaries.** Chain closures needed exactly `n = 64` rounds, the declared budget, and the 40-deep lineage 40 rounds; both halted on the last permitted round. Unreachable entries, isolated vertices, self-loops, parallel edges, zero-weight edges, and tie-rich unit-weight graphs all matched. Conventional algorithms agreed with every oracle fixed point; every `bound` fault had a true shortest distance above the bound (no fault came from a tentative distance alone).
+- **Fixed points and boundaries.** Chain closures needed exactly `n = 64` rounds, the declared budget, and the 40-deep lineage 40 rounds. Both halted on the last permitted round. Unreachable entries, isolated vertices, self-loops, parallel edges, zero-weight edges, and tie-rich unit-weight graphs all matched. Conventional algorithms agreed with every oracle fixed point. Every `bound` fault had a true shortest distance above the bound, and no fault came from a tentative distance alone.
 
 ## Measurements
 
@@ -82,9 +82,9 @@ Work in the seed-0 run (40 problems per row; dense work counts `n³` multiply-ad
 | minplus · long | 64 | 0.017 | 42.9 | 450 M | 88.3 k | 32 KB |
 | chain-datalog · lineage | 40 | 0.024 | 40.0 | 410 M | 34.2 k | 19 KB |
 
-Within the lockstep runs, bfloat16 and float16 kernels took 1 to 5 times as long as float32 on this CPU, never less (for example 1.12 s against 0.24 s for the chain closures), so reduced precision saved memory but not time here.
+In the lockstep runs, bfloat16 and float16 kernels took 1 to 5 times as long as float32 on this CPU, never less (for example 1.12 s against 0.24 s for the chain closures). Reduced precision saved memory but not time here.
 
-Single-source timing benchmark on random sparse digraphs with average out-degree 4 and weights 1-8, seed-0 run (median of three; every timed answer matched BFS or Dijkstra). The seed-1 run's graphs gave the same ordering at every size, with dense Bellman-Ford at 558 ms and Dijkstra at 3.6 ms for 4,096 vertices:
+Single-source timing benchmark on random sparse digraphs with average out-degree 4 and weights 1-8, seed-0 run (median of three; every timed answer matched BFS or Dijkstra). The graphs of the seed-1 run gave the same ordering at every size, with dense Bellman-Ford at 558 ms and Dijkstra at 3.6 ms for 4,096 vertices:
 
 | Vertices | Rounds (reach, shortest) | Python BFS | Dense frontier | Sparse tensor frontier | Python Dijkstra | Dense Bellman-Ford |
 |---|---|---|---|---|---|---|
@@ -96,25 +96,25 @@ At 4,096 vertices the dense frontier processes 168 M padded entries in its 10 ro
 
 ## Interpretation
 
-> **TL;DR:** Exactness holds where the number format covers the values; dense execution is not a speedup for sparse graphs.
+> **TL;DR:** Exactness holds where the number format covers the values. Dense execution is no speedup for sparse graphs.
 
-- **Exactness.** Dense semiring rounds implement these fixed-point machines exactly at the tested sizes whenever every stored value is exactly representable. For Boolean relations that holds in all four formats; for distances it holds only while distances stay within the format's exact integer range. A tensor backend for min-plus must therefore declare its range and reject configurations beyond it, as the [shared contract](../../EXPERIMENTS.md#shared-execution-and-evidence-contracts) requires; this one did not, and the failure shows why the rule exists.
-- **Cost.** The [discriminator](../../EXPERIMENTS.md#e05---graph-semiring-and-logic-execution) asks that dense speedups be compared at realistic sparse sizes. Here there were none: even interpreted Python BFS beat the dense PyTorch frontier at every size, and the gap grew with `n` because dense work grows as `n²` per round while sparse work grows with edges. A sparse tensor product narrowed the gap to about 2 times. Dense rounds may still pay off on dense graphs, in batches of many problems, or on accelerators, none of which this run measured.
-- **Scalar dispatch.** No scalar-machine implementation exists yet, so this run does not compare relational execution with instruction-by-instruction execution; it compares it with conventional algorithms only.
+- **Exactness.** Dense semiring rounds implement these fixed-point machines exactly at the tested sizes whenever every stored value is exactly representable. For Boolean relations that holds in all four formats; for distances it holds only while distances stay within the format's exact integer range. A tensor backend for min-plus must therefore declare its range and reject configurations beyond it, as the [shared contract](../../EXPERIMENTS.md#shared-execution-and-evidence-contracts) requires. This one did not.
+- **Cost.** The [discriminator](../../EXPERIMENTS.md#e05---graph-semiring-and-logic-execution) asks that dense speedups be compared at realistic sparse sizes. Here there were none. Interpreted Python BFS beat the dense PyTorch frontier at every size, and the gap grew with `n` because dense work grows as `n²` per round while sparse work grows with edges. A sparse tensor product narrowed the gap to about 2 times. Dense rounds may still pay off on dense graphs, in batches of many problems, or on accelerators. This run measured none of these.
+- **Scalar dispatch.** No scalar-machine implementation exists yet, so this run does not compare relational execution with instruction-by-instruction execution. It compares only with conventional algorithms.
 
 ## Limits
 
-> **TL;DR:** Small graphs, one CPU, eager kernels, no scalar machine, no batching.
+> **TL;DR:** Small graphs, one CPU, eager kernels, no scalar machine, and no batching.
 
 - **Sizes:** lockstep problems have at most 64 vertices; the benchmark reaches 4,096 vertices from one source.
 - **Execution path:** eager PyTorch on one CPU; no GPU, compiled, fused, or batched kernels. The sparse tensor path is timed but not run in lockstep; its final answers were checked.
-- **Baselines:** the conventional algorithms are interpreted Python, not optimized native code, so the timing comparison is conservative toward the tensors; per [scope gate 2](../../EXPERIMENTS.md#gates-for-expanding-scope) it is not a speed claim either way.
+- **Baselines:** the conventional algorithms are interpreted Python, not optimized native code, so the timing comparison is conservative toward the tensors. Per [scope gate 2](../../EXPERIMENTS.md#gates-for-expanding-scope) it is not a speed claim either way.
 - **Machines:** linear-round closure only (no repeated squaring); chain-rule Datalog over binary relations only; no negative weights by specification.
 - **Not implemented:** scalar-machine execution, learned GNNs (out of scope for exact kernels).
 
 ## Artifacts
 
-> **TL;DR:** Manifests are here; full run directories with traces and snapshots are in the public Hub dataset.
+> **TL;DR:** The manifests are here and the full run directories, with traces and snapshots, are in the public Hub dataset.
 
 Each run directory holds `run.json` and `metrics.json` here. The full directories, with `trace.jsonl`, `failure.json`, and snapshots, are in the public Hub dataset [`jgalego/latent-machines-runs`](https://huggingface.co/datasets/jgalego/latent-machines-runs) under `runs/`.
 
@@ -126,9 +126,9 @@ uv run --locked python -m latent_machines.experiments.e05 --jobs 4 --horizon 200
 
 ## Decision
 
-> **TL;DR:** Record exact semiring execution with a bfloat16 range failure; do not pursue dense kernels for sparse graphs.
+> **TL;DR:** Semiring execution is exact except for the bfloat16 range failure, and dense kernels are not worth pursuing for sparse graphs.
 
-Record the dense tensor backends as exact for these machines and workloads in float32, float64, and float16, and for the Boolean machines in bfloat16, with bfloat16 min-plus a documented failure beyond 256. Next steps, if E05 continues:
+The dense tensor backends are exact for these machines and workloads in float32, float64, and float16, and for the Boolean machines in bfloat16. bfloat16 min-plus fails beyond 256. Next steps, if E05: graphs and logic continues:
 - Add a declared value range to the min-plus backend so it rejects formats that cannot represent `max_distance`.
 - Run the sparse tensor kernel in lockstep, and measure batched and GPU execution before judging dense execution on cost.
-- Add a scalar-machine baseline so that the experiment's question, relational versus instruction-level execution, can be answered directly.
+- Add a scalar-machine baseline to answer the question of relational versus instruction-level execution directly.

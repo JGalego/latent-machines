@@ -2,13 +2,13 @@
 
 > **TL;DR:** Delta-rule memory matched its reference on the tested CPU traces, up to 10^6 actions per variant.
 
-The eager Gated DeltaNet recurrence stored 16 slots of 8 bits and matched an integer oracle after each checked action. The recorded CPU runs had no event, work, or decoded-state mismatches, and zero stored-state residue in float32, float64, bfloat16, and float16. These results cover the declared workloads and implementation, not other sizes, kernels, or neural networks generally.
+The eager Gated DeltaNet recurrence stored 16 slots of 8 bits and matched an integer oracle after each checked action. The recorded CPU runs had no event, work, or decoded-state mismatches and zero stored-state residue in float32, float64, bfloat16, and float16. The results cover only the declared workloads and implementation. They do not cover other sizes, kernels, or neural networks.
 
 ## Question and hypothesis
 
 > **TL;DR:** Test whether the explicit Gated DeltaNet recurrence implements the specified memory transitions at the chosen precisions.
 
-[E00](../../EXPERIMENTS.md#e00---memory-and-transition-conformance) asks which layer families implement the required storage semantics on the chosen execution path. This first run tests one variant, delta replacement:
+[E00: memory](../../EXPERIMENTS.md#e00---memory-and-transition-conformance) asks which layer families implement the required storage semantics on the chosen execution path. This first run tests one variant, delta replacement:
 
 > The explicit Gated DeltaNet recurrence, with one-hot address keys, bit-plane values, and gates set to their endpoints (`α = 1`, `β ∈ {0, 1}`), implements [`memory/v1`](../../src/latent_machines/machines/README.md#memoryv1) exactly in float32, float64, bfloat16, and float16 on CPU.
 
@@ -16,7 +16,7 @@ The eager Gated DeltaNet recurrence stored 16 slots of 8 bits and matched an int
 
 > **TL;DR:** These are project-run conformance tests, not independent validation or a proof.
 
-Local conformance on a finite, declared suite, run by this project; not independently checked. Every action is compared with the integer oracle: event, work, and decoded state, plus residue before decoding. Passing is evidence for the tested configuration, not a proof of exactness for other inputs, sizes, or kernels. The method is described in the [E00 runner](../../src/latent_machines/experiments/README.md#e00-memory-conformance).
+Local conformance on a finite, declared suite, run by this project and not independently checked. Every action is compared with the integer oracle: event, work, and decoded state, plus residue before decoding. Passing is evidence for the tested configuration. It is not a proof of exactness for other inputs, sizes, or kernels. The method is described in the [runner for E00: memory](../../src/latent_machines/experiments/README.md#e00-memory-conformance).
 
 ## Setup
 
@@ -79,8 +79,8 @@ uv run --locked python -m latent_machines.experiments.e00 --horizon 100000 --job
 
 ## Decision
 
-> **TL;DR:** The backend met its conformance and snapshot criteria; the decision at run time was to proceed to E01.
+> **TL;DR:** The backend met its conformance and snapshot criteria, so the next step was E01: streaming machines.
 
-For this backend and configuration, the result meets the conformance and snapshot condition of [scope gate 1](../../EXPERIMENTS.md#gates-for-expanding-scope). The next steps identified at the time were:
-- **Slice:** continue with step 5 (E01 machines), which now has [results](../E01/README.md).
-- **E00 variants:** test kernel-style key normalization next. An informal backend check left reads correct in float32 while state residue reached about 5e-7; this is not a recorded E00 result.
+For this backend and configuration, the result meets the conformance and snapshot condition of [scope gate 1](../../EXPERIMENTS.md#gates-for-expanding-scope). The next steps at the time were:
+- **Slice:** continue with step 5 (E01: streaming machines), which now has [results](../E01/README.md).
+- **Variants:** test kernel-style key normalization next. An informal backend check left reads correct in float32 while state residue reached about 5e-7. This is not a recorded result.

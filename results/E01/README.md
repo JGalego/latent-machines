@@ -2,13 +2,13 @@
 
 > **TL;DR:** Compiled transducers and a delta-rule stack matched their references on CPU traces up to 10^6 actions per variant.
 
-ReLU networks implemented running parity, a mod-5 counter, and permutations of three items; a delta-rule memory with a depth pointer implemented a bounded stack. The recorded CPU runs had no event, work, or decoded-state mismatches, and zero stored-state residue in float32, float64, bfloat16, and float16. The results cover these machines and workloads, not larger configurations or other execution paths.
+ReLU networks implemented running parity, a mod-5 counter, and permutations of three items; a delta-rule memory with a depth pointer implemented a bounded stack. The recorded CPU runs had no event, work, or decoded-state mismatches and zero stored-state residue in float32, float64, bfloat16, and float16. The results cover only these machines and workloads. They do not cover larger configurations or other execution paths.
 
 ## Question and hypothesis
 
 > **TL;DR:** Test whether ReLU lookup circuits and delta-rule storage implement the declared transducer and stack transitions.
 
-[E01](../../EXPERIMENTS.md#e01---exact-streaming-machines-and-transition-algebras) asks whether useful specified algorithms can run directly without a general-purpose CPU. This run tests two of its variants:
+[E01: streaming machines](../../EXPERIMENTS.md#e01---exact-streaming-machines-and-transition-algebras) asks whether useful specified algorithms can run directly without a general-purpose CPU. This run tests two variants:
 
 > A ReLU lookup circuit with one hidden unit per (state, symbol) pair and explicit feedback implements [`transducer/v1`](../../src/latent_machines/machines/README.md#transducerv1) exactly, and a delta-rule matrix with a one-hot depth pointer implements [`stack/v1`](../../src/latent_machines/machines/README.md#stackv1) exactly, including overflow and underflow, in float32, float64, bfloat16, and float16 on CPU.
 
@@ -16,7 +16,7 @@ ReLU networks implemented running parity, a mod-5 counter, and permutations of t
 
 > **TL;DR:** These are project-run conformance tests, not independent validation or a proof.
 
-Local conformance on finite, declared workloads, run by this project; not independently checked. Every action is compared with the oracle: event, work, and decoded state, plus residue before decoding. The method is the shared [lockstep check](../../src/latent_machines/experiments/README.md#e01-exact-streaming-machines), the same one E00 uses.
+Local conformance on finite, declared workloads, run by this project and not independently checked. Every action is compared with the oracle: event, work, and decoded state, plus residue before decoding. The method is the shared [lockstep check](../../src/latent_machines/experiments/README.md#e01-exact-streaming-machines), the same one E00: memory uses.
 
 ## Setup
 
@@ -28,7 +28,7 @@ Local conformance on finite, declared workloads, run by this project; not indepe
 | Transducers | parity (2 states, 2 symbols), mod-5 counter over increments 0-2 (5 states, 3 symbols), S3 tracker under adjacent swaps (6 states, 2 symbols) |
 | Transducer backend | `relu-lookup`: `z = relu(W_in [s; x] − 1)`, `s′ = W_next z`, `y = W_out z`, eager PyTorch 2.15.0+cpu |
 | Stack | `stack/v1`, capacity 8, 8-bit words |
-| Stack backend | `delta-stack`: E00's delta-rule update plus a one-hot depth pointer moved by shift matrices; overflow and underflow read from the pointer |
+| Stack backend | `delta-stack`: the delta-rule update from E00: memory plus a one-hot depth pointer moved by shift matrices; overflow and underflow read from the pointer |
 | Workloads | transducers: random symbols, about 5% out of range; stack: bracket parser, random push/pop, fill-and-drain cycles ([generators](../../src/latent_machines/tasks/)) |
 | Snapshot check | At the midpoint, decoded state → JSON → restore; the restored tensors must equal the live ones exactly |
 
@@ -92,10 +92,10 @@ uv run --locked python -m latent_machines.experiments.e01 --horizon 100000 --job
 
 ## Decision
 
-> **TL;DR:** The first milestone is met; next comes E02, the first learning test.
+> **TL;DR:** The first milestone is met for the tested setups; the next step is E02: learned interfaces, the first learning test.
 
-With [E00](../E00/README.md), this meets the program's first milestone for the tested setups: one conforming memory backend, one useful exact streaming machine, and reproducible evidence. The backends also meet the conformance and snapshot condition of [scope gate 1](../../EXPERIMENTS.md#gates-for-expanding-scope).
+With [E00: memory](../E00/README.md), this meets the program's first milestone for the tested setups: one conforming memory backend, one useful exact streaming machine, and reproducible evidence. The backends also meet the conformance and snapshot condition of [scope gate 1](../../EXPERIMENTS.md#gates-for-expanding-scope).
 
 Next steps:
-- **Slice:** step 6 is E02, a small LM comparing no machine, textual tools, an internal native module, and the internal delta-rule backend.
-- **E01 variants:** SwiGLU circuits and signed recurrences for parity remain open.
+- **Slice:** step 6 is E02: learned interfaces, a small LM comparing no machine, textual tools, an internal native module, and the internal delta-rule backend.
+- **Variants:** SwiGLU circuits and signed recurrences for parity remain open.

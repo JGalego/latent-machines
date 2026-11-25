@@ -2,13 +2,13 @@
 
 > **TL;DR:** A convolution-plus-lookup circuit matched three cellular rules cell for cell in four number formats; SSM filters met float32 tolerances, and every bfloat16 variant but one exceeded its tolerance.
 
-E06 has two branches with different contracts, and this report keeps them apart. In the exact branch, a grid of live and dead cells updates all at once from neighbor counts. A compiled network (a 3x3 convolution that counts neighbors, then a small ReLU circuit) reproduced the integer reference exactly, on every grid and in every number format tested. In the numerical branch, linear filters ran as diagonal state-space models (SSMs). They stayed within the declared error tolerance in float64 and float32. In bfloat16, 17 of 18 variants exceeded theirs, because bfloat16 cannot hold the filters' poles and states precisely enough.
+E06: grids and filters has two branches with different contracts. This report keeps them apart. In the exact branch, a grid of live and dead cells updates all at once from neighbor counts. A compiled network (a 3x3 convolution that counts neighbors, then a small ReLU circuit) reproduced the integer reference exactly on every grid and in every number format tested. In the numerical branch, linear filters ran as diagonal state-space models (SSMs). They stayed within the declared error tolerance in float64 and float32. In bfloat16, 17 of 18 variants exceeded their tolerance, because bfloat16 cannot hold the filters' poles and states precisely enough.
 
 ## Question and hypothesis
 
 > **TL;DR:** Test each layer on its natural operation: local rules for convolution, linear recurrences for SSMs.
 
-[E06](../../EXPERIMENTS.md#e06---spatial-and-structured-dynamical-machines) asks when local or structured state evolution is a better substrate than random-access emulation. This run tests two hypotheses, each against its own contract:
+[E06: grids and filters](../../EXPERIMENTS.md#e06---spatial-and-structured-dynamical-machines) asks when local or structured state evolution is a better substrate than random-access emulation. This run tests two hypotheses, each against its own contract:
 
 > **Exact branch.** A 3x3 convolution followed by a ReLU lookup on (cell, neighbor count) implements [`cellular/v1`](../../src/latent_machines/machines/README.md#cellularv1) exactly for the B3/S23, B36/S23, and B2/S rules, with zero and toroidal boundaries, in float32, float64, bfloat16, and float16.
 >
@@ -91,7 +91,7 @@ Error growth with horizon, from the 10^5-sample run ([a29b](e06-numerical-202611
 
 The float32 dense and sequential oscillators came within 1% and 20% of the 1e-4 tolerance at 10^5 samples and were still growing. A longer horizon would probably cross it; this was not run. The pass/fail classification at 10^5 is the same as at 10^4 for every variant. The relative metric divides by the RMS over the whole horizon, so the same sample's relative error differs slightly between the two runs.
 
-Rounding the poles explains much of the bfloat16 failure. The oscillator's pole radius 0.999 becomes 0.99805 in bfloat16, shortening its time constant from 1,000 to about 510 samples. The SSM modes of the other systems moved by about 1e-3 in radius (0.8008 → 0.8016, 0.9797 → 0.9811). The chunked schedule computes powers of the poles in float64 before casting, so it accumulates fewer rounding steps than repeated multiplication. That is the most likely reason it erred less than the sequential schedule in bfloat16 on every system and input, by 1.3 times (Butterworth) to 38 times (oscillator).
+Rounding the poles explains much of the bfloat16 failure. The oscillator's pole radius 0.999 becomes 0.99805 in bfloat16, shortening its time constant from 1,000 to about 510 samples. The SSM modes of the other systems moved by about 1e-3 in radius (0.8008 → 0.8016, 0.9797 → 0.9811). The chunked schedule computes powers of the poles in float64 before casting, so it accumulates fewer rounding steps than repeated multiplication. This most likely explains why it erred less than the sequential schedule in bfloat16 on every system and input, by 1.3 times (Butterworth) to 38 times (oscillator).
 
 ## Measurements
 
@@ -119,15 +119,15 @@ None of these numbers is a speed claim under [scope gate 2](../../EXPERIMENTS.md
 
 > **TL;DR:** Convolution executes local rules natively and exactly; diagonal SSMs filter well in float32 but not at bfloat16 precision for slow poles.
 
-- **Exact branch.** The convolution does the rule's natural work, counting neighbors in parallel, and a fixed, rule-independent circuit shape turns counts into next states. The rule enters only as 18 birth and survival weights. Exactness holds for the same reason as in E01's lookup circuits: every value stays a small integer. Unlike emulating the grid on random-access memory, there is no address traffic per cell. Whether that saves time on real hardware was not measured.
-- **Numerical branch.** In float32 the sequential SSM was within a factor of two of the dense recurrence, better on some systems and worse on others, and the chunked SSM was more accurate than both on every system and input. In float64 the dense recurrence matches the reference almost bit for bit because it performs the same computation; diagonalization adds errors of at most 5.3e-14 over 10^4 samples and 1.8e-13 over 10^5. bfloat16 fails this contract for these systems. The failure is not specific to SSMs: the conventional dense recurrence failed too, by more than the chunked SSM in every case. A filter with slow poles needs more precision in its poles and state than bfloat16's 8-bit significand provides.
-- **Scope.** Spatial rules and linear filters are both natural operations for their layers. Neither result says anything about random-access memory, and the two are not pooled.
+- **Exact branch.** The convolution counts neighbors in parallel, and a fixed circuit shape that does not depend on the rule turns counts into next states. The rule enters only as 18 birth and survival weights. Exactness holds for the same reason as in the lookup circuits of E01: streaming machines: every value stays a small integer. Unlike emulating the grid on random-access memory, there is no address traffic per cell. Whether that saves time on real hardware was not measured.
+- **Numerical branch.** In float32 the sequential SSM was within a factor of two of the dense recurrence, better on some systems and worse on others, and the chunked SSM was more accurate than both on every system and input. In float64 the dense recurrence matches the reference almost bit for bit because it performs the same computation; diagonalization adds errors of at most 5.3e-14 over 10^4 samples and 1.8e-13 over 10^5. bfloat16 fails this contract for these systems. The dense recurrence also failed, by more than the chunked SSM in every case. A filter with slow poles needs more precision in its poles and state than bfloat16's 8-bit significand provides.
+- **Scope.** Neither result says anything about random-access memory. The two branches are not pooled.
 
 ## Limits
 
 > **TL;DR:** One grid size, two families of workload, CPU only, no scalar-machine baseline, no optimized kernels.
 
-- **Not tested:** scalar-machine execution of a rule (a rule interpreted cell by cell on an E00 memory backend), 1D elementary rules, non-totalistic or larger neighborhoods, grids other than 32×32, GPUs, multi-device halo exchange, float16 filters, fused or hardware scans, and input-dependent (selective) SSMs.
+- **Not tested:** scalar-machine execution of a rule (a rule interpreted cell by cell on a memory backend from E00: memory), 1D elementary rules, non-totalistic or larger neighborhoods, grids other than 32×32, GPUs, multi-device halo exchange, float16 filters, fused or hardware scans, and input-dependent (selective) SSMs.
 - **Population readout:** the backends count live cells for the output event in int64 after thresholding. A sum in bfloat16 or float16 would round above 256 or 2,048 cells; that path was not tested.
 - **Host checks:** ordinary Python validates `Set` coordinates and values before the tensors run.
 - **Numerical horizon:** the float32 oscillator errors were still growing at 10^5 samples, close to the tolerance. Longer horizons were not run.
@@ -151,7 +151,7 @@ uv run --locked python -m latent_machines.experiments.e06 --branch numerical --h
 
 > **TL;DR:** Record the exact cellular result and the bfloat16 filter failure; precision per pole is the open question.
 
-For the tested rules, grids, and formats, convolution plus lookup is a conforming exact backend for `cellular/v1`. For the tested filters, the diagonal SSM meets float32 tolerances but bfloat16 does not, in either the SSM or the conventional form. Next steps, if E06 is extended:
+For the tested rules, grids, and formats, convolution plus lookup is a conforming exact backend for `cellular/v1`. For the tested filters, the diagonal SSM meets float32 tolerances but bfloat16 does not, in either the SSM or the conventional form. Next steps, if this experiment is extended:
 - A scalar-machine baseline, so that native local updates can be compared with random-access emulation on equal terms.
 - Mixed precision for filters: poles and state in float32, inputs and outputs in bfloat16. Declare its tolerance before running.
 - Longer float32 horizons for slow poles, and a GPU path checked under the same contracts.
