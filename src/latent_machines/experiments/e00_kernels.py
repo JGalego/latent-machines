@@ -99,10 +99,20 @@ def run_variant(variant: Variant) -> dict[str, Any]:
     torch.set_num_threads(1)
     try:
         if variant.kernel == "recurrent":
-            return _run_recurrent(variant)
-        return _run_chunked(variant)
+            result = _run_recurrent(variant)
+        else:
+            result = _run_chunked(variant)
     except Exception:
-        return _error_result(variant, traceback.format_exc())
+        result = _error_result(variant, traceback.format_exc())
+    m = result["metrics"]
+    note = m["error"].strip().splitlines()[-1][:160] if "error" in m else ""
+    print(
+        f"{variant.name:<52} {m['classification']:<22} "
+        f"{m['mismatches']} mismatches, {m['end_to_end_seconds']}s {note}",
+        file=sys.stderr,
+        flush=True,
+    )
+    return result
 
 
 def _base_metrics(variant: Variant) -> dict[str, Any]:
