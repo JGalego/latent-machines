@@ -511,7 +511,7 @@ flowchart LR
 
 **Cost:** four runs of the first follow-up's job (about $0.22 each); cap 45 minutes, $0.60.
 
-**Results:** not run.
+**Results:** [results/E09](results/E09/README.md). Run 2026-11-25 on an `l4x1` job, three seeds, four disjoint sets of 8 unseen statements that together cover every record and value once. S chose the correct action for 0.833 of the 32 unseen statements (set means 0.875, 0.833, 0.750, 0.875) and for 1.000 of the seen ones. Prediction 1 (at least 0.90) was not met and is inconclusive by its own rule. Prediction 2 held (lowest set 0.750). Prediction 3 held (0.833 against 0.417 for the random model, which ranged from 0.125 to 0.750 by set). Seven statements failed in at least one seed and three in every seed. Every failure wrote a wrong value to the right record. Executor mismatches were zero. The job cost about $0.04.
 
 ### E10 - A machine layer inside the model
 
